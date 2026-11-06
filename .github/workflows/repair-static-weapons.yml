@@ -1,0 +1,43 @@
+name: Repair static pistol geometry and UVs
+on:
+  push:
+    branches: [arena/f3a68c52-fpp]
+    paths: ['Tools/repair_static_weapons.py', '.github/workflows/repair-static-weapons.yml']
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: arena/f3a68c52-fpp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Rebuild original pistol atlas UVs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libopengl0 libegl1
+          pip install -r Tools/requirements-assets.txt gdown==5.2.0 pymeshlab==2025.7.post1
+          python - <<'PY'
+          import subprocess
+          r=subprocess.run(['python','Tools/repair_static_weapons.py'],capture_output=True,text=True)
+          print(r.stdout)
+          if r.returncode:
+              print('::error::Pistol repair: '+(r.stderr+r.stdout)[-4500:].replace('%','%25').replace('\n','%0A'))
+              raise SystemExit(r.returncode)
+          PY
+          python Tools/create_metas.py
+          python Tools/validate_assets.py Assets/PackModels/catalog.json Assets/MosquePack/catalog.json
+      - name: Preserve repaired source models
+        run: |
+          git add Assets/PackModels
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m "Preserve source atlas UVs on Glock and field pistol"
+            git pull --rebase origin arena/f3a68c52-fpp
+            git push origin HEAD:arena/f3a68c52-fpp
+          fi
