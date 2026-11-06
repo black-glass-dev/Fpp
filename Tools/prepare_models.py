@@ -9,7 +9,7 @@ import trimesh
 from scipy.spatial import cKDTree
 
 
-def reduce_preserving_uv(mesh, face_count):
+def reduce_preserving_uv(mesh, face_count, preserve_boundary=False):
     import pymeshlab
     uv=np.asarray(mesh.visual.uv)
     ms=pymeshlab.MeshSet()
@@ -20,7 +20,7 @@ def reduce_preserving_uv(mesh, face_count):
         ms.load_new_mesh(str(obj))
         ms.meshing_remove_duplicate_vertices()
         ms.meshing_decimation_quadric_edge_collapse_with_texture(targetfacenum=face_count,
-            preserveboundary=False,preservenormal=True,extratcoordw=3.0)
+            preserveboundary=preserve_boundary,preservenormal=True,extratcoordw=3.0)
     reduced=ms.current_mesh();faces=reduced.face_matrix()
     points=reduced.vertex_matrix()[faces].reshape(-1,3)
     tex=reduced.wedge_tex_coord_matrix().reshape(-1,2)
@@ -33,7 +33,7 @@ def reduce_preserving_uv(mesh, face_count):
         visual=trimesh.visual.TextureVisuals(uv=tex[unique],material=mesh.visual.material))
 
 
-def convert(source, output, budget_total=16000, preserve_uv=False):
+def convert(source, output, budget_total=16000, preserve_uv=False, preserve_boundary=False):
     scene = trimesh.load(source, force='scene', process=False)
     slug = re.sub(r'[^a-zA-Z0-9]+', '_', source.stem).strip('_')
     folder = output / slug
@@ -51,7 +51,7 @@ def convert(source, output, budget_total=16000, preserve_uv=False):
         uv = getattr(mesh.visual, 'uv', None)
         budget = max(100, int(budget_total * len(mesh.faces) / total))
         if preserve_uv and uv is not None and len(mesh.faces)>budget:
-            mesh=reduce_preserving_uv(mesh,budget)
+            mesh=reduce_preserving_uv(mesh,budget,preserve_boundary)
         elif len(mesh.faces) > max(20000, budget):
             reduced = mesh.simplify_quadric_decimation(face_count=budget)
             if uv is not None:
