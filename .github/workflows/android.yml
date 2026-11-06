@@ -73,26 +73,20 @@ jobs:
           ref: ${{ needs.import-mosque.outputs.source_sha }}
       - name: Validate model inventory
         run: python Tools/validate_assets.py Assets/PackModels/catalog.json
-      - name: Attempt Personal activation using account secrets when no license is supplied
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        run: bash Tools/try-personal-activation.sh
       - uses: actions/cache@v4
         with:
           path: Library
           key: unity-android-2022.3.62f1-${{ hashFiles('Packages/**', 'ProjectSettings/**', 'Assets/**') }}
           restore-keys: unity-android-2022.3.62f1-
       - name: Build ARM64 APK
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@v6.0.0
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE || env.PERSONAL_LICENSE }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
+          cliVersion: v0.1.72
           unityVersion: 2022.3.62f1
           targetPlatform: Android
           buildMethod: Fpp.Editor.AndroidBuild.Build
