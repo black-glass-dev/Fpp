@@ -15,7 +15,7 @@ def reduce_preserving_uv(mesh, face_count):
     ms=pymeshlab.MeshSet()
     ms.add_mesh(pymeshlab.Mesh(vertex_matrix=np.asarray(mesh.vertices),
         face_matrix=np.asarray(mesh.faces,dtype=np.int32),
-        wedge_tex_coord_matrix=uv[mesh.faces].reshape(-1,2)))
+        w_tex_coords_matrix=uv[mesh.faces].reshape(-1,2)))
     ms.meshing_decimation_quadric_edge_collapse_with_texture(targetfacenum=face_count,
         preserveboundary=True,preservenormal=True,extratcoordw=3.0)
     reduced=ms.current_mesh();faces=reduced.face_matrix()

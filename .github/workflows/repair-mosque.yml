@@ -2,7 +2,7 @@ name: Restore mosque texture atlas UVs
 on:
   push:
     branches: [arena/f3a68c52-fpp]
-    paths: ['Tools/repair_mosque.py', '.github/workflows/repair-mosque.yml']
+    paths: ['Tools/prepare_models.py', 'Tools/repair_mosque.py', '.github/workflows/repair-mosque.yml']
 permissions:
   contents: write
 jobs:
@@ -21,7 +21,15 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y libopengl0 libegl1
           pip install -r Tools/requirements-assets.txt gdown==5.2.0 pymeshlab==2025.7.post1
-          python Tools/repair_mosque.py
+          python - <<'PY'
+          import subprocess
+          result=subprocess.run(['python','Tools/repair_mosque.py'],capture_output=True,text=True)
+          print(result.stdout)
+          if result.returncode:
+              context=(result.stderr+'\n'+result.stdout)[-4500:].replace('%','%25').replace('\n','%0A')
+              print('::error::UV conversion failed: '+context)
+              raise SystemExit(result.returncode)
+          PY
           python Tools/create_metas.py
           python Tools/validate_assets.py Assets/PackModels/catalog.json Assets/MosquePack/catalog.json
       - name: Preserve repaired mobile scan on session branch
