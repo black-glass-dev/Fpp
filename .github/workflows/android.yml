@@ -15,6 +15,7 @@ on:
       - 'ProjectSettings/**'
       - '.github/workflows/android.yml'
       - 'Tools/**'
+      - '!Tools/prepare_viewmodel.py'
 
 permissions:
   contents: read
@@ -25,6 +26,7 @@ concurrency:
 
 jobs:
   import-mosque:
+    if: "!contains(github.event.head_commit.message, '[asset-import]')"
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     permissions:

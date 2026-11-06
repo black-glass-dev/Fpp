@@ -1,0 +1,39 @@
+name: Prepare original skinned pistol
+on:
+  push:
+    branches: [arena/f3a68c52-fpp]
+    paths: ['Tools/prepare_viewmodel.py', '.github/workflows/prepare-viewmodel.yml']
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: arena/f3a68c52-fpp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Import original skin, materials and animations
+        run: |
+          pip install bpy==4.2.0 gdown==5.2.0 pillow
+          mkdir -p .asset-staging/packs
+          python - <<'PY'
+          import gdown,zipfile
+          gdown.download(id='1vU_MdH2D1P8hEqXs8HY0fjoAZONIR2BX',output='.asset-staging/packs.zip',quiet=True)
+          with zipfile.ZipFile('.asset-staging/packs.zip') as z:
+              z.extract('mark_23__animated_free.glb','.asset-staging/packs')
+          PY
+          python Tools/prepare_viewmodel.py
+          python Tools/create_metas.py
+      - name: Preserve converted rig and actual pose review on session branch
+        run: |
+          git add Assets/Viewmodels Assets/Viewmodels.meta Docs/Previews
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m "Import original Mark23 skin, material textures and authored animations"
+            git push origin HEAD:arena/f3a68c52-fpp
+          fi
