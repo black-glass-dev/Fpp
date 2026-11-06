@@ -58,7 +58,7 @@ jobs:
           for line in text.splitlines():
               if not allowed.search(line): continue
               if re.search(r'Start importing|GLX_|GL_[A-Z]|LogAssemblyErrors|"error":|bee_backend',line): continue
-              if re.search(r'password|username|token|secret|serial|<|docker run|--env|unityLicense',line,re.I): continue
+              if not re.search(r'error CS\d+',line) and re.search(r'password|username|token|secret|serial|<|docker run|--env|unityLicense',line,re.I): continue
               for key in ('UNITY_EMAIL','UNITY_PASSWORD','UNITY_SERIAL'):
                   value=os.environ.get(key,'')
                   if value: line=line.replace(value,'[REDACTED]')
@@ -69,4 +69,4 @@ jobs:
               emitted+=1
 
 
-          if errors: print("::notice::Sanitized build failure context:%0A"+"%0A".join(errors[-25:]))
+          if errors: print("::notice::Sanitized build failure context:%0A"+"%0A".join(list(dict.fromkeys(e for e in errors if re.search(r"error CS\d+",e)))[:12]+errors[-8:]))
