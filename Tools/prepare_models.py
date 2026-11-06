@@ -18,6 +18,7 @@ def reduce_preserving_uv(mesh, face_count):
     with tempfile.TemporaryDirectory() as folder:
         obj=Path(folder)/'source.obj';mesh.export(obj)
         ms.load_new_mesh(str(obj))
+        ms.meshing_remove_duplicate_vertices()
         ms.meshing_decimation_quadric_edge_collapse_with_texture(targetfacenum=face_count,
             preserveboundary=True,preservenormal=True,extratcoordw=3.0)
     reduced=ms.current_mesh();faces=reduced.face_matrix()
