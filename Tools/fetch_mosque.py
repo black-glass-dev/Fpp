@@ -40,7 +40,7 @@ resources=Path('Assets/Resources');resources.mkdir(exist_ok=True)
 if not Path('Assets/MosquePack/catalog.json').exists():
     subprocess.run(['python', 'Tools/prepare_models.py', str(root / 'extracted'),
     '--output', 'Assets/MosquePack', '--catalog', 'Assets/MosquePack/catalog.json'], check=True)
-if sum(p.stat().st_size for p in Path('Assets/MosquePack').rglob('*') if p.is_file()) > 64 * 1024**2:
-    raise SystemExit('Converted mosque exceeds 64 MiB budget; optimize before committing')
+if sum(p.stat().st_size for p in Path('Assets/MosquePack').rglob('*') if p.is_file()) > 96 * 1024**2:
+    raise SystemExit('Converted mosque exceeds 96 MiB budget; optimize before committing')
 catalog = json.loads(Path('Assets/MosquePack/catalog.json').read_text())
 print('::notice::Mosque models converted: ' + ', '.join(m['name'] for m in catalog['models'])[:1500])

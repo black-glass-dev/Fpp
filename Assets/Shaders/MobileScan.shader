@@ -20,13 +20,13 @@ Shader "FPP/Mobile Scan"
             {
                 v2f o;float3 world=mul(unity_ObjectToWorld,v.vertex).xyz;
                 o.originalY=world.y;o.normal=UnityObjectToWorldNormal(v.normal);
-                if(world.y<_FlattenBelow && abs(o.normal.y)>.6){world.y=_TrimBelow+.01;o.normal=float3(0,1,0);}
                 o.pos=UnityWorldToClipPos(world);o.uv=TRANSFORM_TEX(v.uv,_MainTex);
                 o.worldY=world.y;o.worldXZ=world.xz;return o;
             }
             fixed4 frag(v2f i):SV_Target
             {
                 clip(i.worldY-_TrimBelow);
+                if(i.originalY<_FlattenBelow && abs(normalize(i.normal).y)>.6)clip(-1);
                 if(i.originalY<_FlattenBelow)
                     clip(min(min(i.worldXZ.x-_SkirtRect.x,_SkirtRect.z-i.worldXZ.x),min(i.worldXZ.y-_SkirtRect.y,_SkirtRect.w-i.worldXZ.y)));
                 fixed4 c=tex2D(_MainTex,i.uv)*_Color;

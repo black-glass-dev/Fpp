@@ -33,7 +33,7 @@ def reduce_preserving_uv(mesh, face_count, preserve_boundary=False):
         visual=trimesh.visual.TextureVisuals(uv=tex[unique],material=mesh.visual.material))
 
 
-def convert(source, output, budget_total=16000, preserve_uv=False, preserve_boundary=False):
+def convert(source, output, budget_total=16000, preserve_uv=False, preserve_boundary=False, texture_size=1024):
     scene = trimesh.load(source, force='scene', process=False)
     slug = re.sub(r'[^a-zA-Z0-9]+', '_', source.stem).strip('_')
     folder = output / slug
@@ -64,7 +64,7 @@ def convert(source, output, budget_total=16000, preserve_uv=False, preserve_boun
         color = getattr(material, 'baseColorFactor', None)
         if image is not None:
             image = image.copy().convert('RGBA')
-            image.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+            image.thumbnail((texture_size, texture_size), Image.Resampling.LANCZOS)
             digest = hashlib.sha256(image.tobytes()).hexdigest()
             if digest not in textures:
                 tex_name = 'Texture_%02d.png' % len(textures)
@@ -73,7 +73,7 @@ def convert(source, output, budget_total=16000, preserve_uv=False, preserve_boun
             tex_path = (folder / textures[digest]).as_posix()
         obj = folder / ('Part_%03d.obj' % index)
         text = trimesh.exchange.obj.export_obj(mesh, include_texture=True,
-            write_texture=False, include_color=False, include_normals=True, header='FPP static mobile conversion')
+            write_texture=False, include_color=False, include_normals=True, digits=6 if preserve_boundary else 8, header='FPP static mobile conversion')
         obj.write_text('\n'.join(l for l in text.splitlines() if not l.startswith(('mtllib ', 'usemtl '))) + '\n')
         # No external MTL required: Editor explicitly binds the texture/material from this catalog.
         factor = [float(x) for x in color] if color is not None else [255,255,255,255]
