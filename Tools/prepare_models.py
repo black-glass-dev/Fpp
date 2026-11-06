@@ -9,7 +9,28 @@ import trimesh
 from scipy.spatial import cKDTree
 
 
-def convert(source, output):
+def reduce_preserving_uv(mesh, face_count):
+    import pymeshlab
+    uv=np.asarray(mesh.visual.uv)
+    ms=pymeshlab.MeshSet()
+    ms.add_mesh(pymeshlab.Mesh(vertex_matrix=np.asarray(mesh.vertices),
+        face_matrix=np.asarray(mesh.faces,dtype=np.int32),
+        wedge_tex_coord_matrix=uv[mesh.faces].reshape(-1,2)))
+    ms.meshing_decimation_quadric_edge_collapse_with_texture(targetfacenum=face_count,
+        preserveboundary=True,preservenormal=True,extratcoordw=3.0)
+    reduced=ms.current_mesh();faces=reduced.face_matrix()
+    points=reduced.vertex_matrix()[faces].reshape(-1,3)
+    tex=reduced.wedge_tex_coord_matrix().reshape(-1,2)
+    normals=reduced.vertex_normal_matrix()[faces].reshape(-1,3)
+    # OBJ/Unity needs per-vertex UVs: split only actual UV/normal seams, not every face.
+    packed=np.round(np.column_stack([points,tex,normals]),7)
+    _,unique,inverse=np.unique(packed,axis=0,return_index=True,return_inverse=True)
+    return trimesh.Trimesh(vertices=points[unique],faces=inverse.reshape(-1,3),
+        vertex_normals=normals[unique],process=False,
+        visual=trimesh.visual.TextureVisuals(uv=tex[unique],material=mesh.visual.material))
+
+
+def convert(source, output, budget_total=16000, preserve_uv=False):
     scene = trimesh.load(source, force='scene', process=False)
     slug = re.sub(r'[^a-zA-Z0-9]+', '_', source.stem).strip('_')
     folder = output / slug
@@ -25,8 +46,10 @@ def convert(source, output):
         mesh = original.copy()
         material = getattr(mesh.visual, 'material', None)
         uv = getattr(mesh.visual, 'uv', None)
-        budget = max(100, int(16000 * len(mesh.faces) / total))
-        if len(mesh.faces) > max(20000, budget):
+        budget = max(100, int(budget_total * len(mesh.faces) / total))
+        if preserve_uv and uv is not None and len(mesh.faces)>budget:
+            mesh=reduce_preserving_uv(mesh,budget)
+        elif len(mesh.faces) > max(20000, budget):
             reduced = mesh.simplify_quadric_decimation(face_count=budget)
             if uv is not None:
                 _, near = cKDTree(mesh.vertices).query(reduced.vertices)

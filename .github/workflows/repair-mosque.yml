@@ -1,0 +1,35 @@
+name: Restore mosque texture atlas UVs
+on:
+  push:
+    branches: [arena/f3a68c52-fpp]
+    paths: ['Tools/repair_mosque.py', '.github/workflows/repair-mosque.yml']
+permissions:
+  contents: write
+jobs:
+  convert:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: arena/f3a68c52-fpp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Reconvert source with actual texture-aware simplification
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libopengl0 libegl1
+          pip install -r Tools/requirements-assets.txt gdown==5.2.0 pymeshlab==2025.7.post1
+          python Tools/repair_mosque.py
+          python Tools/create_metas.py
+          python Tools/validate_assets.py Assets/PackModels/catalog.json Assets/MosquePack/catalog.json
+      - name: Preserve repaired mobile scan on session branch
+        run: |
+          git add Assets/MosquePack Assets/Resources/MOSQUE_NOTICE.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m "Restore mosque atlas UVs with texture-aware mobile decimation"
+            git push origin HEAD:arena/f3a68c52-fpp
+          fi
