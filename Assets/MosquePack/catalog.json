@@ -16,7 +16,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 11505
+          "triangles": 27085
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_001.obj",
@@ -28,7 +28,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 10158
+          "triangles": 24230
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_002.obj",
@@ -40,7 +40,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 8602
+          "triangles": 22813
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_003.obj",
@@ -52,7 +52,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 8522
+          "triangles": 24260
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_004.obj",
@@ -64,7 +64,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 8574
+          "triangles": 24010
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_005.obj",
@@ -76,7 +76,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 8846
+          "triangles": 21583
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_006.obj",
@@ -88,7 +88,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 994
+          "triangles": 2200
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_007.obj",
@@ -100,7 +100,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 12118
+          "triangles": 21810
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_008.obj",
@@ -112,7 +112,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 12904
+          "triangles": 27655
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_009.obj",
@@ -124,7 +124,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 10705
+          "triangles": 21627
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_010.obj",
@@ -136,7 +136,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 13655
+          "triangles": 30735
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_011.obj",
@@ -148,7 +148,7 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 10386
+          "triangles": 22322
         },
         {
           "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_012.obj",
@@ -160,10 +160,10 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 13208
+          "triangles": 25438
         }
       ],
-      "conversion": "UV-preserving textured QEM; normal preservation and UV chart preservation"
+      "conversion": "UV-preserving textured QEM; original chart boundary, normal and UV preservation"
     }
   ]
 }
