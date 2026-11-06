@@ -1,0 +1,81 @@
+using System;
+using System.IO;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.Rendering;
+using Fpp;
+
+namespace Fpp.Editor
+{
+    public static class AndroidBuild
+    {
+        [MenuItem("FPP/Create setup scene")]
+        public static void CreateSetupScene()
+        {
+            Directory.CreateDirectory("Assets/Scenes");
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            new GameObject("Mobile bootstrap").AddComponent<MobileBootstrap>();
+            var cameraObject = new GameObject("Main Camera");
+            cameraObject.tag = "MainCamera";
+            var camera = cameraObject.AddComponent<Camera>();
+            cameraObject.AddComponent<AudioListener>();
+            cameraObject.transform.position = new Vector3(0, 2, -6);
+            cameraObject.transform.rotation = Quaternion.Euler(12, 0, 0);
+            camera.backgroundColor = new Color(0.08f, 0.12f, 0.17f);
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.farClipPlane = 150;
+            var floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            floor.name = "Test ground";
+            floor.transform.localScale = new Vector3(3, 1, 3);
+            var light = new GameObject("Sun").AddComponent<Light>();
+            light.type = LightType.Directional;
+            light.transform.rotation = Quaternion.Euler(50, -30, 0);
+            light.shadows = LightShadows.None;
+            EditorSceneManager.SaveScene(scene, "Assets/Scenes/Setup.unity");
+            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/Scenes/Setup.unity", true) };
+        }
+
+        private static string Argument(string name)
+        {
+            var args = Environment.GetCommandLineArgs();
+            for (int i = 0; i < args.Length - 1; i++)
+                if (args[i] == name) return args[i + 1];
+            return null;
+        }
+
+        [MenuItem("FPP/Build Android APK")]
+        public static void Build()
+        {
+            if (!File.Exists(CottageMap.ScenePath)) CottageMap.Create();
+            PlayerSettings.companyName = "Black Glass Dev";
+            PlayerSettings.productName = "FPP";
+            PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "dev.blackglass.fpp");
+            PlayerSettings.bundleVersion = "0.0.1";
+            var version = Argument("-fppVersionCode") ?? Environment.GetEnvironmentVariable("ANDROID_VERSION_CODE");
+            PlayerSettings.Android.bundleVersionCode = string.IsNullOrEmpty(version) ? 1 : int.Parse(version);
+            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
+            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;
+            PlayerSettings.allowedAutorotateToPortrait = false;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            EditorUserBuildSettings.buildAppBundle = false;
+            var output = Environment.GetEnvironmentVariable("APK_OUTPUT") ?? "build/Android/Fpp.apk";
+            Directory.CreateDirectory(Path.GetDirectoryName(output));
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = new[] { CottageMap.ScenePath },
+                locationPathName = output,
+                target = BuildTarget.Android,
+                options = BuildOptions.None
+            });
+            if (report.summary.result != BuildResult.Succeeded)
+                throw new Exception("Android build failed: " + report.summary.result);
+        }
+    }
+}
