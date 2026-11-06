@@ -16,3 +16,10 @@ Metadata retrieved only; contents not downloaded/inspected. Drive tool raw downl
 
 ## Verification
 No Unity Editor installed in this sandbox. Scene generation, C# compilation, FBX/material import, Android build and device playtest are NOT yet verified. Scene is generated in Unity rather than saved by an unavailable editor; subsequent builds preserve a saved CottageTest scene instead of overwriting it.
+
+## CI attempt — 2026-11-06
+- Pushed project to session branch (`23e13b8`).
+- Real Actions run: https://github.com/black-glass-dev/Fpp/actions/runs/42202276546
+- Checkout succeeded; **Check Unity license configuration** failed. CI did not receive `UNITY_LICENSE` or the complete `UNITY_SERIAL` + `UNITY_EMAIL` + `UNITY_PASSWORD` set required by this workflow. This does not reveal whether other-named account secrets exist.
+- Unity compilation was skipped; no APK/artifact/release was produced.
+- Manual workflow dispatch and listing repository secrets return HTTP 403 for this session's GitHub integration. Reconnect/adjust the integration's Actions/Secrets access, or run the configured workflow manually in GitHub after supplying a supported license.
