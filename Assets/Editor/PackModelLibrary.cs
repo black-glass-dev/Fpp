@@ -57,11 +57,11 @@ namespace Fpp.Editor
                     material.SetOverrideTag("RenderType", "TransparentCutout");
                     material.renderQueue = 2450;
                 }
-                if(part.model.StartsWith("Assets/MosquePack/"))
+                if(entry.weapon || part.model.StartsWith("Assets/MosquePack/"))
                 {
                     var scanShader=Shader.Find("FPP/Mobile Scan");
                     if(scanShader==null)throw new Exception("Mobile photogrammetry shader missing");
-                    material.shader=scanShader;
+                    material.shader=scanShader;material.SetFloat("_TrimBelow",-10000);
                 }
                 foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
                 {
@@ -130,6 +130,7 @@ namespace Fpp.Editor
                         foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
                         collider.center = model.transform.InverseTransformPoint(bounds.center);
                         collider.size = bounds.size;
+                        if(name.Contains("mosque")){UnityEngine.Object.DestroyImmediate(collider);MosqueSurfaceRepair.Apply(model,bounds);}
                         model.isStatic = true;
                         prop++;
                     }

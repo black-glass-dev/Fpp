@@ -24,24 +24,25 @@ namespace Fpp.Editor
                 foreach(var skin in GameObject.Find("Mark23 viewmodel").GetComponentsInChildren<SkinnedMeshRenderer>())
                     Debug.Log("FPP skin review: "+skin.name+" enabled="+skin.enabled+" bounds="+skin.bounds+" viewport="+overlay.WorldToViewportPoint(skin.bounds.center)+" quality="+QualitySettings.skinWeights);
                 Save(main,overlay,"Docs/Previews/unity-spawn.png");
-                // Independent CPU-skinned diagnostic distinguishes editor skin update/culling from a bad pose.
-                var snapshots=new List<GameObject>();var skins=GameObject.Find("Mark23 viewmodel").GetComponentsInChildren<SkinnedMeshRenderer>();
-                try
+                var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();
+                var pickups=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();
+                SecondaryWeaponAudit.Validate(weapons,pickups);
+                foreach(var pickup in pickups)
                 {
-                    foreach(var skin in skins)
+                    string id=pickup.displayName.Contains("Glock")?"glock":pickup.displayName.Contains("AK")?"ak":"field";
+                    weapons.ReviewPose(pickup,false,0);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
+                    Save(main,overlay,"Docs/Previews/unity-"+id+"-held.png");
+                    if(id=="glock")
                     {
-                        var mesh=new Mesh();skin.BakeMesh(mesh);mesh.RecalculateBounds();
-                        var go=new GameObject("CPU skin review");go.layer=8;go.transform.SetParent(skin.transform,false);
-                        go.AddComponent<MeshFilter>().sharedMesh=mesh;go.AddComponent<MeshRenderer>().sharedMaterials=skin.sharedMaterials;
-                        snapshots.Add(go);skin.enabled=false;
+                        weapons.ReviewPose(pickup,true,0);Save(main,overlay,"Docs/Previews/unity-glock-ads.png");
+                        weapons.ReviewPose(pickup,false,.35f);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
+                        Save(main,overlay,"Docs/Previews/unity-glock-reload-out.png");
+                        weapons.ReviewPose(pickup,false,.72f);Save(main,overlay,"Docs/Previews/unity-glock-reload-in.png");
                     }
-                    Save(main,overlay,"Docs/Previews/unity-baked-pose.png");
                 }
-                finally
-                {
-                    foreach(var go in snapshots){var mesh=go.GetComponent<MeshFilter>().sharedMesh;UnityEngine.Object.DestroyImmediate(go);UnityEngine.Object.DestroyImmediate(mesh);}
-                    foreach(var skin in skins)skin.enabled=true;
-                }
+                weapons.ReviewPose(null,true,0);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
+                Save(main,overlay,"Docs/Previews/unity-mark23-ads.png");
+                weapons.ReviewPose(null,false,0);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
                 hud.enabled=false;
                 var position=main.transform.position;var rotation=main.transform.rotation;
                 try
@@ -50,6 +51,14 @@ namespace Fpp.Editor
                     overlay.enabled=false;Save(main,null,"Docs/Previews/unity-environment.png");
                     main.transform.position=new Vector3(10,3,15);main.transform.LookAt(new Vector3(0,5,32));
                     Save(main,null,"Docs/Previews/unity-mosque.png");
+                    main.transform.position=new Vector3(0,2.5f,48);main.transform.LookAt(new Vector3(0,4,32));
+                    Save(main,null,"Docs/Previews/unity-mosque-entry.png");
+                    foreach(var pickup in pickups)if(pickup.displayName.Contains("Glock"))
+                    {
+                        main.transform.position=pickup.transform.position+new Vector3(.6f,.8f,-.6f);
+                        main.transform.LookAt(pickup.transform.position+Vector3.up*.03f);
+                        Save(main,null,"Docs/Previews/unity-glock-floor.png");
+                    }
                 }
                 finally {main.transform.position=position;main.transform.rotation=rotation;overlay.enabled=true;}
             }

@@ -34,20 +34,13 @@ namespace Fpp
         private Quaternion baseRotation;
         private Transform leftUpper, leftForearm, leftHand;
         private Quaternion upperRest, foreRest, handRest;
-        private bool supportPoseCached;
+        private bool supportPoseCached, poseInitialized;
+        private float reloadDuration=1.6f, secondaryAimLift=.08f;
+        private Vector3 supportRest;
 
         private void Start()
         {
-            pickups=FindObjectsOfType<WeaponPickup>();
-            rigAnimation=defaultViewmodel.GetComponentInChildren<Animation>();
-            foreach(var bone in defaultViewmodel.GetComponentsInChildren<Transform>())
-            {
-                if(bone.name=="LeftArm1_04")leftUpper=bone;
-                if(bone.name=="LeftForeArm1_05")leftForearm=bone;
-                if(bone.name=="LeftHand1_00")leftHand=bone;
-            }
-            worldCamera=view.GetComponent<Camera>();
-            basePosition=defaultViewmodel.transform.localPosition;baseRotation=defaultViewmodel.transform.localRotation;
+            InitializePose();
             PlayClip("draw",.65f);
             // Flat, short-lived star flash and a thin world-space tracer, never a projectile sphere.
             flash=new GameObject("Muzzle flash",typeof(MeshFilter),typeof(MeshRenderer));
@@ -58,6 +51,20 @@ namespace Fpp
             var line=new GameObject("Brief shot tracer");tracer=line.AddComponent<LineRenderer>();tracer.sharedMaterial=flashMaterial;
             tracer.positionCount=2;tracer.startWidth=.006f;tracer.endWidth=.002f;tracer.useWorldSpace=true;tracer.enabled=false;
             sound=gameObject.AddComponent<AudioSource>();sound.spatialBlend=0;sound.volume=.2f;shotSound=MakeShotSound();
+        }
+        private void InitializePose()
+        {
+            if(poseInitialized)return;poseInitialized=true;
+            pickups=FindObjectsOfType<WeaponPickup>();
+            rigAnimation=defaultViewmodel.GetComponentInChildren<Animation>();
+            foreach(var bone in defaultViewmodel.GetComponentsInChildren<Transform>())
+            {
+                if(bone.name=="LeftArm1_04")leftUpper=bone;
+                if(bone.name=="LeftForeArm1_05")leftForearm=bone;
+                if(bone.name=="LeftHand1_00")leftHand=bone;
+            }
+            worldCamera=view.GetComponent<Camera>();
+            basePosition=defaultViewmodel.transform.localPosition;baseRotation=defaultViewmodel.transform.localRotation;
         }
         private void Update()
         {
@@ -71,7 +78,7 @@ namespace Fpp
                 float d=Vector3.Distance(transform.position,pickup.transform.position);
                 if(d<distance){ nearest=pickup;distance=d; }
             }
-            if(reloadEnd>0 && Time.time>=reloadEnd){ rounds=magazine;reloadEnd=0; }
+            CompleteReload(Time.time);
             if(Input.GetKeyDown(KeyCode.E))EquipNearest();
             if(Input.GetKeyDown(KeyCode.R))Reload();
             if(Input.GetKeyDown(KeyCode.Alpha1))UseSidearm();
@@ -83,15 +90,22 @@ namespace Fpp
             if(defaultViewmodel==null)return;
             recoil=Mathf.MoveTowards(recoil,0,Time.deltaTime*7);
             bool aiming=!MenuOpen && (MobileHud.Instance!=null && MobileHud.Instance.AimHeld || Input.touchCount==0 && Input.GetMouseButton(1));
-            Vector3 position=basePosition+(aiming?new Vector3(-.115f,.11f,.03f):Vector3.zero);
+            float progress=Reloading?Mathf.Clamp01(1-(reloadEnd-Time.time)/reloadDuration):0;
+            var pose=WeaponPresentation.Sample(aiming && !Reloading,equipped!=null,progress,secondaryAimLift);
+            Vector3 position=basePosition+pose.offset;
             position+=new Vector3(0,-equipBlend*.28f,-recoil*.028f);
             float walk=MobileHud.Instance!=null?MobileHud.Instance.Move.magnitude:Mathf.Clamp01(Mathf.Abs(Input.GetAxisRaw("Vertical"))+Mathf.Abs(Input.GetAxisRaw("Horizontal")));
             position+=new Vector3(Mathf.Sin(Time.time*7)*.003f,Mathf.Cos(Time.time*14)*.003f,0)*walk;
             defaultViewmodel.transform.localPosition=Vector3.Lerp(defaultViewmodel.transform.localPosition,position,Time.deltaTime*18);
-            defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(-recoil*3+equipBlend*25,equipBlend*-12,Reloading?Mathf.Sin((reloadEnd-Time.time)*5)*10:0);
+            defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler+new Vector3(-recoil*3+equipBlend*25,equipBlend*-12,0));
             if(worldCamera!=null)worldCamera.fieldOfView=Mathf.Lerp(worldCamera.fieldOfView,aiming?50:68,Time.deltaTime*12);
             if(weaponCamera!=null)weaponCamera.fieldOfView=Mathf.Lerp(weaponCamera.fieldOfView,aiming?45:60,Time.deltaTime*12);
-            if(equipped!=null && DisplayName.Contains("AK") && supportPoseCached)SolveSupportHand();
+            if(equipped!=null && supportPoseCached)
+            {
+                if(Reloading)SolveSupportHand(weaponMount.TransformPoint(WeaponPresentation.SupportTarget(progress,supportRest,DisplayName.Contains("AK"))));
+                else if(DisplayName.Contains("AK"))SolveSupportHand(weaponMount.TransformPoint(new Vector3(0,-.035f,.12f)));
+                else RestoreHandRotations();
+            }
         }
         public void EquipNearest()
         {
@@ -106,9 +120,15 @@ namespace Fpp
             equipping=true;
             // Original procedural lower/raise motion, not copied MWII animation data.
             for(float t=0;t<.18f;t+=Time.deltaTime){equipBlend=Mathf.SmoothStep(0,1,t/.18f);yield return null;}
+            ApplyWeapon(next);
+            for(float t=0;t<.32f;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/.32f);yield return null;}
+            equipBlend=0;equipping=false;nextShot=Time.time+.1f;
+        }
+        private void ApplyWeapon(WeaponPickup next)
+        {
             RestoreSupportPose();
             if(equipped!=null)equipped.gameObject.SetActive(true);
-            if(heldVisual!=null)Destroy(heldVisual);
+            if(heldVisual!=null)Remove(heldVisual);
             equipped=next;
             bool sidearm=next==null;
             foreach(var renderer in pistolRenderers)renderer.enabled=sidearm;
@@ -119,8 +139,8 @@ namespace Fpp
             else
             {
                 DisplayName=next.displayName;magazine=DisplayName.Contains("AK")?30:17;
-                heldVisual=Instantiate(next.gameObject,weaponMount,false);Destroy(heldVisual.GetComponent<WeaponPickup>());
-                foreach(var collider in heldVisual.GetComponentsInChildren<Collider>())Destroy(collider);
+                heldVisual=Instantiate(next.gameObject,weaponMount,false);Remove(heldVisual.GetComponent<WeaponPickup>());
+                foreach(var collider in heldVisual.GetComponentsInChildren<Collider>())Remove(collider);
                 heldVisual.transform.localPosition=Vector3.zero;heldVisual.transform.localRotation=Quaternion.identity;heldVisual.transform.localScale=Vector3.one;
                 SetLayer(heldVisual,8);
                 Bounds bound=LocalBounds(heldVisual.transform);
@@ -130,18 +150,18 @@ namespace Fpp
                 heldVisual.transform.localRotation=Quaternion.FromToRotation(axis,Vector3.forward);
                 heldVisual.transform.localScale=Vector3.one*scale;
                 heldVisual.transform.localPosition=-(heldVisual.transform.localRotation*(bound.center*scale));
+                var posedBounds=BoundsInSpace(heldVisual.transform,weaponMount);
+                secondaryAimLift=Mathf.Clamp(.16f-posedBounds.max.y+.004f,-.05f,.18f);
                 next.gameObject.SetActive(false);
                 HoldDrawPose();
                 if(leftUpper!=null && leftForearm!=null && leftHand!=null)
                 {
                     upperRest=leftUpper.localRotation;foreRest=leftForearm.localRotation;handRest=leftHand.localRotation;
-                    supportPoseCached=true;
+                    supportPoseCached=true;supportRest=weaponMount.InverseTransformPoint(leftHand.position);
                 }
             }
             muzzle.localPosition=new Vector3(0,.05f,!sidearm && DisplayName.Contains("AK")?.33f:.16f);
             rounds=magazine;reloadEnd=0;
-            for(float t=0;t<.32f;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/.32f);yield return null;}
-            equipBlend=0;equipping=false;nextShot=Time.time+.1f;
         }
         private void RestoreSupportPose()
         {
@@ -149,11 +169,14 @@ namespace Fpp
             leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
             supportPoseCached=false;
         }
-        private void SolveSupportHand()
+        private void RestoreHandRotations()
+        {
+            leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
+        }
+        private void SolveSupportHand(Vector3 target)
         {
             leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
             Quaternion palm=leftHand.rotation;
-            Vector3 target=weaponMount.TransformPoint(new Vector3(0,-.035f,.12f));
             for(int i=0;i<4;i++)
             {
                 Vector3 from=leftHand.position-leftForearm.position,to=target-leftForearm.position;
@@ -165,10 +188,13 @@ namespace Fpp
             }
             leftHand.rotation=palm;
         }
+        private void CompleteReload(float now)
+        { if(reloadEnd>0 && now>=reloadEnd){rounds=magazine;reloadEnd=0;} }
         public void Reload()
         {
             if(rounds>=magazine || Reloading || equipping || MenuOpen)return;
-            reloadEnd=Time.time+1.6f;if(equipped==null)PlayClip("reload",1.6f);
+            reloadDuration=equipped==null?1.6f:DisplayName.Contains("AK")?2.2f:2f;
+            reloadEnd=Time.time+reloadDuration;if(equipped==null)PlayClip("reload",1.6f);
         }
         private void Fire()
         {
@@ -220,6 +246,51 @@ namespace Fpp
             }
             return bound;
         }
+        private static void Remove(Object value)
+        {
+            if(value==null)return;
+            if(Application.isPlaying)Destroy(value);else DestroyImmediate(value);
+        }
+        public static Bounds BoundsInSpace(Transform root,Transform space)
+        {
+            bool first=true;Bounds result=new Bounds();
+            foreach(var filter in root.GetComponentsInChildren<MeshFilter>())
+            {
+                var b=filter.sharedMesh.bounds;
+                for(int i=0;i<8;i++)
+                {
+                    Vector3 p=b.center+Vector3.Scale(b.extents,new Vector3((i&1)==0?-1:1,(i&2)==0?-1:1,(i&4)==0?-1:1));
+                    p=space.InverseTransformPoint(filter.transform.TransformPoint(p));
+                    if(first){result=new Bounds(p,Vector3.zero);first=false;}else result.Encapsulate(p);
+                }
+            }
+            return result;
+        }
+#if UNITY_EDITOR
+        public void ReviewAmmoAudit(WeaponPickup pickup)
+        {
+            ReviewPose(pickup,false,0);rounds=1;Reload();
+            if(!Reloading || rounds!=1)throw new System.Exception("Reload must wait before refilling ammo");
+            Fire();if(rounds!=1)throw new System.Exception("Firing was not blocked during reload");
+            CompleteReload(Time.time+reloadDuration+.01f);
+            if(Reloading || rounds!=magazine)throw new System.Exception("Reload did not refill the active weapon");
+        }
+        // Drives the same loadout, pose and IK code for deterministic editor review images.
+        public void ReviewPose(WeaponPickup pickup,bool aim,float reloadProgress)
+        {
+            InitializePose();ApplyWeapon(pickup);HoldDrawPose();
+            if(reloadProgress>0){reloadDuration=2;reloadEnd=Time.time+2*(1-reloadProgress);}
+            var pose=WeaponPresentation.Sample(aim,pickup!=null,reloadProgress,secondaryAimLift);
+            defaultViewmodel.transform.localPosition=basePosition+pose.offset;
+            defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler);
+            if(pickup!=null && supportPoseCached)
+            {
+                if(reloadProgress>0)SolveSupportHand(weaponMount.TransformPoint(WeaponPresentation.SupportTarget(reloadProgress,supportRest,DisplayName.Contains("AK"))));
+                else if(DisplayName.Contains("AK"))SolveSupportHand(weaponMount.TransformPoint(new Vector3(0,-.035f,.12f)));
+            }
+            worldCamera.fieldOfView=aim?50:68;weaponCamera.fieldOfView=aim?45:60;
+        }
+#endif
         private static AudioClip MakeShotSound()
         {
             const int samples=4410;var data=new float[samples];var random=new System.Random(51);
