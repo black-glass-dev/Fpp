@@ -21,9 +21,16 @@ namespace Fpp.Editor
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             Directory.CreateDirectory("Assets/Scenes");
             Directory.CreateDirectory("Assets/Materials/TestMap");
-            var grass = MakeMaterial("Ground", new Color(.22f, .27f, .17f));
-            var road = MakeMaterial("Road", new Color(.28f, .26f, .23f));
-            var wall = MakeMaterial("Cover", new Color(.35f, .37f, .34f));
+            AssetDatabase.Refresh();
+            var grass = MakeMaterial("Ground", Color.white);
+            var road = MakeMaterial("Road", Color.white);
+            var wall = MakeMaterial("Cover", Color.white);
+            grass.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Grass.png");
+            grass.mainTextureScale = new Vector2(18, 23);
+            road.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Dirt.png");
+            road.mainTextureScale = new Vector2(3, 22);
+            wall.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Stone.png");
+            wall.mainTextureScale = new Vector2(2, 2);
             Cube("Ground", new Vector3(0, -.3f, 0), new Vector3(70, .6f, 90), grass);
             Cube("Main lane", new Vector3(0, .015f, 0), new Vector3(10, .03f, 88), road);
             Cube("Courtyard", new Vector3(0, .02f, 0), new Vector3(35, .04f, 12), road);
@@ -34,12 +41,12 @@ namespace Fpp.Editor
                     house.name = "Cottage " + row + " " + side;
                     house.transform.rotation = Quaternion.Euler(0, side == -1 ? 90 : 270, 0);
                     Bounds bounds = BoundsOf(house);
-                    // Fit export units to a roughly 10m footprint without modifying source mesh.
+                    // Fit export units to a roughly 14m footprint without modifying source mesh.
                     float footprint = Mathf.Max(bounds.size.x, bounds.size.z);
                     if (footprint < .001f) throw new Exception("Invalid cottage bounds");
-                    house.transform.localScale *= 10f / footprint;
+                    house.transform.localScale *= 14f / footprint;
                     bounds = BoundsOf(house);
-                    house.transform.position += new Vector3(side * 17 - bounds.center.x,
+                    house.transform.position += new Vector3(side * 20 - bounds.center.x,
                         -bounds.min.y, (row - 1) * 26 - bounds.center.z);
                     foreach (var renderer in house.GetComponentsInChildren<Renderer>())
                     {
@@ -85,14 +92,19 @@ namespace Fpp.Editor
             camera.transform.SetParent(player.transform, false);
             camera.transform.localPosition = new Vector3(0, 1.6f, 0);
             var lens = camera.AddComponent<Camera>();
-            lens.nearClipPlane = .1f;
+            lens.nearClipPlane = .08f;
+            lens.fieldOfView = 68;
+            lens.cullingMask = ~(1 << 8);
             lens.farClipPlane = 120;
             lens.clearFlags = CameraClearFlags.SolidColor;
             lens.backgroundColor = new Color(.42f, .57f, .68f);
             camera.AddComponent<AudioListener>();
             player.AddComponent<MobileBootstrap>();
             player.AddComponent<TestPlayer>().view = camera.transform;
-            player.AddComponent<WeaponController>().view = camera.transform;
+            var weapons = player.AddComponent<WeaponController>();
+            weapons.view = camera.transform;
+            ViewmodelSetup.Attach(camera.transform, weapons);
+            player.AddComponent<MobileHud>();
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();

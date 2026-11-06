@@ -39,9 +39,14 @@ namespace Fpp.Editor
                     AssetDatabase.CreateAsset(material, materialPath);
                 }
                 material.mainTexture = string.IsNullOrEmpty(part.texture) ? null : AssetDatabase.LoadAssetAtPath<Texture2D>(part.texture);
+                if (!string.IsNullOrEmpty(part.texture) && material.mainTexture == null)
+                    throw new Exception("Diffuse texture was not imported: " + part.texture);
                 var c = part.color;
                 material.color = c != null && c.Length == 4 ? new Color(c[0], c[1], c[2], c[3]) : Color.white;
-                material.SetFloat("_Glossiness", .15f);
+                material.SetFloat("_Glossiness", .05f);
+                material.SetFloat("_Metallic", 0);
+                material.SetFloat("_SpecularHighlights", 0);
+                material.SetFloat("_GlossyReflections", 0);
                 material.enableInstancing = true;
                 if (part.cutout)
                 {
@@ -54,7 +59,9 @@ namespace Fpp.Editor
                 }
                 foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
                 {
-                    var materials = renderer.sharedMaterials;
+                    var filter = renderer.GetComponent<MeshFilter>();
+                    int slots = filter != null && filter.sharedMesh != null ? Mathf.Max(1, filter.sharedMesh.subMeshCount) : 1;
+                    var materials = new Material[slots];
                     for (int i = 0; i < materials.Length; i++) materials[i] = material;
                     renderer.sharedMaterials = materials;
                     renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -85,12 +92,23 @@ namespace Fpp.Editor
                 var catalog = JsonUtility.FromJson<PackCatalog>(File.ReadAllText(path));
                 foreach (var entry in catalog.models)
                 {
+                    if (entry.name.ToLowerInvariant().Contains("kriss") || entry.name.ToLowerInvariant().Contains("mark_23")) continue;
                     var model = Create(entry, entry.weapon ? .8f : (entry.name.ToLowerInvariant().Contains("mosque") ? 18 : 6));
                     if (entry.weapon)
                     {
-                        model.transform.position = new Vector3(-3 + weapon * 1.2f, .25f, -30);
+                        Vector3[] spots = { new Vector3(-5, .08f, -17), new Vector3(6, .08f, 9), new Vector3(-6, .08f, 29) };
+                        var random = new System.Random(841 + weapon);
+                        var rs = model.GetComponentsInChildren<Renderer>();
+                        Bounds bound = rs[0].bounds;
+                        foreach (var r in rs) bound.Encapsulate(r.bounds);
+                        Vector3 thin = bound.size.x < bound.size.y && bound.size.x < bound.size.z ? Vector3.right :
+                            (bound.size.y < bound.size.z ? Vector3.up : Vector3.forward);
+                        model.transform.rotation = Quaternion.AngleAxis(random.Next(0, 360), Vector3.up) * Quaternion.FromToRotation(thin, Vector3.up);
+                        bound = rs[0].bounds;
+                        foreach (var r in rs) bound.Encapsulate(r.bounds);
+                        model.transform.position += spots[weapon % spots.Length] - new Vector3(bound.center.x, bound.min.y, bound.center.z);
                         var pickup = model.AddComponent<WeaponPickup>();
-                        pickup.displayName = entry.name;
+                        pickup.displayName = entry.name.Replace("Gun pistol m", "Field pistol").Replace("Glock 17", "Glock 17");
                         weapon++;
                     }
                     else

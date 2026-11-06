@@ -1,131 +1,181 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Fpp
 {
     public sealed class WeaponController : MonoBehaviour
     {
         public Transform view;
-        public static bool MenuOpen { get; private set; }
-        private string credits;
-        private Vector2 creditsScroll;
+        public GameObject defaultViewmodel;
+        public Transform weaponMount, muzzle;
+        public Renderer[] pistolRenderers;
+        public Material flashMaterial;
+        public Camera weaponCamera;
+        public static bool MenuOpen => MobileHud.Instance != null && MobileHud.Instance.Modal;
+        public string DisplayName { get; private set; } = "Mark 23";
+        public string NearbyName => nearest != null ? nearest.displayName : "";
+        public int Ammo => rounds;
+        public int Capacity => magazine;
+        public int Hits => hits;
+        public bool Reloading => reloadEnd > 0;
         private WeaponPickup[] pickups;
-        private WeaponPickup nearest;
-        private WeaponPickup equipped;
-        private Vector3 groundPosition;
-        private Quaternion groundRotation;
-        private Vector3 groundScale;
-        private int rounds;
-        private int hits;
-        private float nextShot;
-        private float reloadEnd;
-        private float flashEnd;
-        private bool fireHeld;
-        private GameObject flash;
-        private const int Magazine = 30;
+        private WeaponPickup nearest, equipped;
+        private GameObject heldVisual, flash;
+        private Animation rigAnimation;
+        private Camera worldCamera;
+        private LineRenderer tracer;
+        private AudioSource sound;
+        private AudioClip shotSound;
+        private int rounds=12, magazine=12, hits;
+        private float nextShot, reloadEnd, flashEnd, recoil, equipBlend;
+        private bool equipping;
+        private Vector3 basePosition;
+        private Quaternion baseRotation;
 
-        public static bool IsActionArea(Vector2 screenPosition)
-        {
-            return screenPosition.x > Screen.width * .77f &&
-                (screenPosition.y < Screen.height * .52f || screenPosition.y > Screen.height * .82f);
-        }
         private void Start()
         {
-            MenuOpen = false;
-            var notices = Resources.Load<TextAsset>("THIRD_PARTY_NOTICES");
-            credits = notices != null ? notices.text : "Credits unavailable";
-            var mosqueNotices = Resources.Load<TextAsset>("MOSQUE_NOTICE");
-            if (mosqueNotices != null) credits += "\n\n" + mosqueNotices.text;
-            pickups = FindObjectsOfType<WeaponPickup>();
-            flash = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            flash.name = "Shot flash";
-            Destroy(flash.GetComponent<Collider>());
-            flash.transform.SetParent(view, false);
-            flash.transform.localPosition = new Vector3(.19f, -.14f, .7f);
-            flash.transform.localScale = Vector3.one * .07f;
-            flash.GetComponent<Renderer>().material.color = Color.yellow;
-            flash.SetActive(false);
+            pickups=FindObjectsOfType<WeaponPickup>();
+            rigAnimation=defaultViewmodel.GetComponentInChildren<Animation>();
+            worldCamera=view.GetComponent<Camera>();
+            basePosition=defaultViewmodel.transform.localPosition;baseRotation=defaultViewmodel.transform.localRotation;
+            PlayClip("draw",.65f);
+            // Flat, short-lived star flash and a thin world-space tracer, never a projectile sphere.
+            flash=new GameObject("Muzzle flash",typeof(MeshFilter),typeof(MeshRenderer));
+            flash.transform.SetParent(muzzle,false);flash.transform.localScale=Vector3.one*.045f;flash.layer=8;
+            var mesh=new Mesh();mesh.vertices=new[]{new Vector3(-.5f,-.5f,0),new Vector3(.5f,-.5f,0),new Vector3(.5f,.5f,0),new Vector3(-.5f,.5f,0)};
+            mesh.uv=new[]{Vector2.zero,Vector2.right,Vector2.one,Vector2.up};mesh.triangles=new[]{0,1,2,0,2,3};mesh.RecalculateBounds();
+            flash.GetComponent<MeshFilter>().sharedMesh=mesh;flash.GetComponent<MeshRenderer>().sharedMaterial=flashMaterial;flash.SetActive(false);
+            var line=new GameObject("Brief shot tracer");tracer=line.AddComponent<LineRenderer>();tracer.sharedMaterial=flashMaterial;
+            tracer.positionCount=2;tracer.startWidth=.006f;tracer.endWidth=.002f;tracer.useWorldSpace=true;tracer.enabled=false;
+            sound=gameObject.AddComponent<AudioSource>();sound.spatialBlend=0;sound.volume=.2f;shotSound=MakeShotSound();
         }
         private void Update()
         {
-            if (MenuOpen) { fireHeld = false; return; }
-            nearest = null;
-            float distance = 2.5f;
-            foreach (var pickup in pickups)
+            if(flash!=null)flash.SetActive(!MenuOpen && Time.time<flashEnd);
+            if(tracer!=null)tracer.enabled=!MenuOpen && Time.time<flashEnd;
+            if(MenuOpen)return;
+            nearest=null;float distance=2.6f;
+            foreach(var pickup in pickups)
             {
-                if (pickup == null || pickup == equipped) continue;
-                float d = Vector3.Distance(transform.position, pickup.transform.position);
-                if (d < distance) { nearest = pickup; distance = d; }
+                if(pickup==null || pickup==equipped || !pickup.gameObject.activeSelf)continue;
+                float d=Vector3.Distance(transform.position,pickup.transform.position);
+                if(d<distance){ nearest=pickup;distance=d; }
             }
-            if (reloadEnd > 0 && Time.time >= reloadEnd) { rounds = Magazine; reloadEnd = 0; }
-            if (Input.GetKeyDown(KeyCode.E)) EquipNearest();
-            if (Input.GetKeyDown(KeyCode.R)) Reload();
-            bool touchFire = false;
-            foreach (Touch touch in Input.touches)
-                if (FireRect().Contains(new Vector2(touch.position.x, Screen.height - touch.position.y)) &&
-                    touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled) touchFire = true;
-            bool desktopFire = Input.touchCount == 0 && Input.GetMouseButton(0) && !IsActionArea(Input.mousePosition);
-            if (touchFire || fireHeld || desktopFire) Fire();
-            if (flash != null) flash.SetActive(Time.time < flashEnd);
+            if(reloadEnd>0 && Time.time>=reloadEnd){ rounds=magazine;reloadEnd=0; }
+            if(Input.GetKeyDown(KeyCode.E))EquipNearest();
+            if(Input.GetKeyDown(KeyCode.R))Reload();
+            if(Input.GetKeyDown(KeyCode.Alpha1))UseSidearm();
+            bool mouse=Input.touchCount==0 && Input.GetMouseButton(0) && (EventSystem.current==null || !EventSystem.current.IsPointerOverGameObject());
+            if(mouse || MobileHud.Instance!=null && MobileHud.Instance.FireHeld)Fire();
         }
-        private void EquipNearest()
+        private void LateUpdate()
         {
-            if (nearest == null) return;
-            if (equipped != null)
-            {
-                equipped.transform.SetParent(null, true);
-                equipped.transform.position = groundPosition;
-                equipped.transform.rotation = groundRotation;
-                equipped.transform.localScale = groundScale;
-            }
-            equipped = nearest;
-            groundPosition = equipped.transform.position;
-            groundRotation = equipped.transform.rotation;
-            groundScale = equipped.transform.localScale;
-            equipped.transform.SetParent(view, false);
-            equipped.transform.localPosition = new Vector3(.22f, -.25f, .5f);
-            equipped.transform.localRotation = Quaternion.identity;
-            equipped.transform.localScale = Vector3.one * .55f;
-            rounds = Magazine;
-            reloadEnd = 0;
+            if(defaultViewmodel==null)return;
+            recoil=Mathf.MoveTowards(recoil,0,Time.deltaTime*7);
+            bool aiming=!MenuOpen && (MobileHud.Instance!=null && MobileHud.Instance.AimHeld || Input.touchCount==0 && Input.GetMouseButton(1));
+            Vector3 position=basePosition+(aiming?new Vector3(-.07f,.025f,.025f):Vector3.zero);
+            position+=new Vector3(0,-equipBlend*.28f,-recoil*.028f);
+            float walk=MobileHud.Instance!=null?MobileHud.Instance.Move.magnitude:Mathf.Clamp01(Mathf.Abs(Input.GetAxisRaw("Vertical"))+Mathf.Abs(Input.GetAxisRaw("Horizontal")));
+            position+=new Vector3(Mathf.Sin(Time.time*7)*.003f,Mathf.Cos(Time.time*14)*.003f,0)*walk;
+            defaultViewmodel.transform.localPosition=Vector3.Lerp(defaultViewmodel.transform.localPosition,position,Time.deltaTime*18);
+            defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(-recoil*3+equipBlend*25,equipBlend*-12,Reloading?Mathf.Sin((reloadEnd-Time.time)*5)*10:0);
+            if(worldCamera!=null)worldCamera.fieldOfView=Mathf.Lerp(worldCamera.fieldOfView,aiming?50:68,Time.deltaTime*12);
+            if(weaponCamera!=null)weaponCamera.fieldOfView=Mathf.Lerp(weaponCamera.fieldOfView,aiming?45:60,Time.deltaTime*12);
         }
-        private void Reload() { if (equipped != null && rounds < Magazine && reloadEnd == 0) reloadEnd = Time.time + 1.5f; }
+        public void EquipNearest()
+        {
+            if(nearest!=null && !equipping && !Reloading)StartCoroutine(Equip(nearest));
+        }
+        public void UseSidearm()
+        {
+            if(equipped!=null && !equipping && !Reloading)StartCoroutine(Equip(null));
+        }
+        private IEnumerator Equip(WeaponPickup next)
+        {
+            equipping=true;
+            // Original procedural lower/raise motion, not copied MWII animation data.
+            for(float t=0;t<.18f;t+=Time.deltaTime){equipBlend=Mathf.SmoothStep(0,1,t/.18f);yield return null;}
+            if(equipped!=null)equipped.gameObject.SetActive(true);
+            if(heldVisual!=null)Destroy(heldVisual);
+            equipped=next;
+            bool sidearm=next==null;
+            foreach(var renderer in pistolRenderers)renderer.enabled=sidearm;
+            if(sidearm)
+            {
+                DisplayName="Mark 23";magazine=12;PlayClip("draw",.55f);
+            }
+            else
+            {
+                DisplayName=next.displayName;magazine=DisplayName.Contains("AK")?30:17;
+                heldVisual=Instantiate(next.gameObject,weaponMount,false);Destroy(heldVisual.GetComponent<WeaponPickup>());
+                foreach(var collider in heldVisual.GetComponentsInChildren<Collider>())Destroy(collider);
+                heldVisual.transform.localPosition=Vector3.zero;heldVisual.transform.localRotation=Quaternion.identity;heldVisual.transform.localScale=Vector3.one;
+                SetLayer(heldVisual,8);
+                Bounds bound=LocalBounds(heldVisual.transform);
+                Vector3 axis=bound.size.x>bound.size.y && bound.size.x>bound.size.z?Vector3.right:(bound.size.y>bound.size.z?Vector3.up:Vector3.forward);
+                if(DisplayName.Contains("AK"))axis=-axis;
+                float scale=(DisplayName.Contains("AK")?.65f:.27f)/Mathf.Max(bound.size.x,bound.size.y,bound.size.z);
+                heldVisual.transform.localRotation=Quaternion.FromToRotation(axis,Vector3.forward);
+                heldVisual.transform.localScale=Vector3.one*scale;
+                heldVisual.transform.localPosition=-(heldVisual.transform.localRotation*(bound.center*scale));
+                next.gameObject.SetActive(false);
+                if(rigAnimation!=null)rigAnimation.Stop();
+            }
+            rounds=magazine;reloadEnd=0;
+            for(float t=0;t<.32f;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/.32f);yield return null;}
+            equipBlend=0;equipping=false;nextShot=Time.time+.1f;
+        }
+        public void Reload()
+        {
+            if(rounds>=magazine || Reloading || equipping || MenuOpen)return;
+            reloadEnd=Time.time+1.6f;if(equipped==null)PlayClip("reload",1.6f);
+        }
         private void Fire()
         {
-            if (equipped == null || rounds <= 0 || reloadEnd > 0 || Time.time < nextShot) return;
-            nextShot = Time.time + .14f;
-            rounds--;
-            flashEnd = Time.time + .045f;
-            if (Physics.Raycast(view.position, view.forward, out RaycastHit hit, 100))
+            if(rounds<=0 || Reloading || equipping || Time.time<nextShot)return;
+            nextShot=Time.time+(equipped!=null && DisplayName.Contains("AK")?.12f:.22f);rounds--;recoil=1;
+            if(equipped==null)PlayClip("shoot",.18f);
+            Vector3 end=view.position+view.forward*100;
+            if(Physics.Raycast(view.position,view.forward,out RaycastHit hit,100,~(1<<8),QueryTriggerInteraction.Ignore))
             {
-                var target = hit.collider.GetComponent<TestTarget>();
-                if (target != null) { target.Hit(); hits++; }
+                end=hit.point;var target=hit.collider.GetComponent<TestTarget>();if(target!=null){target.Hit();hits++;}
             }
+            flashEnd=Time.time+.025f;
+            flash.transform.localRotation=Quaternion.Euler(0,0,Random.Range(0,360));
+            tracer.SetPosition(0,view.position+view.forward*.75f+view.right*.1f-view.up*.1f);tracer.SetPosition(1,end);
+            sound.PlayOneShot(shotSound);
         }
-        private static Rect FireRect() => new Rect(Screen.width * .8f, Screen.height * .72f, Screen.width * .18f, Screen.height * .24f);
-        private void OnGUI()
+        private void PlayClip(string word,float duration)
         {
-            if (GUI.Button(new Rect(Screen.width - 140, 20, 120, 45), MenuOpen ? "CLOSE" : "CREDITS"))
-                MenuOpen = !MenuOpen;
-            if (MenuOpen)
+            if(rigAnimation==null)return;
+            foreach(AnimationState state in rigAnimation)
             {
-                fireHeld = false;
-                var outer = new Rect(20, 80, Screen.width - 40, Screen.height - 100);
-                GUI.Box(outer, "Asset credits / license notices");
-                var content = new Rect(0, 0, outer.width - 45, 1600);
-                creditsScroll = GUI.BeginScrollView(new Rect(outer.x + 10, outer.y + 30, outer.width - 20, outer.height - 40), creditsScroll, content);
-                GUI.TextArea(content, credits);
-                GUI.EndScrollView();
-                return;
+                if(!state.name.ToLowerInvariant().Contains(word))continue;
+                state.wrapMode=WrapMode.ClampForever;state.speed=state.length/Mathf.Max(.1f,duration);state.time=0;rigAnimation.Play(state.name);return;
             }
-            var style = new GUIStyle(GUI.skin.label) { fontSize = Mathf.Max(16, Screen.height / 35) };
-            GUI.Label(new Rect(24, 95, Screen.width * .75f, 90),
-                (equipped == null ? "Find a weapon on the ground" : equipped.displayName + " | Ammo " + rounds + "/30") +
-                " | Target hits: " + hits + (reloadEnd > 0 ? " | Reloading..." : ""), style);
-            GUI.Label(new Rect(Screen.width / 2f - 6, Screen.height / 2f - 12, 24, 30), "+", style);
-            fireHeld = GUI.RepeatButton(FireRect(), "FIRE");
-            if (GUI.Button(new Rect(Screen.width * .8f, Screen.height * .51f, Screen.width * .18f, Screen.height * .09f), "RELOAD")) Reload();
-            if (nearest != null && GUI.Button(new Rect(Screen.width * .8f, Screen.height * .61f, Screen.width * .18f, Screen.height * .09f), "PICK UP (E)")) EquipNearest();
         }
-        private void OnApplicationFocus(bool focus) { fireHeld = false; }
+        public static void SetLayer(GameObject root,int layer)
+        { foreach(var t in root.GetComponentsInChildren<Transform>(true))t.gameObject.layer=layer; }
+        public static Bounds LocalBounds(Transform root)
+        {
+            bool first=true;Bounds bound=new Bounds();
+            foreach(var filter in root.GetComponentsInChildren<MeshFilter>())
+            {
+                if(filter.sharedMesh==null)continue;var b=filter.sharedMesh.bounds;
+                for(int i=0;i<8;i++)
+                {
+                    var p=b.center+Vector3.Scale(b.extents,new Vector3((i&1)==0?-1:1,(i&2)==0?-1:1,(i&4)==0?-1:1));
+                    p=root.InverseTransformPoint(filter.transform.TransformPoint(p));if(first){bound=new Bounds(p,Vector3.zero);first=false;}else bound.Encapsulate(p);
+                }
+            }
+            return bound;
+        }
+        private static AudioClip MakeShotSound()
+        {
+            const int samples=4410;var data=new float[samples];var random=new System.Random(51);
+            for(int i=0;i<samples;i++){float t=(float)i/samples;data[i]=(float)(random.NextDouble()*2-1)*Mathf.Exp(-t*14)*.5f+Mathf.Sin(i*.05f)*Mathf.Exp(-t*20)*.25f;}
+            var clip=AudioClip.Create("Original synthetic test shot",samples,1,44100,false);clip.SetData(data,0);return clip;
+        }
     }
 }

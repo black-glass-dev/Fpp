@@ -67,6 +67,8 @@ jobs:
 
   build:
     needs: import-mosque
+    permissions:
+      contents: write
     runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
@@ -92,6 +94,7 @@ jobs:
         with:
           cliVersion: v0.1.72
           unityVersion: 2022.3.62f1
+          enableGpu: true
           targetPlatform: Android
           buildMethod: Fpp.Editor.AndroidBuild.Build
           customParameters: -fppVersionCode ${{ github.run_number }}
@@ -118,6 +121,17 @@ jobs:
           sha256sum build/Android/Fpp.apk
           if [ "$BUILDER_OUTCOME" != success ]; then
             echo '::warning::Builder reported a failure, but the fresh signed APK verified. Review builder logs and license return before subsequent runs; APK verification does not prove license cleanup succeeded.'
+          fi
+      - name: Preserve actual Unity render previews
+        run: |
+          if [ -f Docs/Previews/unity-spawn.png ]; then
+            git add Docs/Previews/unity-*.png
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            if ! git diff --cached --quiet; then
+              git commit -m "Preserve actual Unity scene and viewmodel render previews"
+              git push origin HEAD:arena/f3a68c52-fpp
+            fi
           fi
       - uses: actions/upload-artifact@v4
         with:

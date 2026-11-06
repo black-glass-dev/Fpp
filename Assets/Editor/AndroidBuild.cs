@@ -48,11 +48,14 @@ namespace Fpp.Editor
         [MenuItem("FPP/Build Android APK")]
         public static void Build()
         {
-            if (!File.Exists(CottageMap.ScenePath)) CottageMap.Create();
+            CottageMap.Create();
+            AppIconSetup.Apply();
+            RevisionAudit.Validate();
+            BuildPreview.Capture();
             PlayerSettings.companyName = "Black Glass Dev";
             PlayerSettings.productName = "FPP";
             PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "dev.blackglass.fpp");
-            PlayerSettings.bundleVersion = "0.0.1";
+            PlayerSettings.bundleVersion = "0.0.2";
             var version = Argument("-fppVersionCode") ?? Environment.GetEnvironmentVariable("ANDROID_VERSION_CODE");
             PlayerSettings.Android.bundleVersionCode = string.IsNullOrEmpty(version) ? 1 : int.Parse(version);
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
