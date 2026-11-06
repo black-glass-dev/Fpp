@@ -51,6 +51,7 @@ jobs:
               print('::notice::'+label+': '+str(bool(re.search(pattern,text,re.I))))
           allowed=re.compile(r'error|fail|exception|abort|could not|cannot|not found|invalid|executeMethod|build method|build result',re.I)
           emitted=0
+          errors=[]
           for line in text.splitlines():
               if not allowed.search(line): continue
               if re.search(r'password|username|token|secret|serial|<|docker run|--env|unityLicense',line,re.I): continue
@@ -60,6 +61,8 @@ jobs:
               line=re.sub(r'\b[^\s@]+@[^\s@]+\b','[EMAIL]',line)
               line=re.sub(r'https?://\S+','[URL]',line)
               line=line[:600].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
-              print('::notice::Sanitized error: '+line)
+              errors.append(line)
               emitted+=1
               if emitted>=45:break
+
+          if errors: print("::notice::Sanitized build failure context:%0A"+"%0A".join(errors))
