@@ -58,6 +58,7 @@ jobs:
               git config user.name 'github-actions[bot]'
               git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
               git commit -m "Import optimized user-supplied mosque model"
+              git restore --worktree --staged Assets Packages ProjectSettings
               git pull --rebase origin arena/f3a68c52-fpp
               git push origin HEAD:arena/f3a68c52-fpp
             fi
@@ -131,6 +132,7 @@ jobs:
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             if ! git diff --cached --quiet; then
               git commit -m "Preserve actual Unity scene and viewmodel render previews"
+              git restore --worktree --staged Assets Packages ProjectSettings
               git pull --rebase origin arena/f3a68c52-fpp
               git push origin HEAD:arena/f3a68c52-fpp
             fi
