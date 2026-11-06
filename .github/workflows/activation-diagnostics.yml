@@ -45,11 +45,14 @@ jobs:
             'Licensing-client flag unsupported': r'Option .* is unknown|UnknownOptionError',
             'Unity installation or executable missing': r'ENOENT|No such file or directory',
             'Package/dependency resolution problem': r'error.*resolving packages|invalid dependencies|Cannot resolve package',
+            'Unity reports successful build': r"Build completed.*Succeeded|Build succeeded|Build Finished.*Success",
+            'APK output mentioned': r'Fpp\.apk',
+            'Entitlement returned successfully': r'Successfully returned the entitlement license|License has been returned',
             'Disk space exhausted': r'No space left on device',
           }
           for label, pattern in flags.items():
               print('::notice::'+label+': '+str(bool(re.search(pattern,text,re.I))))
-          allowed=re.compile(r'error|fail|exception|abort|could not|cannot|not found|invalid|executeMethod|build method|build result',re.I)
+          allowed=re.compile(r'error|fail|exception|abort|could not|cannot|not found|invalid|executeMethod|build method|build result|Build completed|Build succeeded|Successfully returned|Fpp\.apk',re.I)
           emitted=0
           errors=[]
           for line in text.splitlines():

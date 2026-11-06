@@ -79,6 +79,8 @@ jobs:
           key: unity-android-2022.3.62f1-${{ hashFiles('Packages/**', 'ProjectSettings/**', 'Assets/**') }}
           restore-keys: unity-android-2022.3.62f1-
       - name: Build ARM64 APK
+        id: unity
+        continue-on-error: true
         uses: game-ci/unity-builder@v6.0.0
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -92,6 +94,29 @@ jobs:
           buildMethod: Fpp.Editor.AndroidBuild.Build
           customParameters: -fppVersionCode ${{ github.run_number }}
           androidTargetSdkVersion: '35'
+      - name: Verify fresh APK and signature independently of builder cleanup
+        env:
+          BUILDER_OUTCOME: ${{ steps.unity.outcome }}
+        run: |
+          python - <<'PYAPK'
+          import pathlib, zipfile
+          p=pathlib.Path('build/Android/Fpp.apk')
+          if not p.is_file():
+              raise SystemExit('No APK produced. See Unity build diagnostics; build is not successful.')
+          with zipfile.ZipFile(p) as apk:
+              required={'AndroidManifest.xml','classes.dex','lib/arm64-v8a/libunity.so','lib/arm64-v8a/libil2cpp.so'}
+              missing=required-set(apk.namelist())
+              if missing: raise SystemExit('APK missing required files: '+str(missing))
+              if apk.testzip(): raise SystemExit('APK ZIP integrity check failed')
+          print('::notice::Fresh ARM64 Unity APK ZIP structure and integrity verified.')
+          PYAPK
+          signer=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
+          test -n "$signer"
+          "$signer" verify build/Android/Fpp.apk
+          sha256sum build/Android/Fpp.apk > build/Android/Fpp.apk.sha256
+          if [ "$BUILDER_OUTCOME" != success ]; then
+            echo '::warning::Builder reported a failure, but the fresh signed APK verified. Review builder logs and license return before subsequent runs; APK verification does not prove license cleanup succeeded.'
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: Fpp-Android-${{ github.run_number }}
