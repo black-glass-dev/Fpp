@@ -61,7 +61,7 @@ namespace Fpp.Editor
                 {
                     var scanShader=Shader.Find("FPP/Mobile Scan");
                     if(scanShader==null)throw new Exception("Mobile photogrammetry shader missing");
-                    material.shader=scanShader;material.SetFloat("_TrimBelow",-10000);
+                    material.shader=scanShader;material.SetFloat("_TrimBelow",-10000);material.SetFloat("_FlattenBelow",-10000);
                 }
                 foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
                 {

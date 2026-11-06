@@ -11,8 +11,8 @@ namespace Fpp
             var pose=new Pose {offset=aim?new Vector3(-.115f,secondary?secondaryAimLift:.036f,.03f):Vector3.zero};
             if(!secondary || progress<=0 || progress>=1)return pose;
             float lower=Ease(progress/.18f)*(1-Ease((progress-.72f)/.28f));
-            pose.offset+=new Vector3(0,-.12f,-.025f)*lower;
-            pose.euler=new Vector3(18,-8,-12)*lower;return pose;
+            pose.offset+=new Vector3(0,-.04f,-.015f)*lower;
+            pose.euler=new Vector3(10,-4,-7)*lower;return pose;
         }
         public static Vector3 SupportTarget(float t,Vector3 rest,bool rifle)
         {

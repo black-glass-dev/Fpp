@@ -145,7 +145,6 @@ namespace Fpp
                 SetLayer(heldVisual,8);
                 Bounds bound=LocalBounds(heldVisual.transform);
                 Vector3 axis=bound.size.x>bound.size.y && bound.size.x>bound.size.z?Vector3.right:(bound.size.y>bound.size.z?Vector3.up:Vector3.forward);
-                if(DisplayName.Contains("AK"))axis=-axis;
                 float scale=(DisplayName.Contains("AK")?.65f:.27f)/Mathf.Max(bound.size.x,bound.size.y,bound.size.z);
                 heldVisual.transform.localRotation=Quaternion.FromToRotation(axis,Vector3.forward);
                 heldVisual.transform.localScale=Vector3.one*scale;

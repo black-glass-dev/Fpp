@@ -37,7 +37,7 @@ namespace Fpp.Editor
                         weapons.ReviewPose(pickup,true,0);Save(main,overlay,"Docs/Previews/unity-glock-ads.png");
                         weapons.ReviewPose(pickup,false,.35f);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
                         Save(main,overlay,"Docs/Previews/unity-glock-reload-out.png");
-                        weapons.ReviewPose(pickup,false,.72f);Save(main,overlay,"Docs/Previews/unity-glock-reload-in.png");
+                        weapons.ReviewPose(pickup,false,.88f);Save(main,overlay,"Docs/Previews/unity-glock-reload-in.png");
                     }
                 }
                 weapons.ReviewPose(null,true,0);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
@@ -51,7 +51,7 @@ namespace Fpp.Editor
                     overlay.enabled=false;Save(main,null,"Docs/Previews/unity-environment.png");
                     main.transform.position=new Vector3(10,3,15);main.transform.LookAt(new Vector3(0,5,32));
                     Save(main,null,"Docs/Previews/unity-mosque.png");
-                    main.transform.position=new Vector3(0,2.5f,48);main.transform.LookAt(new Vector3(0,4,32));
+                    main.transform.position=new Vector3(0,2.5f,43);main.transform.LookAt(new Vector3(0,4,32));
                     Save(main,null,"Docs/Previews/unity-mosque-entry.png");
                     foreach(var pickup in pickups)if(pickup.displayName.Contains("Glock"))
                     {

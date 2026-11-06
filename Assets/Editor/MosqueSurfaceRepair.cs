@@ -15,8 +15,15 @@ namespace Fpp.Editor
             var stone=Material("Mosque foundation","Stone",new Color(.8f,.72f,.62f),new Vector2(6,1));
             var brick=Material("Mosque inner brick backing","Brick",Color.white,new Vector2(6,3));
             Vector3 center=bounds.center;
-            Cube(scan,"Level stone plinth",new Vector3(center.x,top*.5f,center.z),new Vector3(bounds.size.x+.1f,top,bounds.size.z+.1f),stone);
-            float width=bounds.size.x*.74f,depth=bounds.size.z*.74f,height=bounds.size.y*.65f;
+            var footprint=new Vector3(bounds.size.x*.84f,0,bounds.size.z*.84f);
+            foreach(var renderer in scan.GetComponentsInChildren<Renderer>())
+            foreach(var material in renderer.sharedMaterials)
+            {
+                material.SetFloat("_FlattenBelow",top+.65f);
+                material.SetVector("_SkirtRect",new Vector4(center.x-footprint.x*.5f,center.z-footprint.z*.5f,center.x+footprint.x*.5f,center.z+footprint.z*.5f));
+            }
+            Cube(scan,"Level stone plinth",new Vector3(center.x,top*.5f,center.z),new Vector3(footprint.x+.1f,top,footprint.z+.1f),stone);
+            float width=bounds.size.x*.56f,depth=bounds.size.z*.56f,height=bounds.size.y*.45f;
             // Keep openings in the backing so it cannot seal the original entrance.
             for(int side=-1;side<=1;side+=2)
             {
@@ -25,7 +32,7 @@ namespace Fpp.Editor
                 for(int i=0;i<4;i++)
                 {
                     float h=top*(i+1)/5f;
-                    Cube(scan,"Approach step",new Vector3(center.x,h*.5f,center.z+side*(bounds.size.z*.5f+(4-i)*.32f)),new Vector3(2.5f,h,.65f),stone);
+                    Cube(scan,"Approach step",new Vector3(center.x,h*.5f,center.z+side*(footprint.z*.5f+(4-i)*.32f)),new Vector3(2.5f,h,.65f),stone);
                 }
             }
             Debug.Log("FPP mosque repair: trimmed scan skirt, level plinth, backing walls with open doorways");
