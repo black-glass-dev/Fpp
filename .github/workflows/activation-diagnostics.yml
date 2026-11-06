@@ -1,0 +1,68 @@
+name: Safe Unity build diagnostics
+on:
+  push:
+    branches: [arena/f3a68c52-fpp]
+    paths: ['.github/workflows/activation-diagnostics.yml']
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Completed Android workflow run to inspect
+        required: true
+        default: '42206325110'
+permissions:
+  actions: read
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Classify completed build without publishing private logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ inputs.run_id || '42206325110' }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        shell: python
+        run: |
+          import json, os, re, urllib.request
+          repo=os.environ['REPO']; run=os.environ['RUN_ID']
+          assert run.isdigit()
+          def api(path):
+              request=urllib.request.Request('https://api.github.com/repos/'+repo+path,
+                  headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json'})
+              return urllib.request.urlopen(request, timeout=60).read(15*1024*1024)
+          jobs=json.loads(api('/actions/runs/'+run+'/jobs'))['jobs']
+          job=next(j for j in jobs if j['name']=='build')
+          assert job['status']=='completed'
+          text=api('/actions/jobs/'+str(job['id'])+'/logs').decode('utf-8',errors='replace')
+          # Never emit raw logs, tokens, entitlement data, license contents or account identity.
+          flags={
+            'New Personal licensing route selected': r'Licensing method: personal|Requesting activation \(personal',
+            'Activation reports completion': r'Activation complete\.',
+            'Unity C# compilation errors present': r'error CS\d+',
+            'Account credentials rejected or verification required': r'invalid (?:username|password|credentials)|two.factor|verification code|Unauthorized|InvalidCredentials',
+            'Account has no available seat or entitlement': r'No seat available|no available.*seats|0 free entitlements|LICENSE_LIMIT|No valid Unity Editor license|No license activation found',
+            'Licensing-client flag unsupported': r'Option .* is unknown|UnknownOptionError',
+            'Unity installation or executable missing': r'ENOENT|No such file or directory',
+            'Package/dependency resolution problem': r'error.*resolving packages|invalid dependencies|Cannot resolve package',
+            'Disk space exhausted': r'No space left on device',
+          }
+          for label, pattern in flags.items():
+              print('::notice::'+label+': '+str(bool(re.search(pattern,text,re.I))))
+          allowed=re.compile(r'error CS\d+|^.*(?:Error:|error:|Exception:|Unknown command|unknown option|not recognized)',re.I)
+          emitted=0
+          for line in text.splitlines():
+              if not allowed.search(line): continue
+              if re.search(r'password|username|token|secret|serial|<|docker run|--env|unityLicense',line,re.I): continue
+              for key in ('UNITY_EMAIL','UNITY_PASSWORD','UNITY_SERIAL'):
+                  value=os.environ.get(key,'')
+                  if value: line=line.replace(value,'[REDACTED]')
+              line=re.sub(r'\b[^\s@]+@[^\s@]+\b','[EMAIL]',line)
+              line=re.sub(r'https?://\S+','[URL]',line)
+              line=line[:600].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+              print('::notice::Sanitized error: '+line)
+              emitted+=1
+              if emitted>=12:break
