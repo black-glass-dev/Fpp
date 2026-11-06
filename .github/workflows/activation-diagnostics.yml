@@ -8,7 +8,7 @@ on:
       run_id:
         description: Completed Android workflow run to inspect
         required: true
-        default: '42206325110'
+        default: '42207807101'
 permissions:
   actions: read
   contents: read
@@ -21,7 +21,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          RUN_ID: ${{ inputs.run_id || '42206325110' }}
+          RUN_ID: ${{ inputs.run_id || '42207807101' }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -50,9 +50,9 @@ jobs:
             'Entitlement returned successfully': r'Successfully returned the entitlement license|License has been returned',
             'Disk space exhausted': r'No space left on device',
           }
-          for label, pattern in flags.items():
-              print('::notice::'+label+': '+str(bool(re.search(pattern,text,re.I))))
-          allowed=re.compile(r'error|fail|exception|abort|could not|cannot|not found|invalid|executeMethod|build method|build result|Build completed|Build succeeded|Successfully returned|Fpp\.apk',re.I)
+          classification=[label+': '+str(bool(re.search(pattern,text,re.I))) for label,pattern in flags.items()]
+          print('::notice::Classifications:%0A'+'%0A'.join(classification))
+          allowed=re.compile(r'error|fail|exception|abort|could not|cannot|not found|invalid|executeMethod|build method|build result|No APK|missing required|ZIP integrity|apksigner|Build completed|Build succeeded|Successfully returned|Fpp\.apk',re.I)
           emitted=0
           errors=[]
           for line in text.splitlines():
