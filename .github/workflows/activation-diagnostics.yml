@@ -30,7 +30,7 @@ jobs:
           import json, os, re, subprocess
           repo=os.environ['REPO']; run=os.environ['RUN_ID']
           assert run.isdigit()
-          result=subprocess.run(['gh','run','view',run,'--repo',repo,'--log-failed'],capture_output=True,text=True)
+          result=subprocess.run(['gh','run','view',run,'--repo',repo,'--log'],capture_output=True,text=True)
           if result.returncode:
               print('::error::Could not retrieve completed workflow logs with the Actions token.')
               raise SystemExit(1)

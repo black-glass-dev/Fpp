@@ -113,7 +113,7 @@ jobs:
           signer=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
           test -n "$signer"
           "$signer" verify build/Android/Fpp.apk
-          sha256sum build/Android/Fpp.apk > build/Android/Fpp.apk.sha256
+          sha256sum build/Android/Fpp.apk
           if [ "$BUILDER_OUTCOME" != success ]; then
             echo '::warning::Builder reported a failure, but the fresh signed APK verified. Review builder logs and license return before subsequent runs; APK verification does not prove license cleanup succeeded.'
           fi
