@@ -30,7 +30,24 @@ namespace Fpp.Editor
                     Cube(scan,"Approach step",new Vector3(center.x,h*.5f,center.z+side*(footprint.z*.5f+(4-i)*.32f)),new Vector3(2.5f,h,.65f),stone);
                 }
             }
+            AddCollisionShell(scan,center,top,bounds.size.x*.68f,bounds.size.z*.72f,bounds.size.y*.65f);
             Debug.Log("FPP mosque repair: preserved original facade, cropped scan skirt and level plinth");
+        }
+        private static void AddCollisionShell(GameObject parent,Vector3 center,float floor,float width,float depth,float height)
+        {
+            // Primitive collision only: no invisible remnants of the cropped scan terrain.
+            CollisionBox(parent,center+new Vector3(-width*.5f,floor+height*.5f-center.y,0),new Vector3(.2f,height,depth));
+            CollisionBox(parent,center+new Vector3(width*.5f,floor+height*.5f-center.y,0),new Vector3(.2f,height,depth));
+            CollisionBox(parent,new Vector3(center.x,floor+height*.5f,center.z-depth*.5f),new Vector3(width,height,.2f));
+            const float opening=3.4f,doorHeight=3.5f;float wing=(width-opening)*.5f;
+            for(int side=-1;side<=1;side+=2)
+                CollisionBox(parent,new Vector3(center.x+side*(opening+wing)*.5f,floor+height*.5f,center.z+depth*.5f),new Vector3(wing,height,.2f));
+            CollisionBox(parent,new Vector3(center.x,floor+doorHeight+(height-doorHeight)*.5f,center.z+depth*.5f),new Vector3(opening,height-doorHeight,.2f));
+        }
+        private static void CollisionBox(GameObject parent,Vector3 position,Vector3 size)
+        {
+            var go=new GameObject("Mosque wall collision");go.transform.position=position;go.transform.SetParent(parent.transform,true);
+            go.AddComponent<BoxCollider>().size=size;go.isStatic=true;
         }
         private static Material Material(string name,string texture,Color tint,Vector2 tiling)
         {
