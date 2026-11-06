@@ -20,7 +20,7 @@ Shader "FPP/Mobile Scan"
             {
                 v2f o;float3 world=mul(unity_ObjectToWorld,v.vertex).xyz;
                 o.originalY=world.y;o.normal=UnityObjectToWorldNormal(v.normal);
-                if(world.y<_FlattenBelow){world.y=_TrimBelow+.01;o.normal=float3(0,1,0);}
+                if(world.y<_FlattenBelow && abs(o.normal.y)>.6){world.y=_TrimBelow+.01;o.normal=float3(0,1,0);}
                 o.pos=UnityWorldToClipPos(world);o.uv=TRANSFORM_TEX(v.uv,_MainTex);
                 o.worldY=world.y;o.worldXZ=world.xz;return o;
             }

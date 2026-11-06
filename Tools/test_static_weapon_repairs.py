@@ -23,6 +23,15 @@ class StaticWeaponRepairTests(unittest.TestCase):
                     self.assertTrue(mesh.is_watertight,'Open triangle boundaries must not regress')
                     self.assertTrue(mesh.is_winding_consistent,'Inverted faces must not regress')
 
+    def test_mosque_atlas_chunks_still_join_without_torn_edges(self):
+        model=json.loads(Path('Assets/MosquePack/catalog.json').read_text())['models'][0]
+        self.assertIn('original chart boundary',model['conversion'])
+        mesh=trimesh.util.concatenate([trimesh.load(p['model'],force='mesh',process=False) for p in model['parts']])
+        mesh.merge_vertices(digits_vertex=5,merge_tex=True,merge_norm=True)
+        boundary_counts=np.bincount(mesh.edges_unique_inverse)
+        self.assertFalse(np.any(boundary_counts==1),'Separately reduced atlas chunks must not tear apart')
+        self.assertTrue(mesh.is_winding_consistent)
+
     def test_other_weapons_reload_does_not_override_original_clip(self):
         code=Path('Assets/Scripts/WeaponController.cs').read_text()
         self.assertNotIn('Mathf.Sin((reloadEnd-Time.time)',code)

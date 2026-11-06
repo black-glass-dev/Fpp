@@ -5,4 +5,4 @@ license: CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 source: https://sketchfab.com/3d-models/chunakhola-mosque-city-of-bagerhat-dc8563573b084dae90b03a9cffbcd34c
 title: Chunakhola - Mosque City of Bagerhat
 
-Additional changes: scan chart boundaries preserved during reduction; near-black atlas voids filled; procedural foundation and internal backing added.
+Additional changes: scan chart boundaries preserved during reduction; near-black atlas voids filled; procedural foundation and terrain-skirt trimming added.
