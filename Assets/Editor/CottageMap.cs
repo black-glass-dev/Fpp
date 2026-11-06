@@ -80,6 +80,8 @@ namespace Fpp.Editor
             sun.type = LightType.Directional;
             sun.transform.rotation = Quaternion.Euler(50, -30, 0);
             sun.shadows = LightShadows.None;
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientIntensity = 1;
             RenderSettings.ambientLight = new Color(.6f, .63f, .68f);
             var player = new GameObject("Player");
             player.transform.position = new Vector3(0, .15f, -36);

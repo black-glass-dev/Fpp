@@ -28,7 +28,17 @@ namespace Fpp.Editor
                         throw new Exception("Texture did not import as 2D: "+assetPath);
                 }
             }
-            Debug.Log("FPP 2D texture import repair and validation passed");
+            const string fontPath="Assets/Resources/Fonts/Hud.ttf";
+            var fontImporter=AssetImporter.GetAtPath(fontPath) as TrueTypeFontImporter;
+            if(fontImporter==null)throw new Exception("HUD font importer missing");
+            if(fontImporter.fontTextureCase!=FontTextureCase.Dynamic || !fontImporter.includeFontData)
+            {
+                fontImporter.fontTextureCase=FontTextureCase.Dynamic; fontImporter.includeFontData=true;
+                fontImporter.fontSize=24; fontImporter.SaveAndReimport();
+            }
+            var font=AssetDatabase.LoadAssetAtPath<Font>(fontPath);
+            if(font==null || !font.dynamic)throw new Exception("Bundled dynamic HUD font is not available");
+            Debug.Log("FPP 2D texture and bundled font repair and validation passed");
         }
     }
 }

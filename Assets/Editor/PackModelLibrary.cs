@@ -57,6 +57,12 @@ namespace Fpp.Editor
                     material.SetOverrideTag("RenderType", "TransparentCutout");
                     material.renderQueue = 2450;
                 }
+                if(part.model.StartsWith("Assets/MosquePack/"))
+                {
+                    var scanShader=Shader.Find("FPP/Mobile Scan");
+                    if(scanShader==null)throw new Exception("Mobile photogrammetry shader missing");
+                    material.shader=scanShader;
+                }
                 foreach (var renderer in instance.GetComponentsInChildren<Renderer>())
                 {
                     var filter = renderer.GetComponent<MeshFilter>();
