@@ -1,0 +1,90 @@
+{
+  "materials": [
+    {
+      "name": "Glove_D",
+      "texture": "Assets/Viewmodels/Mark23/Glove_D.png"
+    },
+    {
+      "name": "Hand_D",
+      "texture": "Assets/Viewmodels/Mark23/Hand_D.png"
+    },
+    {
+      "name": "Mark23_D",
+      "texture": "Assets/Viewmodels/Mark23/Mark23_D.png"
+    }
+  ],
+  "actions": [
+    "Draw_Object_4",
+    "Hide_Object_4",
+    "Reload_Object_4",
+    "Shoot_Object_4"
+  ],
+  "bounds": [
+    [
+      -18.71576690673828,
+      -20.3223819732666,
+      -1.0
+    ],
+    [
+      17.94312286376953,
+      41.44664764404297,
+      154.26844787597656
+    ]
+  ],
+  "bones": [
+    "_rootJoint",
+    "Mark23_Root_01",
+    "Spine2_1_02",
+    "LeftShoulder1_03",
+    "LeftArm1_04",
+    "LeftForeArm1_05",
+    "LeftHand1_00",
+    "LeftHandThumb1_1_06",
+    "LeftHandThumb2_1_07",
+    "LeftHandThumb3_1_08",
+    "LeftHandThumb4_1_09",
+    "LeftHandIndex1_1_010",
+    "LeftHandIndex2_1_011",
+    "LeftHandIndex3_1_012",
+    "LeftHandIndex4_1_013",
+    "LeftHandMiddle1_1_014",
+    "LeftHandMiddle2_1_015",
+    "LeftHandMiddle3_1_016",
+    "LeftHandMiddle4_1_017",
+    "LeftHandRing1_1_018",
+    "LeftHandRing2_1_019",
+    "LeftHandRing3_1_020",
+    "LeftHandRing4_1_021",
+    "LeftHandPinky1_1_022",
+    "LeftHandPinky2_1_023",
+    "LeftHandPinky3_1_024",
+    "LeftHandPinky4_1_025",
+    "RightShoulder1_026",
+    "RightArm1_027",
+    "RightForeArm1_028",
+    "RightHand1_029",
+    "RightHandThumb1_1_030",
+    "RightHandThumb2_1_031",
+    "RightHandThumb3_1_032",
+    "RightHandThumb4_1_033",
+    "RightHandIndex1_1_034",
+    "RightHandIndex2_1_035",
+    "RightHandIndex3_1_036",
+    "RightHandIndex4_1_037",
+    "RightHandMiddle1_1_038",
+    "RightHandMiddle2_1_039",
+    "RightHandMiddle3_1_040",
+    "RightHandMiddle4_1_041",
+    "RightHandRing1_1_042",
+    "RightHandRing2_1_043",
+    "RightHandRing3_1_044",
+    "RightHandRing4_1_045",
+    "RightHandPinky1_1_046",
+    "RightHandPinky2_1_047",
+    "RightHandPinky3_1_048",
+    "RightHandPinky4_1_049",
+    "main_j_050",
+    "side_j_051",
+    "Mag_j_052"
+  ]
+}
