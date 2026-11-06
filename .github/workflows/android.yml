@@ -39,7 +39,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Download and prepare large model on runner
-        if: hashFiles('Assets/MosquePack/catalog.json') == ''
+        if: hashFiles('Assets/MosquePack/source-metadata.json') == ''
         continue-on-error: true
         run: |
           pip install -r Tools/requirements-assets.txt gdown==5.2.0
@@ -51,6 +51,7 @@ jobs:
             python Tools/validate_assets.py Assets/MosquePack/catalog.json
             python Tools/create_metas.py
             git add Assets/MosquePack Assets/MosquePack.meta
+            if [ -f Assets/Resources/MOSQUE_NOTICE.txt ]; then git add Assets/Resources/MOSQUE_NOTICE.txt Assets/Resources/MOSQUE_NOTICE.txt.meta; fi
             if ! git diff --cached --quiet; then
               git config user.name 'github-actions[bot]'
               git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

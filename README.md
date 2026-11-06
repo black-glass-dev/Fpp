@@ -1,38 +1,44 @@
-# FPP — Mobile FPS foundation
+# FPP — mobile FPS firing-range prototype
 
-Unity mobile military FPS project. Original gameplay/art only; no Call of Duty assets or branding. **Current stage: cottage test-map generator and mobile movement code; Unity/device verification pending. Not a finished FPS.**
+Unity **2022.3.62f1 LTS**, Android 8+ ARM64/OpenGL ES 3, built-in renderer, landscape. Original project using user-supplied assets, not Call of Duty code/branding.
 
-## Toolchain
-- Unity **2022.3.62f1 LTS**, Android Build Support, SDK/NDK and OpenJDK (install via Unity Hub).
-- Android 8+ (API 26), ARM64 device, OpenGL ES 3.
-- Built-in renderer, landscape, initial 30 FPS cap, no realtime shadows/MSAA. These are starting defaults, not measured performance guarantees.
+**Status: assets + prototype code integrated; Android build blocked by Unity Personal activation. No tested APK yet.**
 
-Open this folder in Unity. Use **FPP → Create cottage test map** for the imported cottage environment with movement; **FPP → Build Android APK** writes `build/Android/Fpp.apk`. Build generates the cottage scene only if missing, preserving later manual scene edits. The older **Create setup scene** command remains an empty-scene diagnostic. See [asset inventory](Docs/ASSETS.md) for provenance and the pending larger asset pack. Unity generates missing project settings and metadata on first import; retain generated `.meta` files when adding production assets.
+## What is implemented
+- Test-map generator: six cottage instances, roads/courtyard, cover and boundary walls.
+- All nine models from the three newly supplied archives: five weapons, two trees, haystack and Chunakhola mosque, plus the earlier cottage model.
+- Mobile walk/look, nearby ground weapon pickup/swap, raycast firing, ammo/reload and five reactive firing-range targets.
+- Credits screen, mobile texture/polygon conversion and conservative rendering defaults.
 
-## CI and activation
-`.github/workflows/android.yml` uses GameCI to build the same APK. It runs on relevant branch pushes or manually in Actions. Workflows must first be pushed to GitHub. Manual dispatch may require the workflow to exist on the default branch first (GitHub restriction).
+These are source implementations, not claims of a verified playable build. See [asset inventory and verification](Docs/ASSETS.md) for exact limitations, credits and triangle counts.
 
-Repository **Settings → Secrets and variables → Actions**:
-- `UNITY_LICENSE`: valid Unity license file content, where your license/Unity activation method supports it.
-- `UNITY_EMAIL`, `UNITY_PASSWORD`: Unity account credentials used by GameCI activation.
-- For eligible paid serial activation: also `UNITY_SERIAL` instead of `UNITY_LICENSE`.
+## Open/build in Unity
+Install Unity 2022.3.62f1 through Unity Hub with Android Build Support (SDK/NDK/OpenJDK). Activate Unity legitimately through the supported flow for your license. Open this repository.
 
-Email/password alone does **not** guarantee headless Personal activation. Unity's current license terms and activation support apply. If activation fails, inspect the Actions logs and use a supported license/runner setup. Never commit license files or credentials or paste them into chat. GitHub secrets cannot be read back by an agent; listing secret names also needs repository permission.
+1. **FPP → Create cottage test map** generates `Assets/Scenes/CottageTest.unity` (asks to save open changes).
+2. Play in Editor: WASD + right mouse; E pickup, R reload, left mouse fire. On mobile: left drag walk, right drag look, on-screen action buttons.
+3. **FPP → Build Android APK** writes `build/Android/Fpp.apk`. Generates the scene if missing; preserves later saved scene edits. To incorporate changed catalogs into an existing scene, regenerate the scene explicitly.
 
-Successful builds upload an APK artifact (14 days). Manual dispatch with `publish_release=true` publishes a GitHub **prerelease** attached to the exact built commit, only from this session's branch. No APK or activated editor has yet been verified.
+## GitHub Actions
+Pushes affecting code/assets/workflow on `arena/f3a68c52-fpp` run `.github/workflows/android.yml`:
+1. Runner imports the 113 MB public Drive mosque file if not already imported and preserves embedded credits. Converted assets are committed only to this branch.
+2. If no license/serial is supplied, a bounded actual email/password-only Personal activation is attempted with `UNITY_EMAIL` and `UNITY_PASSWORD`. Logs/credentials stay private; failure stops the build. **This is an attempt, not a guaranteed supported Personal activation method.**
+3. GameCI uses a supplied `UNITY_LICENSE`, eligible serial credentials (`UNITY_SERIAL` + email/password), or a successfully produced license, if available.
+4. Successful builds upload an APK artifact and automatically publish a GitHub **prerelease** on branch pushes. Manual dispatch can optionally publish too.
 
-## Updates / patch policy
-For now each update is a **full APK**, not a binary delta or downloadable content patch. Preserve package ID `dev.blackglass.fpp`, increase version code, and use the **same signing certificate** for Android to install over an earlier version. CI uses run number as version code; reruns keep that number. Local builds default to 1. Set `ANDROID_VERSION_CODE` when needed.
+Actual run [42204606156](https://github.com/black-glass-dev/Fpp/actions/runs/42204606156): mosque import succeeded; email/password-only activation produced no license, so compilation did not run. Both account secrets were available. Do not post passwords or license files in chat or commit them. Supplying credentials is not equivalent to activating an editor. A compatible Hub-activated self-hosted editor or another supported CI licensing arrangement is needed if this activation fails.
 
-**Important:** current builds use Unity's default debug signing for initial smoke tests. Ephemeral CI runners may produce different debug certificates, so seamless updates are NOT guaranteed. Before real distribution, add a dedicated persistent test/release keystore through encrypted secrets, wire up signing, and never commit it. Keep this signing key backed up. Switching keys later can require uninstalling the old app (losing its local data).
+## APK updates
+Currently full APK updates, **not delta patches**. Keep package ID `dev.blackglass.fpp`, increment version code, and preserve the same signing certificate. CI passes run number to the custom build method; local builds default to 1 unless `ANDROID_VERSION_CODE` is set.
 
-Remote content patches (e.g. Addressables), download hosting, checksums, resume/retry, storage limits and version compatibility will be designed after resource links and gameplay scope are supplied. No arbitrary remote code downloads.
+Current builds use Unity debug signing. Ephemeral runners may use different certificates, so in-place updates are not guaranteed. Configure and back up a persistent test/release keystore via encrypted secrets before routine distribution; never commit it. Downloadable resource patches need a separate versioned content/hosting plan.
 
-## Next requirements
-1. Device model, RAM, Android version, available storage, target FPS (30/60).
-2. Offline campaign / bots / online multiplayer priority.
-3. First level, movement, touch controls, weapons and visual style.
-4. Asset download links and permission/licenses to use them.
-5. Supported Unity activation and persistent APK signing setup.
+## Local asset checks
+```
+python -m venv .venv
+.venv/bin/pip install -r Tools/requirements-assets.txt
+.venv/bin/python Tools/test_asset_pipeline.py
+python Tools/validate_assets.py Assets/PackModels/catalog.json Assets/MosquePack/catalog.json
+```
 
-Profile CPU/GPU frame times, memory, thermal behavior and download/build sizes on real devices. Plan object pooling, LODs, baked lighting, texture compression, limited draw calls and scalable quality after actual assets exist. No optimization target has been benchmarked yet.
+Animations, enemy AI, campaign, audio, multiplayer and device profiling remain future work. The runtime scripts and Unity import/build still need validation in an activated editor. Supply device model, RAM, Android version and target FPS for actual performance tuning.

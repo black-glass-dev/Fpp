@@ -17,6 +17,7 @@ namespace Fpp
 
         private void Update()
         {
+            if (WeaponController.MenuOpen) { moveFinger = lookFinger = -1; return; }
             Vector2 move = Vector2.zero;
             Vector2 look = Vector2.zero;
             if (Input.touchCount > 0)

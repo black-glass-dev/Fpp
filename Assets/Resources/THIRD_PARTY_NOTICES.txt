@@ -1,0 +1,43 @@
+FPP — third-party asset notices
+
+User-supplied assets. Changes: static mesh conversion, mobile texture resizing, optional polygon reduction; original animations are not used.
+
+AK-47
+title: AKMN
+author: suspensy (https://sketchfab.com/suspensy)
+license: CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+source: https://sketchfab.com/3d-models/akmn-8a32337fe2eb4d528f82021d44e13bc8
+
+Glock 17
+Provided by project owner; no author/license metadata embedded. Owner must verify redistribution rights before public distribution.
+
+Gun pistol m
+Provided by project owner; no author/license metadata embedded. Owner must verify redistribution rights before public distribution.
+
+Tree1
+Provided by project owner; no author/license metadata embedded. Owner must verify redistribution rights before public distribution.
+
+Tree2
+Provided by project owner; no author/license metadata embedded. Owner must verify redistribution rights before public distribution.
+
+haystack_v1.0_game_ready
+title: Haystack V1.0 (Game ready)
+author: tasifrahmanff (https://sketchfab.com/tasifrahmanff)
+license: CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+source: https://sketchfab.com/3d-models/haystack-v10-game-ready-8bea29cd98a24bc0846b07c94c34357e
+
+kriss_vector_animated_free
+title: Kriss Vector Animated( Free)
+author: BarcodeGame (https://sketchfab.com/barcodegame)
+license: CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+source: https://sketchfab.com/3d-models/kriss-vector-animated-free-54530c888cfd4ae7aab3c3852b229c7e
+
+mark_23__animated_free
+title: Mark 23  Animated (Free)
+author: BarcodeGames (https://sketchfab.com/barcodegames)
+license: SKETCHFAB Standard (https://sketchfab.com/licenses)
+source: https://sketchfab.com/3d-models/mark-23-animated-free-7abebe340aca4f46b36368417b3ca920
+
+Cottage_FREE — Gerhald3D
+Included README permits use except standalone re-sale. Source usage statement: Docs/Cottage-original-README.pdf.
+Changes: textures resized; repeated instances in test map.

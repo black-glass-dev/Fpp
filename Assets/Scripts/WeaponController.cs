@@ -5,6 +5,9 @@ namespace Fpp
     public sealed class WeaponController : MonoBehaviour
     {
         public Transform view;
+        public static bool MenuOpen { get; private set; }
+        private string credits;
+        private Vector2 creditsScroll;
         private WeaponPickup[] pickups;
         private WeaponPickup nearest;
         private WeaponPickup equipped;
@@ -22,10 +25,16 @@ namespace Fpp
 
         public static bool IsActionArea(Vector2 screenPosition)
         {
-            return screenPosition.x > Screen.width * .77f && screenPosition.y < Screen.height * .52f;
+            return screenPosition.x > Screen.width * .77f &&
+                (screenPosition.y < Screen.height * .52f || screenPosition.y > Screen.height * .82f);
         }
         private void Start()
         {
+            MenuOpen = false;
+            var notices = Resources.Load<TextAsset>("THIRD_PARTY_NOTICES");
+            credits = notices != null ? notices.text : "Credits unavailable";
+            var mosqueNotices = Resources.Load<TextAsset>("MOSQUE_NOTICE");
+            if (mosqueNotices != null) credits += "\n\n" + mosqueNotices.text;
             pickups = FindObjectsOfType<WeaponPickup>();
             flash = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             flash.name = "Shot flash";
@@ -38,6 +47,7 @@ namespace Fpp
         }
         private void Update()
         {
+            if (MenuOpen) { fireHeld = false; return; }
             nearest = null;
             float distance = 2.5f;
             foreach (var pickup in pickups)
@@ -53,7 +63,8 @@ namespace Fpp
             foreach (Touch touch in Input.touches)
                 if (FireRect().Contains(new Vector2(touch.position.x, Screen.height - touch.position.y)) &&
                     touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled) touchFire = true;
-            if (touchFire || (Input.touchCount == 0 && (fireHeld || Input.GetMouseButton(0)))) Fire();
+            bool desktopFire = Input.touchCount == 0 && Input.GetMouseButton(0) && !IsActionArea(Input.mousePosition);
+            if (touchFire || fireHeld || desktopFire) Fire();
             if (flash != null) flash.SetActive(Time.time < flashEnd);
         }
         private void EquipNearest()
@@ -93,6 +104,19 @@ namespace Fpp
         private static Rect FireRect() => new Rect(Screen.width * .8f, Screen.height * .72f, Screen.width * .18f, Screen.height * .24f);
         private void OnGUI()
         {
+            if (GUI.Button(new Rect(Screen.width - 140, 20, 120, 45), MenuOpen ? "CLOSE" : "CREDITS"))
+                MenuOpen = !MenuOpen;
+            if (MenuOpen)
+            {
+                fireHeld = false;
+                var outer = new Rect(20, 80, Screen.width - 40, Screen.height - 100);
+                GUI.Box(outer, "Asset credits / license notices");
+                var content = new Rect(0, 0, outer.width - 45, 1600);
+                creditsScroll = GUI.BeginScrollView(new Rect(outer.x + 10, outer.y + 30, outer.width - 20, outer.height - 40), creditsScroll, content);
+                GUI.TextArea(content, credits);
+                GUI.EndScrollView();
+                return;
+            }
             var style = new GUIStyle(GUI.skin.label) { fontSize = Mathf.Max(16, Screen.height / 35) };
             GUI.Label(new Rect(24, 95, Screen.width * .75f, 90),
                 (equipped == null ? "Find a weapon on the ground" : equipped.displayName + " | Ammo " + rounds + "/30") +

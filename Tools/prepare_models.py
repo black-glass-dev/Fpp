@@ -55,7 +55,9 @@ def convert(source, output):
         parts.append(dict(model=obj.as_posix(), texture=tex_path, color=factor,
             cutout=(getattr(material, 'alphaMode', '') == 'MASK' or 'Tree' in slug), triangles=len(mesh.faces)))
     weapon = any(s in slug.lower() for s in ['gun','pistol','kriss','mark_23','ak_47','glock'])
-    return dict(name=source.stem, weapon=weapon, sourceSha256=hashlib.file_digest(open(source,'rb'),'sha256').hexdigest(),
+    with source.open('rb') as stream:
+        source_hash = hashlib.file_digest(stream,'sha256').hexdigest()
+    return dict(name=source.stem, weapon=weapon, sourceSha256=source_hash,
         sourceTriangles=original_faces, parts=parts)
 
 if __name__ == '__main__':
@@ -64,8 +66,8 @@ if __name__ == '__main__':
     parser.add_argument('--output',type=Path,default=Path('Assets/PackModels'))
     parser.add_argument('--catalog',type=Path,default=Path('Assets/PackModels/catalog.json'))
     args=parser.parse_args()
-    sources=sorted(args.source.rglob('*.glb'))
-    if not sources: raise SystemExit('No GLB models found')
+    sources=sorted(p for p in args.source.rglob('*') if p.suffix.lower() in ('.glb', '.gltf', '.obj'))
+    if not sources: raise SystemExit('No supported GLB/glTF/OBJ models found')
     models=[]
     for source in sources:
         print('Converting',source,flush=True)
