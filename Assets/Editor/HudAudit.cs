@@ -27,6 +27,7 @@ namespace Fpp.Editor
                 hud=UnityEngine.Object.FindObjectOfType<MobileHud>();Require(hud!=null,"component missing");
                 Invoke("Awake");Invoke("Start");
                 canvas=GameObject.Find("Mobile HUD").GetComponent<Canvas>();Canvas.ForceUpdateCanvases();
+                Require(GameObject.Find("Reticle").GetComponentsInChildren<Image>().Length==6,"font-independent reticle marks");
                 var controls=canvas.GetComponentsInChildren<HudControl>(true);
                 Require(controls.Length==6,"expected six action/movement controls");
                 foreach(string id in new[]{"move","fire","reload","pickup","aim","sidearm"})

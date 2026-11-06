@@ -53,8 +53,14 @@ namespace Fpp
             safeRoot = Panel("Safe area", go.transform, Color.clear); safeRoot.GetComponent<Image>().raycastTarget = false;
             status = Label("Weapon status", safeRoot, "MARK 23  •  READY", 22, TextAnchor.UpperLeft);
             Rect(status.rectTransform, new Vector2(0,1), new Vector2(0,1), new Vector2(270,-50), new Vector2(500,70));
-            var crosshair = Label("Reticle", safeRoot, "+", 27, TextAnchor.MiddleCenter);
-            Rect(crosshair.rectTransform, Vector2.one*.5f, Vector2.one*.5f, Vector2.zero, new Vector2(30,30));
+            var reticle=Panel("Reticle",safeRoot,Color.clear);reticle.GetComponent<Image>().raycastTarget=false;
+            Rect(reticle,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(20,20));
+            foreach(var offset in new[]{new Vector2(-6,0),new Vector2(6,0),new Vector2(0,-6),new Vector2(0,6),Vector2.zero})
+            {
+                var mark=Panel("Reticle mark",reticle,new Color(.93f,.94f,.89f,.95f));mark.GetComponent<Image>().raycastTarget=false;
+                var size=offset==Vector2.zero?new Vector2(2,2):(offset.x==0?new Vector2(2,5):new Vector2(5,2));
+                Rect(mark,Vector2.one*.5f,Vector2.one*.5f,offset,size);
+            }
             pickupLabel = Label("Pickup hint", safeRoot, "", 20, TextAnchor.MiddleCenter);
             Rect(pickupLabel.rectTransform, new Vector2(.2f,.36f), new Vector2(.8f,.36f), Vector2.zero, new Vector2(0,40));
             joystick = AddControl("move", "MOVE", .14f,.22f,150);
@@ -85,6 +91,7 @@ namespace Fpp
             safeRoot.anchorMin = new Vector2(lastSafe.xMin/Screen.width,lastSafe.yMin/Screen.height);
             safeRoot.anchorMax = new Vector2(lastSafe.xMax/Screen.width,lastSafe.yMax/Screen.height);
             safeRoot.offsetMin = safeRoot.offsetMax = Vector2.zero;
+            foreach(var control in controls)control.Apply();
         }
         private HudControl AddControl(string id,string text,float x,float y,float size)
         {
@@ -120,7 +127,7 @@ namespace Fpp
             scaleSlider=sliderRoot.gameObject.AddComponent<Slider>();scaleSlider.minValue=.6f;scaleSlider.maxValue=1.6f;
             var handle=Panel("Handle",sliderRoot,new Color(.9f,.76f,.4f,1));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(24,0));
             scaleSlider.handleRect=handle;scaleSlider.targetGraphic=handle.GetComponent<Image>();
-            scaleSlider.onValueChanged.AddListener(value=> { if(selected!=null) { selected.placement.scale=value;selected.Apply(); } });
+            scaleSlider.onValueChanged.AddListener(value=> { if(selected!=null) { selected.placement.scale=value;selected.Apply();Select(selected); } });
             SmallButton(root,"RESET",new Vector2(.65f,.12f),new Vector2(.8f,.55f),ResetLayout);
             SmallButton(root,"SAVE",new Vector2(.82f,.12f),new Vector2(.98f,.55f),()=>SetEditing(false));
             editorPanel.SetActive(false);

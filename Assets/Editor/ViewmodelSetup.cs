@@ -56,17 +56,17 @@ namespace Fpp.Editor
             {
                 if(t.name=="RightHand1_029")hand=t;if(t.name=="main_j_050")main=t;if(t.name=="side_j_051")side=t;
             }
-            if(hand!=null && main!=null && side!=null)
-            {
-                Vector3 forward=holder.transform.InverseTransformDirection(main.position-hand.position).normalized;
-                Vector3 up=holder.transform.InverseTransformDirection(side.position-main.position).normalized;
-                calibration.transform.localRotation=Quaternion.Inverse(Quaternion.LookRotation(forward,up));
-            }
-            Bounds bound=PosedBounds(gun,holder.transform);
-            float size=Mathf.Max(bound.size.x,bound.size.y,bound.size.z);
-            if(size<.0001f)throw new Exception("Invalid posed pistol bounds");
-            calibration.transform.localScale*=.30f/size;
-            bound=PosedBounds(gun,holder.transform);calibration.transform.localPosition-=bound.center;
+            if(hand==null || main==null || side==null)throw new Exception("Pistol grip calibration bones missing");
+            Vector3 grip=holder.transform.InverseTransformDirection(main.position-hand.position);
+            Vector3 up=holder.transform.InverseTransformDirection(side.position-main.position).normalized;
+            if(grip.magnitude<.000001f)throw new Exception("Degenerate authored pistol grip");
+            calibration.transform.localRotation=Quaternion.Inverse(Quaternion.LookRotation(grip.normalized,up));
+            // Calibrate using a real skeletal landmark, not scale-sensitive BakeMesh bounds.
+            // The original trigger-hand to pistol joint distance is 11.13cm on a 27.47cm pistol.
+            calibration.transform.localScale*=.122f/grip.magnitude;
+            calibration.transform.localPosition-=holder.transform.InverseTransformPoint(main.position);
+            animation.cullingType=AnimationCullingType.AlwaysAnimate;
+            Debug.Log("FPP grip calibration: raw="+grip.magnitude.ToString("G9")+" scale="+calibration.transform.localScale.x.ToString("G9")+" finalGrip="+Vector3.Distance(main.position,hand.position).ToString("G9"));
             holder.transform.localPosition=new Vector3(.115f,-.16f,.5f);
             controller.defaultViewmodel=holder;controller.pistolRenderers=gun.ToArray();
             var mount=new GameObject("Replacement weapon grip");mount.transform.SetParent(holder.transform,false);controller.weaponMount=mount.transform;
@@ -77,32 +77,15 @@ namespace Fpp.Editor
             var shader=Shader.Find("FPP/Muzzle");if(shader==null)throw new Exception("Muzzle shader missing");
             if(flash==null){flash=new Material(shader);AssetDatabase.CreateAsset(flash,flashPath);}controller.flashMaterial=flash;
         }
-        private static Bounds PosedBounds(List<Renderer> renderers, Transform space)
-        {
-            var points=new List<Vector3>();
-            foreach(var r in renderers)
-            {
-                var skin=r as SkinnedMeshRenderer;
-                if(skin!=null)
-                {
-                    var mesh=new Mesh();skin.BakeMesh(mesh);
-                    foreach(var v in mesh.vertices)points.Add(space.InverseTransformPoint(skin.transform.TransformPoint(v)));UnityEngine.Object.DestroyImmediate(mesh);
-                }
-                else
-                {
-                    var f=r.GetComponent<MeshFilter>();if(f!=null)foreach(var v in f.sharedMesh.vertices)points.Add(space.InverseTransformPoint(f.transform.TransformPoint(v)));
-                }
-            }
-            if(points.Count==0)throw new Exception("No viewmodel vertices");
-            var bound=new Bounds(points[0],Vector3.zero);foreach(var point in points)bound.Encapsulate(point);return bound;
-        }
     }
+
     public sealed class ViewmodelImport : AssetPostprocessor
     {
         private void OnPreprocessModel()
         {
             if(!assetPath.StartsWith("Assets/Viewmodels/"))return;
-            var importer=(ModelImporter)assetImporter;importer.importAnimation=true;importer.animationType=ModelImporterAnimationType.Legacy;
+            var importer=(ModelImporter)assetImporter;importer.globalScale=1;importer.useFileScale=true;
+            importer.skinWeights=ModelImporterSkinWeights.Standard;importer.importAnimation=true;importer.animationType=ModelImporterAnimationType.Legacy;
             importer.materialImportMode=ModelImporterMaterialImportMode.ImportStandard;importer.isReadable=true;importer.optimizeGameObjects=false;
         }
         private void OnPreprocessTexture()
