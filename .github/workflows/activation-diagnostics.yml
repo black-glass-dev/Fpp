@@ -8,7 +8,7 @@ on:
       run_id:
         description: Completed Android workflow run to inspect
         required: true
-        default: '42213024127'
+        default: '42213860584'
 permissions:
   actions: read
   contents: read
@@ -21,7 +21,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          RUN_ID: ${{ inputs.run_id || '42213024127' }}
+          RUN_ID: ${{ inputs.run_id || '42213860584' }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -56,6 +56,7 @@ jobs:
           emitted=0
           errors=[]
           for line in text.splitlines():
+              if "Verify fresh APK" in line: continue
               if not allowed.search(line): continue
               if re.search(r'Start importing|GLX_|GL_[A-Z]|LogAssemblyErrors|"error":|bee_backend',line): continue
               if not re.search(r'error CS\d+',line) and re.search(r'password|username|token|secret|serial|<|docker run|--env|unityLicense',line,re.I): continue
@@ -69,4 +70,4 @@ jobs:
               emitted+=1
 
 
-          if errors: print("::notice::Sanitized build failure context:%0A"+"%0A".join(list(dict.fromkeys(e for e in errors if re.search(r"error CS\d+",e)))[:12]+errors[-8:]))
+          if errors: print("::notice::Sanitized build failure context:%0A"+"%0A".join(list(dict.fromkeys(e for e in errors if re.search(r"error CS\d+",e)))[:12]+errors[-16:]))
