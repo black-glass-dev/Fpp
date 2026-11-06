@@ -3,6 +3,7 @@ import json, os
 from pathlib import Path
 import bpy
 from mathutils import Vector
+import numpy as np
 source=Path('.asset-staging/packs/mark_23__animated_free.glb').resolve()
 output=Path('Assets/Viewmodels/Mark23');output.mkdir(parents=True,exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -42,20 +43,20 @@ for obj in bpy.data.objects:
         mesh=evaluated.to_mesh()
         points.extend(obj.matrix_world@v.co for v in mesh.vertices)
         evaluated.to_mesh_clear()
-lo=Vector([min(p[i] for p in points) for i in range(3)]);hi=Vector([max(p[i] for p in points) for i in range(3)])
+values=np.array([list(p) for p in points]);lo=Vector(np.percentile(values,2,axis=0));hi=Vector(np.percentile(values,98,axis=0))
 center=(lo+hi)/2;size=max(hi-lo)
 camera_data=bpy.data.cameras.new('Review camera');camera=bpy.data.objects.new('Review camera',camera_data);scene.collection.objects.link(camera)
-camera.location=center+Vector((size*.6,-size*1.3,size*.6));camera.rotation_euler=(center-camera.location).to_track_quat('-Z','Y').to_euler();camera_data.lens=45;scene.camera=camera
+camera.location=center+Vector((size*.6,-size*1.3,size*.6));camera.rotation_euler=(center-camera.location).to_track_quat('-Z','Y').to_euler();camera_data.type="ORTHO";camera_data.ortho_scale=size*1.4;scene.camera=camera
 light_data=bpy.data.lights.new('Softbox','AREA');light_data.energy=800;light_data.shape='DISK';light_data.size=max(.5,size*2)
 light=bpy.data.objects.new('Softbox',light_data);scene.collection.objects.link(light);light.location=center+Vector((size,-size,size*2));light.rotation_euler=(center-light.location).to_track_quat('-Z','Y').to_euler()
 Path('Docs/Previews').mkdir(parents=True,exist_ok=True);scene.render.filepath=str(Path('Docs/Previews/mark23-source-pose.png').resolve());bpy.ops.render.render(write_still=True)
 # All original actions remain available; FBX export includes real skin weights/bind matrices.
 for rig in armatures:
     rig.animation_data.action=None
-    for track in rig.animation_data.nla_tracks:track.mute=False
+    for track in rig.animation_data.nla_tracks:track.mute=True
 bpy.ops.export_scene.fbx(filepath=str((output/'Mark23.fbx').resolve()),object_types={'ARMATURE','MESH'},
     use_selection=False,add_leaf_bones=False,bake_anim=True,bake_anim_use_all_actions=True,
-    bake_anim_use_nla_strips=True,bake_anim_simplify_factor=0,axis_forward='-Z',axis_up='Y',path_mode='STRIP')
+    bake_anim_use_nla_strips=False,bake_anim_simplify_factor=0,axis_forward='-Z',axis_up='Y',path_mode='STRIP')
 report=dict(materials=materials,actions=[a.name for a in bpy.data.actions],bounds=[list(lo),list(hi)],
     bones=[b.name for rig in armatures for b in rig.data.bones])
 (output/'rig.json').write_text(json.dumps(report,indent=2)+'\n')
