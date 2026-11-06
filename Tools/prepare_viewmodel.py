@@ -60,3 +60,8 @@ report=dict(materials=materials,actions=[a.name for a in bpy.data.actions],bound
     bones=[b.name for rig in armatures for b in rig.data.bones])
 (output/'rig.json').write_text(json.dumps(report,indent=2)+'\n')
 print('::notice::Skinned pistol exported with clips: '+', '.join(report['actions']))
+# bpy's embedded interpreter can crash during Python shutdown after successful export.
+# All output operations above are synchronous; validate files before a clean process exit.
+assert (output/'Mark23.fbx').stat().st_size > 1000
+import sys
+sys.stdout.flush();sys.stderr.flush();os._exit(0)
