@@ -18,7 +18,7 @@ namespace Fpp.Editor
             foreach(var renderer in scan.GetComponentsInChildren<Renderer>())
             foreach(var material in renderer.sharedMaterials)
             {
-                material.SetFloat("_FlattenBelow",top+1.2f);
+                material.SetFloat("_ScanGroundBelow",top+1.2f);
                 material.SetVector("_SkirtRect",new Vector4(center.x-footprint.x*.5f,center.z-footprint.z*.5f,center.x+footprint.x*.5f,center.z+footprint.z*.5f));
             }
             Cube(scan,"Level stone plinth",new Vector3(center.x,top*.5f,center.z),new Vector3(footprint.x+.1f,top,footprint.z+.1f),stone);

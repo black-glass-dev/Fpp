@@ -1,6 +1,6 @@
 Shader "FPP/Mobile Scan"
 {
-    Properties { _MainTex("Scan albedo",2D)="white"{} _Color("Tint",Color)=(1,1,1,1) _TrimBelow("World height trim",Float)=-10000 _FlattenBelow("Scan skirt height",Float)=-10000 _SkirtRect("Scan skirt rectangle",Vector)=(-10000,-10000,10000,10000) }
+    Properties { _MainTex("Scan albedo",2D)="white"{} _Color("Tint",Color)=(1,1,1,1) _TrimBelow("World height trim",Float)=-10000 _ScanGroundBelow("Scan ground trim height",Float)=-10000 _SkirtRect("Scan skirt rectangle",Vector)=(-10000,-10000,10000,10000) }
     SubShader
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry" }
@@ -14,20 +14,20 @@ Shader "FPP/Mobile Scan"
             #pragma fragment frag
             #include "UnityCG.cginc"
             struct appdata {float4 vertex:POSITION;float3 normal:NORMAL;float2 uv:TEXCOORD0;};
-            struct v2f {float4 pos:SV_POSITION;float2 uv:TEXCOORD0;float3 normal:TEXCOORD1;float worldY:TEXCOORD2;float originalY:TEXCOORD3;float2 worldXZ:TEXCOORD4;};
-            sampler2D _MainTex;float4 _MainTex_ST;fixed4 _Color;float _TrimBelow;float _FlattenBelow;float4 _SkirtRect;
+            struct v2f {float4 pos:SV_POSITION;float2 uv:TEXCOORD0;float3 normal:TEXCOORD1;float worldY:TEXCOORD2;float2 worldXZ:TEXCOORD3;};
+            sampler2D _MainTex;float4 _MainTex_ST;fixed4 _Color;float _TrimBelow;float _ScanGroundBelow;float4 _SkirtRect;
             v2f vert(appdata v)
             {
                 v2f o;float3 world=mul(unity_ObjectToWorld,v.vertex).xyz;
-                o.originalY=world.y;o.normal=UnityObjectToWorldNormal(v.normal);
+                o.normal=UnityObjectToWorldNormal(v.normal);
                 o.pos=UnityWorldToClipPos(world);o.uv=TRANSFORM_TEX(v.uv,_MainTex);
                 o.worldY=world.y;o.worldXZ=world.xz;return o;
             }
             fixed4 frag(v2f i):SV_Target
             {
                 clip(i.worldY-_TrimBelow);
-                if(i.originalY<_FlattenBelow && abs(normalize(i.normal).y)>.6)clip(-1);
-                if(i.originalY<_FlattenBelow)
+                if(i.worldY<_ScanGroundBelow && abs(normalize(i.normal).y)>.6)clip(-1);
+                if(i.worldY<_ScanGroundBelow)
                     clip(min(min(i.worldXZ.x-_SkirtRect.x,_SkirtRect.z-i.worldXZ.x),min(i.worldXZ.y-_SkirtRect.y,_SkirtRect.w-i.worldXZ.y)));
                 fixed4 c=tex2D(_MainTex,i.uv)*_Color;
                 fixed lighting=.6+.4*abs(dot(normalize(i.normal),normalize(_WorldSpaceLightPos0.xyz)));
