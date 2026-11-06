@@ -2,24 +2,24 @@
 
 Unity **2022.3.62f1 LTS**, Android 8+ ARM64/OpenGL ES 3, built-in renderer, landscape. Original project using user-supplied assets, not Call of Duty code/branding.
 
-**Status: Unity Personal activation succeeded and a signed Android test APK is published. CI structure/integrity/signature checks passed; device/visual playtesting is still pending.**
+**Status: signed Android test build 18 published. Unity rig/material/HUD smoke tests and actual editor renders were reviewed. Build 6 was played on the user's phone; this revision still needs phone playtesting and profiling.**
 
-**[Download Fpp.apk — test build 6](https://github.com/black-glass-dev/Fpp/releases/download/test-build-6/Fpp.apk)** (17,838,161 bytes), [release notes](https://github.com/black-glass-dev/Fpp/releases/tag/test-build-6). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
+**[Download Fpp.apk — test build 18](https://github.com/black-glass-dev/Fpp/releases/download/test-build-18/Fpp.apk)** (30,196,671 bytes), [release notes](Docs/TEST-BUILD-18.md). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
 
 ## What is implemented
 - Test-map generator: six cottage instances, roads/courtyard, cover and boundary walls.
-- All nine models from the three newly supplied archives: five weapons, two trees, haystack and Chunakhola mosque, plus the earlier cottage model.
+- Original skinned Mark 23 arms/pistol default; three scattered floor weapons; two trees, haystack, Chunakhola mosque and the cottage. Kriss arms/gun excluded per the latest request.
 - Mobile walk/look, nearby ground weapon pickup/swap, raycast firing, ammo/reload and five reactive firing-range targets.
-- Credits screen, mobile texture/polygon conversion and conservative rendering defaults.
+- Editable/saved mobile control layout, ADS, original pistol clips, procedural other-weapon transitions, custom icon, credits and mobile texture/polygon conversion.
 
-These implementations compile into the released APK; gameplay, appearance and performance still need phone testing. See [asset inventory and verification](Docs/ASSETS.md) for exact limitations, credits and triangle counts.
+These implementations compile into the released APK. [Visual/control revision details](Docs/MOBILE-REVISION.md) distinguish editor verification from pending Android playtesting. Gameplay and performance still need phone testing. See [asset inventory and verification](Docs/ASSETS.md) for exact limitations, credits and triangle counts.
 
 ## Open/build in Unity
 Install Unity 2022.3.62f1 through Unity Hub with Android Build Support (SDK/NDK/OpenJDK). Activate Unity legitimately through the supported flow for your license. Open this repository.
 
 1. **FPP → Create cottage test map** generates `Assets/Scenes/CottageTest.unity` (asks to save open changes).
 2. Play in Editor: WASD + right mouse; E pickup, R reload, left mouse fire. On mobile: left drag walk, right drag look, on-screen action buttons.
-3. **FPP → Build Android APK** writes `build/Android/Fpp.apk`. Generates the scene if missing; preserves later saved scene edits. To incorporate changed catalogs into an existing scene, regenerate the scene explicitly.
+3. **FPP → Build Android APK** repairs imports, regenerates the map, audits/captures it and writes `build/Android/Fpp.apk`. The current build deliberately regenerates the scene; custom manual scene edits are not preserved by this generator.
 
 ## GitHub Actions
 Pushes affecting code/assets/workflow on `arena/f3a68c52-fpp` run `.github/workflows/android.yml`:
