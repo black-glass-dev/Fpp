@@ -54,6 +54,7 @@ jobs:
           errors=[]
           for line in text.splitlines():
               if not allowed.search(line): continue
+              if re.search(r'Start importing|GLX_|GL_[A-Z]|LogAssemblyErrors|"error":|bee_backend',line): continue
               if re.search(r'password|username|token|secret|serial|<|docker run|--env|unityLicense',line,re.I): continue
               for key in ('UNITY_EMAIL','UNITY_PASSWORD','UNITY_SERIAL'):
                   value=os.environ.get(key,'')
@@ -63,6 +64,6 @@ jobs:
               line=line[:600].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               errors.append(line)
               emitted+=1
-              if emitted>=45:break
 
-          if errors: print("::notice::Sanitized build failure context:%0A"+"%0A".join(errors))
+
+          if errors: print("::notice::Sanitized build failure context:%0A"+"%0A".join(errors[-25:]))
