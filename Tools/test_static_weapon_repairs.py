@@ -32,6 +32,15 @@ class StaticWeaponRepairTests(unittest.TestCase):
         self.assertFalse(np.any(boundary_counts==1),'Separately reduced atlas chunks must not tear apart')
         self.assertTrue(mesh.is_winding_consistent)
 
+    def test_scan_ground_is_clipped_without_stretching_wall_vertices(self):
+        shader=Path('Assets/Shaders/MobileScan.shader').read_text()
+        vertex=shader[shader.index('v2f vert'):shader.index('fixed4 frag')]
+        self.assertNotIn('world.y=',vertex)
+        self.assertIn('abs(normalize(i.normal).y)>.6)clip(-1)',shader)
+        importer=Path('Assets/Editor/PackModelLibrary.cs').read_text()
+        self.assertIn('assetPath.StartsWith("Assets/MosquePack/")?2048:1024',importer)
+        self.assertIn('maxTextureSize = size',importer)
+
     def test_other_weapons_reload_does_not_override_original_clip(self):
         code=Path('Assets/Scripts/WeaponController.cs').read_text()
         self.assertNotIn('Mathf.Sin((reloadEnd-Time.time)',code)
