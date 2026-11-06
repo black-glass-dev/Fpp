@@ -26,3 +26,6 @@ Recordings/
 .cache/
 google_drive/
 .asset-staging/
+
+__pycache__/
+*.pyc

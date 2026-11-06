@@ -59,6 +59,16 @@ namespace Fpp.Editor
             Cube("South boundary", new Vector3(0, 1.5f, -45), new Vector3(70, 3, 1), wall);
             Cube("West boundary", new Vector3(-35, 1.5f, 0), new Vector3(1, 3, 90), wall);
             Cube("East boundary", new Vector3(35, 1.5f, 0), new Vector3(1, 3, 90), wall);
+            PackModelLibrary.Populate();
+            for (int i = 0; i < 5; i++)
+            {
+                var target = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                target.name = "Shooting target " + i;
+                target.transform.position = new Vector3(-4 + i * 2, 1.5f, -18);
+                target.transform.localScale = new Vector3(.8f, 1.5f, .3f);
+                target.GetComponent<Renderer>().sharedMaterial = wall;
+                target.AddComponent<TestTarget>();
+            }
             var sun = new GameObject("Sun").AddComponent<Light>();
             sun.type = LightType.Directional;
             sun.transform.rotation = Quaternion.Euler(50, -30, 0);
@@ -82,6 +92,7 @@ namespace Fpp.Editor
             camera.AddComponent<AudioListener>();
             player.AddComponent<MobileBootstrap>();
             player.AddComponent<TestPlayer>().view = camera.transform;
+            player.AddComponent<WeaponController>().view = camera.transform;
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();

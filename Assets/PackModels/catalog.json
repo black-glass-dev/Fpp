@@ -1,0 +1,1220 @@
+{
+  "models": [
+    {
+      "name": "AK-47",
+      "weapon": true,
+      "sourceSha256": "6d917b526e4a8d07b5adfcfe6e1816d3fd6c79cff8d79fdaefe26d26c7965dba",
+      "sourceTriangles": 45726,
+      "parts": [
+        {
+          "model": "Assets/PackModels/AK_47/Part_000.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1468
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_001.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 3584
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_002.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 128
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_003.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 550
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_004.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 22
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_005.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 862
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_006.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1683
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_007.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1936
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_008.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 260
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_009.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 918
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_010.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 230
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_011.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1166
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_012.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1076
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_013.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 90
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_014.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1022
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_015.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 348
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_016.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 120
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_017.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 165
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_018.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1296
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_019.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 698
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_020.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 768
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_021.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 637
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_022.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 128
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_023.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 404
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_024.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 352
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_025.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 276
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_026.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 340
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_027.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 108
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_028.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_03.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1118
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_029.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 32
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_030.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 898
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_031.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 192
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_032.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 96
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_033.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 112
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_034.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 112
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_035.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 7770
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_036.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 538
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_037.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1036
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_038.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 102
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_039.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 302
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_040.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 160
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_041.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1502
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_042.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 242
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_043.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1456
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_044.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 2614
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_045.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 408
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_046.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 328
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_047.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 64
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_048.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 250
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_049.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 284
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_050.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 112
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_051.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 344
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_052.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_04.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1440
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_053.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_04.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 568
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_054.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_04.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 297
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_055.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1486
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_056.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 120
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_057.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 408
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_058.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 156
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_059.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 77
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_060.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 54
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_061.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 156
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_062.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 176
+        },
+        {
+          "model": "Assets/PackModels/AK_47/Part_063.obj",
+          "texture": "Assets/PackModels/AK_47/Texture_05.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 81
+        }
+      ]
+    },
+    {
+      "name": "Glock 17",
+      "weapon": true,
+      "sourceSha256": "e1b040deba12321aecefd42caf72b8808ac606faddf7226fb9ef1a6f59437297",
+      "sourceTriangles": 1223390,
+      "parts": [
+        {
+          "model": "Assets/PackModels/Glock_17/Part_000.obj",
+          "texture": "Assets/PackModels/Glock_17/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 16000
+        }
+      ]
+    },
+    {
+      "name": "Gun pistol m",
+      "weapon": true,
+      "sourceSha256": "cc5628a9e67c0d6847454a18922b8ccb6ca3167313d697f89121985cfeac613c",
+      "sourceTriangles": 500000,
+      "parts": [
+        {
+          "model": "Assets/PackModels/Gun_pistol_m/Part_000.obj",
+          "texture": "Assets/PackModels/Gun_pistol_m/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 18341
+        }
+      ]
+    },
+    {
+      "name": "Tree1",
+      "weapon": false,
+      "sourceSha256": "6b97c5cc24c7d43c115d42d12c87e8a3d6563490415fcf00268ea33c6dae7a9b",
+      "sourceTriangles": 11976,
+      "parts": [
+        {
+          "model": "Assets/PackModels/Tree1/Part_000.obj",
+          "texture": "Assets/PackModels/Tree1/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 636
+        },
+        {
+          "model": "Assets/PackModels/Tree1/Part_001.obj",
+          "texture": "Assets/PackModels/Tree1/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 2940
+        },
+        {
+          "model": "Assets/PackModels/Tree1/Part_002.obj",
+          "texture": "Assets/PackModels/Tree1/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 6000
+        },
+        {
+          "model": "Assets/PackModels/Tree1/Part_003.obj",
+          "texture": "Assets/PackModels/Tree1/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 2400
+        }
+      ]
+    },
+    {
+      "name": "Tree2",
+      "weapon": false,
+      "sourceSha256": "bfc1eee6657af3f1ce2390f70d627a919be104049107b3a2f10e0ff7a19df11d",
+      "sourceTriangles": 12256,
+      "parts": [
+        {
+          "model": "Assets/PackModels/Tree2/Part_000.obj",
+          "texture": "Assets/PackModels/Tree2/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 4916
+        },
+        {
+          "model": "Assets/PackModels/Tree2/Part_001.obj",
+          "texture": "Assets/PackModels/Tree2/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 5820
+        },
+        {
+          "model": "Assets/PackModels/Tree2/Part_002.obj",
+          "texture": "Assets/PackModels/Tree2/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 400
+        },
+        {
+          "model": "Assets/PackModels/Tree2/Part_003.obj",
+          "texture": "Assets/PackModels/Tree2/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": true,
+          "triangles": 1120
+        }
+      ]
+    },
+    {
+      "name": "haystack_v1.0_game_ready",
+      "weapon": false,
+      "sourceSha256": "867a95674909cc0cbe42d943b9c59e0e6c6bcbb73d7b97635c908442f2142d7b",
+      "sourceTriangles": 1130,
+      "parts": [
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_000.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_001.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_002.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_003.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_004.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_005.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_006.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_007.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_008.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_009.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_010.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 162
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_011.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 72
+        },
+        {
+          "model": "Assets/PackModels/haystack_v1_0_game_ready/Part_012.obj",
+          "texture": "Assets/PackModels/haystack_v1_0_game_ready/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 176
+        }
+      ]
+    },
+    {
+      "name": "kriss_vector_animated_free",
+      "weapon": true,
+      "sourceSha256": "e8e1060b1de28b5bfd34cb7663980be3febebdb9dabb7ad142621c3109192882",
+      "sourceTriangles": 12417,
+      "parts": [
+        {
+          "model": "Assets/PackModels/kriss_vector_animated_free/Part_000.obj",
+          "texture": "Assets/PackModels/kriss_vector_animated_free/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 7747
+        },
+        {
+          "model": "Assets/PackModels/kriss_vector_animated_free/Part_001.obj",
+          "texture": "Assets/PackModels/kriss_vector_animated_free/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 190
+        },
+        {
+          "model": "Assets/PackModels/kriss_vector_animated_free/Part_002.obj",
+          "texture": "Assets/PackModels/kriss_vector_animated_free/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 2068
+        },
+        {
+          "model": "Assets/PackModels/kriss_vector_animated_free/Part_003.obj",
+          "texture": "Assets/PackModels/kriss_vector_animated_free/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 2412
+        }
+      ]
+    },
+    {
+      "name": "mark_23__animated_free",
+      "weapon": true,
+      "sourceSha256": "12ca9d37eb7044be77076df250728edaf731d121caed16c6f9c47969a7ccfa9f",
+      "sourceTriangles": 7761,
+      "parts": [
+        {
+          "model": "Assets/PackModels/mark_23_animated_free/Part_000.obj",
+          "texture": "Assets/PackModels/mark_23_animated_free/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1815
+        },
+        {
+          "model": "Assets/PackModels/mark_23_animated_free/Part_001.obj",
+          "texture": "Assets/PackModels/mark_23_animated_free/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 354
+        },
+        {
+          "model": "Assets/PackModels/mark_23_animated_free/Part_002.obj",
+          "texture": "Assets/PackModels/mark_23_animated_free/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 2068
+        },
+        {
+          "model": "Assets/PackModels/mark_23_animated_free/Part_003.obj",
+          "texture": "Assets/PackModels/mark_23_animated_free/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 2412
+        },
+        {
+          "model": "Assets/PackModels/mark_23_animated_free/Part_004.obj",
+          "texture": "Assets/PackModels/mark_23_animated_free/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 1112
+        }
+      ]
+    }
+  ]
+}

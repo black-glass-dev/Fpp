@@ -56,7 +56,7 @@ namespace Fpp.Editor
             var version = Argument("-fppVersionCode") ?? Environment.GetEnvironmentVariable("ANDROID_VERSION_CODE");
             PlayerSettings.Android.bundleVersionCode = string.IsNullOrEmpty(version) ? 1 : int.Parse(version);
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
-            PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+            PlayerSettings.Android.targetSdkVersion = (AndroidSdkVersions)35;
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.LandscapeLeft;

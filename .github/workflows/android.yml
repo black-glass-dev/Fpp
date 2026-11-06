@@ -14,6 +14,7 @@ on:
       - 'Packages/**'
       - 'ProjectSettings/**'
       - '.github/workflows/android.yml'
+      - 'Tools/**'
 
 permissions:
   contents: read
@@ -23,22 +24,61 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  import-mosque:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: arena/f3a68c52-fpp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download and prepare large model on runner
+        if: hashFiles('Assets/MosquePack/catalog.json') == ''
+        continue-on-error: true
+        run: |
+          pip install -r Tools/requirements-assets.txt gdown==5.2.0
+          python Tools/fetch_mosque.py
+      - name: Commit converted mosque only after successful validation
+        id: source
+        run: |
+          if [ -f Assets/MosquePack/catalog.json ]; then
+            python Tools/validate_assets.py Assets/MosquePack/catalog.json
+            python Tools/create_metas.py
+            git add Assets/MosquePack Assets/MosquePack.meta
+            if ! git diff --cached --quiet; then
+              git config user.name 'github-actions[bot]'
+              git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+              git commit -m "Import optimized user-supplied mosque model"
+              git push origin HEAD:arena/f3a68c52-fpp
+            fi
+          else
+            echo '::warning::Large mosque download/conversion failed. This build cannot include that model.'
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   build:
-    runs-on: ubuntu-latest
+    needs: import-mosque
+    runs-on: ubuntu-22.04
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Check Unity license configuration
+        with:
+          ref: ${{ needs.import-mosque.outputs.source_sha }}
+      - name: Validate model inventory
+        run: python Tools/validate_assets.py Assets/PackModels/catalog.json
+      - name: Attempt Personal activation using account secrets when no license is supplied
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        run: |
-          if [ -z "$UNITY_LICENSE" ] && { [ -z "$UNITY_SERIAL" ] || [ -z "$UNITY_EMAIL" ] || [ -z "$UNITY_PASSWORD" ]; }; then
-            echo '::error::Configure UNITY_LICENSE (supported Personal activation) or UNITY_SERIAL + UNITY_EMAIL + UNITY_PASSWORD (eligible paid license). Email/password alone is not enough.'
-            exit 1
-          fi
+        run: bash Tools/try-personal-activation.sh
       - uses: actions/cache@v4
         with:
           path: Library
@@ -47,7 +87,7 @@ jobs:
       - name: Build ARM64 APK
         uses: game-ci/unity-builder@v4
         env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE || env.PERSONAL_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
@@ -56,6 +96,7 @@ jobs:
           targetPlatform: Android
           buildMethod: Fpp.Editor.AndroidBuild.Build
           customParameters: -fppVersionCode ${{ github.run_number }}
+          androidTargetSdkVersion: '35'
       - uses: actions/upload-artifact@v4
         with:
           name: Fpp-Android-${{ github.run_number }}
@@ -72,8 +113,8 @@ jobs:
           if-no-files-found: ignore
 
   release:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_release && github.ref == 'refs/heads/arena/f3a68c52-fpp'
-    needs: build
+    if: github.ref == 'refs/heads/arena/f3a68c52-fpp' && (github.event_name == 'push' || inputs.publish_release)
+    needs: [import-mosque, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -86,7 +127,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          BUILD_SHA: ${{ github.sha }}
+          BUILD_SHA: ${{ needs.import-mosque.outputs.source_sha }}
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
           gh release create "test-build-${BUILD_NUMBER}" apk/Fpp.apk --target "$BUILD_SHA" --prerelease --title "Android test build ${BUILD_NUMBER}" --notes "Setup/test build, not finished gameplay. ARM64 Android 8+. Full APK update; stable signing must be configured before ongoing distribution."

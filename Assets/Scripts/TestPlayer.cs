@@ -23,7 +23,7 @@ namespace Fpp
             {
                 foreach (Touch touch in Input.touches)
                 {
-                    if (touch.phase == TouchPhase.Began)
+                    if (touch.phase == TouchPhase.Began && !WeaponController.IsActionArea(touch.position))
                     {
                         if (touch.position.x < Screen.width * .45f && moveFinger < 0)
                         { moveFinger = touch.fingerId; moveOrigin = touch.position; }
@@ -64,7 +64,7 @@ namespace Fpp
         {
             var style = new GUIStyle(GUI.skin.label) { fontSize = Mathf.Max(16, Screen.height / 35) };
             GUI.Label(new Rect(24, 24, Screen.width - 48, 90),
-                "Cottage test map | Left drag: walk | Right drag: look\nDesktop: WASD + hold right mouse | Weapon pack pending", style);
+                "Cottage test map | Left drag: walk | Right drag: look\nDesktop: WASD + right mouse | E: pickup | R: reload | Left mouse: fire", style);
         }
     }
 }

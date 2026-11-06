@@ -1,0 +1,75 @@
+"""Bake GLB static scene nodes to mobile OBJ parts; preserve original archives externally.
+Animations/rigs are NOT exported. Decimated UVs use nearest-source-vertex transfer.
+"""
+import argparse, hashlib, json, re
+from pathlib import Path
+import numpy as np
+from PIL import Image
+import trimesh
+from scipy.spatial import cKDTree
+
+
+def convert(source, output):
+    scene = trimesh.load(source, force='scene', process=False)
+    slug = re.sub(r'[^a-zA-Z0-9]+', '_', source.stem).strip('_')
+    folder = output / slug
+    folder.mkdir(parents=True, exist_ok=True)
+    parts, textures = [], {}
+    original_faces = sum(len(g.faces) for g in scene.geometry.values())
+    total = max(1, original_faces)
+    for index, node in enumerate(sorted(scene.graph.nodes_geometry)):
+        matrix, key = scene.graph[node]
+        original = scene.geometry[key]
+        if not isinstance(original, trimesh.Trimesh):
+            continue
+        mesh = original.copy()
+        material = getattr(mesh.visual, 'material', None)
+        uv = getattr(mesh.visual, 'uv', None)
+        budget = max(100, int(16000 * len(mesh.faces) / total))
+        if len(mesh.faces) > max(20000, budget):
+            reduced = mesh.simplify_quadric_decimation(face_count=budget)
+            if uv is not None:
+                _, near = cKDTree(mesh.vertices).query(reduced.vertices)
+                reduced.visual = trimesh.visual.TextureVisuals(uv=uv[near], material=material)
+            mesh = reduced
+        mesh.apply_transform(matrix)
+        tex_path = ''
+        image = getattr(material, 'baseColorTexture', None)
+        color = getattr(material, 'baseColorFactor', None)
+        if image is not None:
+            image = image.copy().convert('RGBA')
+            image.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+            digest = hashlib.sha256(image.tobytes()).hexdigest()
+            if digest not in textures:
+                tex_name = 'Texture_%02d.png' % len(textures)
+                image.save(folder / tex_name, optimize=True)
+                textures[digest] = tex_name
+            tex_path = (folder / textures[digest]).as_posix()
+        obj = folder / ('Part_%03d.obj' % index)
+        text = trimesh.exchange.obj.export_obj(mesh, include_texture=True,
+            write_texture=False, include_color=False, include_normals=True, header='FPP static mobile conversion')
+        obj.write_text('\n'.join(l for l in text.splitlines() if not l.startswith(('mtllib ', 'usemtl '))) + '\n')
+        # No external MTL required: Editor explicitly binds the texture/material from this catalog.
+        factor = [float(x) for x in color] if color is not None else [255,255,255,255]
+        if max(factor) > 1: factor = [x / 255 for x in factor]
+        parts.append(dict(model=obj.as_posix(), texture=tex_path, color=factor,
+            cutout=(getattr(material, 'alphaMode', '') == 'MASK' or 'Tree' in slug), triangles=len(mesh.faces)))
+    weapon = any(s in slug.lower() for s in ['gun','pistol','kriss','mark_23','ak_47','glock'])
+    return dict(name=source.stem, weapon=weapon, sourceSha256=hashlib.file_digest(open(source,'rb'),'sha256').hexdigest(),
+        sourceTriangles=original_faces, parts=parts)
+
+if __name__ == '__main__':
+    parser=argparse.ArgumentParser()
+    parser.add_argument('source',type=Path)
+    parser.add_argument('--output',type=Path,default=Path('Assets/PackModels'))
+    parser.add_argument('--catalog',type=Path,default=Path('Assets/PackModels/catalog.json'))
+    args=parser.parse_args()
+    sources=sorted(args.source.rglob('*.glb'))
+    if not sources: raise SystemExit('No GLB models found')
+    models=[]
+    for source in sources:
+        print('Converting',source,flush=True)
+        models.append(convert(source,args.output))
+    args.catalog.parent.mkdir(parents=True, exist_ok=True)
+    args.catalog.write_text(json.dumps(dict(models=models),indent=2)+'\n')
+    print('Converted',len(models),'models;',sum(sum(p['triangles'] for p in m['parts']) for m in models),'triangles')
