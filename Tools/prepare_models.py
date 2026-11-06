@@ -1,7 +1,7 @@
 """Bake GLB static scene nodes to mobile OBJ parts; preserve original archives externally.
 Animations/rigs are NOT exported. Decimated UVs use nearest-source-vertex transfer.
 """
-import argparse, hashlib, json, re
+import argparse, hashlib, json, re, tempfile
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -13,11 +13,13 @@ def reduce_preserving_uv(mesh, face_count):
     import pymeshlab
     uv=np.asarray(mesh.visual.uv)
     ms=pymeshlab.MeshSet()
-    ms.add_mesh(pymeshlab.Mesh(vertex_matrix=np.asarray(mesh.vertices),
-        face_matrix=np.asarray(mesh.faces,dtype=np.int32),
-        w_tex_coords_matrix=uv[mesh.faces].reshape(-1,2)))
-    ms.meshing_decimation_quadric_edge_collapse_with_texture(targetfacenum=face_count,
-        preserveboundary=True,preservenormal=True,extratcoordw=3.0)
+    # MeshLab's array constructor leaves wedge texture indices unassigned (-1).
+    # Its OBJ+MTL importer initializes real texture slots and UV chart ownership.
+    with tempfile.TemporaryDirectory() as folder:
+        obj=Path(folder)/'source.obj';mesh.export(obj)
+        ms.load_new_mesh(str(obj))
+        ms.meshing_decimation_quadric_edge_collapse_with_texture(targetfacenum=face_count,
+            preserveboundary=True,preservenormal=True,extratcoordw=3.0)
     reduced=ms.current_mesh();faces=reduced.face_matrix()
     points=reduced.vertex_matrix()[faces].reshape(-1,3)
     tex=reduced.wedge_tex_coord_matrix().reshape(-1,2)
