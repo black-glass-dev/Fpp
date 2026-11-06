@@ -40,8 +40,10 @@ class ConversionTests(unittest.TestCase):
 
     def test_every_model_has_source_hash_and_finite_color(self):
         catalog=json.loads(Path('Assets/PackModels/catalog.json').read_text())
-        self.assertEqual(len(catalog['models']),8)
-        self.assertEqual(sum(m['weapon'] for m in catalog['models']),5)
+        self.assertEqual(len(catalog['models']),6)
+        self.assertFalse(any(m['name'] in ('kriss_vector_animated_free','mark_23__animated_free') for m in catalog['models']))
+        self.assertTrue(Path('Assets/Viewmodels/Mark23/Mark23.fbx').is_file())
+        self.assertEqual(sum(m['weapon'] for m in catalog['models']),3)
         for model in catalog['models']:
             self.assertEqual(len(model['sourceSha256']),64)
             for part in model['parts']:

@@ -2,9 +2,9 @@
 
 Unity **2022.3.62f1 LTS**, Android 8+ ARM64/OpenGL ES 3, built-in renderer, landscape. Original project using user-supplied assets, not Call of Duty code/branding.
 
-**Status: signed Android test build 18 published. Unity rig/material/HUD smoke tests and actual editor renders were reviewed. Build 6 was played on the user's phone; this revision still needs phone playtesting and profiling.**
+**Status: signed Android test build 27 published after repairs based on seven build-18 phone screenshots. Ten local tests, Unity audits, actual close-up editor renders and the fresh signed APK gate passed. This revision still needs phone playtesting and profiling.**
 
-**[Download Fpp.apk — test build 18](https://github.com/black-glass-dev/Fpp/releases/download/test-build-18/Fpp.apk)** (30,196,671 bytes), [release notes](Docs/TEST-BUILD-18.md). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
+**[Download Fpp.apk — test build 27](https://github.com/black-glass-dev/Fpp/releases/download/test-build-27/Fpp.apk)** (42,662,533 bytes), [release notes](Docs/TEST-BUILD-27.md). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
 
 ## What is implemented
 - Test-map generator: six cottage instances, roads/courtyard, cover and boundary walls.
@@ -40,7 +40,9 @@ Current builds use Unity debug signing. Ephemeral runners may use different cert
 python -m venv .venv
 .venv/bin/pip install -r Tools/requirements-assets.txt
 .venv/bin/python Tools/test_asset_pipeline.py
+.venv/bin/python Tools/test_mobile_revision.py
+.venv/bin/python Tools/test_static_weapon_repairs.py
 python Tools/validate_assets.py Assets/PackModels/catalog.json Assets/MosquePack/catalog.json
 ```
 
-Animations, enemy AI, campaign, audio, multiplayer and device profiling remain future work. The Android build and runtime still need successful build/device verification. Supply device model, RAM, Android version and target FPS for actual performance tuning.
+Bespoke secondary-weapon animation rigs, enemy AI, campaign, production audio, multiplayer and device profiling remain future work. The Android build is verified; this latest revision still needs physical-device playtesting. Supply device model, RAM, Android version and target FPS for actual performance tuning.
