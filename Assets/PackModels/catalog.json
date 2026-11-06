@@ -792,9 +792,10 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 16000
+          "triangles": 32000
         }
-      ]
+      ],
+      "conversion": "Texture-aware QEM preserving source atlas; rendered two-sided for thin scanned surfaces"
     },
     {
       "name": "Gun pistol m",
@@ -812,9 +813,10 @@
             1.0
           ],
           "cutout": false,
-          "triangles": 18341
+          "triangles": 32000
         }
-      ]
+      ],
+      "conversion": "Texture-aware QEM preserving source atlas; rendered two-sided for thin scanned surfaces"
     },
     {
       "name": "Tree1",
