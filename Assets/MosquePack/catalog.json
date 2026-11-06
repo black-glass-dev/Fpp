@@ -1,0 +1,168 @@
+{
+  "models": [
+    {
+      "name": "chunakhola_-_mosque_city_of_bagerhat",
+      "weapon": false,
+      "sourceSha256": "a1d27d47c24279e966edc659c020629cc0ee5e20796e3b3bc6bdabbafa0ed870",
+      "sourceTriangles": 1014222,
+      "parts": [
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_000.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 4863
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_001.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 5627
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_002.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 4814
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_003.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 3717
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_004.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 3537
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_005.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 3586
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_006.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 4044
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_007.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_00.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 4342
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_008.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 4730
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_009.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_01.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 4597
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_010.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 4146
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_011.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 3158
+        },
+        {
+          "model": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Part_012.obj",
+          "texture": "Assets/MosquePack/chunakhola_mosque_city_of_bagerhat/Texture_02.png",
+          "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "cutout": false,
+          "triangles": 3755
+        }
+      ]
+    }
+  ]
+}
