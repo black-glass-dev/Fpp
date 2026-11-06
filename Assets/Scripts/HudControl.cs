@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Fpp
 {
@@ -17,6 +18,8 @@ namespace Fpp
         {
             rect=(RectTransform)transform;rect.anchorMin=rect.anchorMax=new Vector2(placement.x,placement.y);
             rect.anchoredPosition=Vector2.zero;rect.sizeDelta=Vector2.one*(baseSize*placement.scale);
+            var label=GetComponentInChildren<Text>();
+            if(label!=null)label.fontSize=Mathf.RoundToInt((placement.id=="fire"?24:17)*placement.scale);
             var parent=(RectTransform)rect.parent;
             if(parent.rect.width>0 && parent.rect.height>0)
             {

@@ -149,6 +149,8 @@ namespace Fpp.Editor
         {
             if (!IsPack) return;
             var importer = (TextureImporter)assetImporter;
+            importer.textureType = TextureImporterType.Default;
+            importer.textureShape = TextureImporterShape.Texture2D;
             importer.maxTextureSize = 1024;
             importer.mipmapEnabled = true;
             importer.isReadable = false;

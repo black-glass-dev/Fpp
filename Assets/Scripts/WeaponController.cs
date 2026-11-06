@@ -83,7 +83,7 @@ namespace Fpp
             if(defaultViewmodel==null)return;
             recoil=Mathf.MoveTowards(recoil,0,Time.deltaTime*7);
             bool aiming=!MenuOpen && (MobileHud.Instance!=null && MobileHud.Instance.AimHeld || Input.touchCount==0 && Input.GetMouseButton(1));
-            Vector3 position=basePosition+(aiming?new Vector3(-.07f,.025f,.025f):Vector3.zero);
+            Vector3 position=basePosition+(aiming?new Vector3(-.115f,.11f,.03f):Vector3.zero);
             position+=new Vector3(0,-equipBlend*.28f,-recoil*.028f);
             float walk=MobileHud.Instance!=null?MobileHud.Instance.Move.magnitude:Mathf.Clamp01(Mathf.Abs(Input.GetAxisRaw("Vertical"))+Mathf.Abs(Input.GetAxisRaw("Horizontal")));
             position+=new Vector3(Mathf.Sin(Time.time*7)*.003f,Mathf.Cos(Time.time*14)*.003f,0)*walk;
@@ -131,13 +131,14 @@ namespace Fpp
                 heldVisual.transform.localScale=Vector3.one*scale;
                 heldVisual.transform.localPosition=-(heldVisual.transform.localRotation*(bound.center*scale));
                 next.gameObject.SetActive(false);
-                if(rigAnimation!=null)rigAnimation.Stop();
+                HoldDrawPose();
                 if(leftUpper!=null && leftForearm!=null && leftHand!=null)
                 {
                     upperRest=leftUpper.localRotation;foreRest=leftForearm.localRotation;handRest=leftHand.localRotation;
                     supportPoseCached=true;
                 }
             }
+            muzzle.localPosition=new Vector3(0,.05f,!sidearm && DisplayName.Contains("AK")?.33f:.16f);
             rounds=magazine;reloadEnd=0;
             for(float t=0;t<.32f;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/.32f);yield return null;}
             equipBlend=0;equipping=false;nextShot=Time.time+.1f;
@@ -181,8 +182,18 @@ namespace Fpp
             }
             flashEnd=Time.time+.025f;
             flash.transform.localRotation=Quaternion.Euler(0,0,Random.Range(0,360));
-            tracer.SetPosition(0,view.position+view.forward*.75f+view.right*.1f-view.up*.1f);tracer.SetPosition(1,end);
+            tracer.SetPosition(0,muzzle.position);tracer.SetPosition(1,end);
             sound.PlayOneShot(shotSound);
+        }
+        private void HoldDrawPose()
+        {
+            if(rigAnimation==null)return;
+            foreach(AnimationState state in rigAnimation)
+            {
+                if(!state.name.ToLowerInvariant().Contains("draw"))continue;
+                state.wrapMode=WrapMode.ClampForever;rigAnimation.Play(state.name);
+                state.time=Mathf.Max(0,state.length-.001f);state.speed=0;rigAnimation.Sample();return;
+            }
         }
         private void PlayClip(string word,float duration)
         {

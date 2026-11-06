@@ -48,6 +48,7 @@ namespace Fpp.Editor
         [MenuItem("FPP/Build Android APK")]
         public static void Build()
         {
+            TextureRepair.Ensure2D();
             CottageMap.Create();
             AppIconSetup.Apply();
             RevisionAudit.Validate();

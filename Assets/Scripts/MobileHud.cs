@@ -38,7 +38,8 @@ namespace Fpp
         private void Awake() { Instance = this; weapons = GetComponent<WeaponController>(); }
         private void Start()
         {
-            font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            font = Resources.Load<Font>("Fonts/Hud");
+            if(font == null) font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             circle = CircleSprite();
             if (EventSystem.current == null)
             {
@@ -137,7 +138,7 @@ namespace Fpp
             var viewport=Panel("Scroll area",p,Color.clear);Rect(viewport,new Vector2(.03f,.03f),new Vector2(.97f,.85f),Vector2.zero,Vector2.zero);
             viewport.gameObject.AddComponent<RectMask2D>();var scroll=viewport.gameObject.AddComponent<ScrollRect>();scroll.horizontal=false;scroll.viewport=viewport;
             var text=Label("Notices",viewport,"",18,TextAnchor.UpperLeft);text.rectTransform.anchorMin=new Vector2(0,1);text.rectTransform.anchorMax=Vector2.one;text.rectTransform.pivot=new Vector2(.5f,1);text.rectTransform.sizeDelta=new Vector2(0,2200);
-            var main=Resources.Load<TextAsset>("THIRD_PARTY_NOTICES");var mosque=Resources.Load<TextAsset>("MOSQUE_NOTICE");text.text=(main!=null?main.text:"")+"\n\n"+(mosque!=null?mosque.text:"");
+            var main=Resources.Load<TextAsset>("THIRD_PARTY_NOTICES");var mosque=Resources.Load<TextAsset>("MOSQUE_NOTICE");text.text=(main!=null?main.text:"")+"\n\n"+(mosque!=null?mosque.text:"")+"\n\nHUD font: DejaVu Sans Bold. Bitstream/DejaVu license notice bundled at Fonts/LICENSE.";
             scroll.content=text.rectTransform;creditsPanel.SetActive(false);
         }
         public void Select(HudControl control)
