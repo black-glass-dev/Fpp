@@ -2,7 +2,9 @@
 
 Unity **2022.3.62f1 LTS**, Android 8+ ARM64/OpenGL ES 3, built-in renderer, landscape. Original project using user-supplied assets, not Call of Duty code/branding.
 
-**Status: assets + prototype code integrated; Android build blocked by Unity Personal activation. No tested APK yet.**
+**Status: Unity Personal activation succeeded and a signed Android test APK is published. CI structure/integrity/signature checks passed; device/visual playtesting is still pending.**
+
+**[Download Fpp.apk — test build 6](https://github.com/black-glass-dev/Fpp/releases/download/test-build-6/Fpp.apk)** (17,838,161 bytes), [release notes](https://github.com/black-glass-dev/Fpp/releases/tag/test-build-6). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
 
 ## What is implemented
 - Test-map generator: six cottage instances, roads/courtyard, cover and boundary walls.
@@ -10,7 +12,7 @@ Unity **2022.3.62f1 LTS**, Android 8+ ARM64/OpenGL ES 3, built-in renderer, land
 - Mobile walk/look, nearby ground weapon pickup/swap, raycast firing, ammo/reload and five reactive firing-range targets.
 - Credits screen, mobile texture/polygon conversion and conservative rendering defaults.
 
-These are source implementations, not claims of a verified playable build. See [asset inventory and verification](Docs/ASSETS.md) for exact limitations, credits and triangle counts.
+These implementations compile into the released APK; gameplay, appearance and performance still need phone testing. See [asset inventory and verification](Docs/ASSETS.md) for exact limitations, credits and triangle counts.
 
 ## Open/build in Unity
 Install Unity 2022.3.62f1 through Unity Hub with Android Build Support (SDK/NDK/OpenJDK). Activate Unity legitimately through the supported flow for your license. Open this repository.
@@ -22,11 +24,11 @@ Install Unity 2022.3.62f1 through Unity Hub with Android Build Support (SDK/NDK/
 ## GitHub Actions
 Pushes affecting code/assets/workflow on `arena/f3a68c52-fpp` run `.github/workflows/android.yml`:
 1. Runner imports the 113 MB public Drive mosque file if not already imported and preserves embedded credits. Converted assets are committed only to this branch.
-2. If no license/serial is supplied, a bounded actual email/password-only Personal activation is attempted with `UNITY_EMAIL` and `UNITY_PASSWORD`. Logs/credentials stay private; failure stops the build. **This is an attempt, not a guaranteed supported Personal activation method.**
-3. GameCI uses a supplied `UNITY_LICENSE`, eligible serial credentials (`UNITY_SERIAL` + email/password), or a successfully produced license, if available.
+2. GameCI builder **v6.0.0**, pinned CLI **v0.1.72**, activates and builds in the same environment. With only `UNITY_EMAIL` and `UNITY_PASSWORD`, its newer auto strategy can select Personal licensing-client activation. No invented serial or license bypass is used.
+3. Supplied supported `UNITY_LICENSE` or eligible serial credentials remain available as alternative strategies.
 4. Successful builds upload an APK artifact and automatically publish a GitHub **prerelease** on branch pushes. Manual dispatch can optionally publish too.
 
-Actual run [42204606156](https://github.com/black-glass-dev/Fpp/actions/runs/42204606156): mosque import succeeded; email/password-only activation produced no license, so compilation did not run. Both account secrets were available. Do not post passwords or license files in chat or commit them. Supplying credentials is not equivalent to activating an editor. A compatible Hub-activated self-hosted editor or another supported CI licensing arrangement is needed if this activation fails.
+[Research and owner assistance](Docs/UNITY-ACTIVATION.md) documents the correction to earlier activation conclusions. Run [42206325110](https://github.com/black-glass-dev/Fpp/actions/runs/42206325110) selected Personal and reported activation complete, then the wrapper failed despite Unity reporting successful APK generation. Run [42208662418](https://github.com/black-glass-dev/Fpp/actions/runs/42208662418) successfully verified and published the signed APK. A builder exit/cleanup warning remains documented; job success requires an independently verified fresh APK, not simply ignoring the builder exit. Earlier v4/editor-only failures did not test this newer route. Diagnostics are sanitized; never post credentials, license files, MFA codes or raw activation logs in chat.
 
 ## APK updates
 Currently full APK updates, **not delta patches**. Keep package ID `dev.blackglass.fpp`, increment version code, and preserve the same signing certificate. CI passes run number to the custom build method; local builds default to 1 unless `ANDROID_VERSION_CODE` is set.
@@ -41,4 +43,4 @@ python -m venv .venv
 python Tools/validate_assets.py Assets/PackModels/catalog.json Assets/MosquePack/catalog.json
 ```
 
-Animations, enemy AI, campaign, audio, multiplayer and device profiling remain future work. The runtime scripts and Unity import/build still need validation in an activated editor. Supply device model, RAM, Android version and target FPS for actual performance tuning.
+Animations, enemy AI, campaign, audio, multiplayer and device profiling remain future work. The Android build and runtime still need successful build/device verification. Supply device model, RAM, Android version and target FPS for actual performance tuning.

@@ -1,5 +1,7 @@
 # Asset inventory — current state (2026-11-06)
 
+**Latest:** all listed model sources compiled into signed [Android test build 6](https://github.com/black-glass-dev/Fpp/releases/tag/test-build-6). Structure/integrity/signature checks passed. Physical-device visual/gameplay/performance testing remains pending. [Activation research and correction](UNITY-ACTIVATION.md) supersedes the earlier activation blocker below.
+
 ## Integrated sources
 | User source | Contents | Status |
 |---|---|---|
@@ -24,10 +26,10 @@ Left touch drag walks; right drag looks. Near a weapon, use PICK UP; FIRE raycas
 
 Credits button displays included source notices. Cottage original usage statement is retained in `Cottage-original-README.pdf`. Embedded Sketchfab authors/license/source links are retained in `Assets/Resources/THIRD_PARTY_NOTICES.txt`; mosque metadata is captured by runner import. For files without metadata, the project owner must verify redistribution rights before public distribution. No standalone asset resale is intended.
 
-## Verification and blockers
+## Verification and historical activation blockers
 - Package JSON, Python syntax, shell syntax, catalog references, triangle counts and OBJ indices checked locally.
 - Two Python pipeline tests pass (texture export/transformed geometry and source catalog/hash/color checks).
-- No Unity editor is installed locally: C# compilation, Unity material/model appearance, generated scene, weapon alignment, collisions and Android/device playtest remain unverified.
+- No Unity editor is installed locally. CI now compiles and packages the project; Unity material/model appearance, weapon alignment, collisions and Android/device playtest remain unverified.
 - Real CI attempt: https://github.com/black-glass-dev/Fpp/actions/runs/42204606156
 - Mosque download/import succeeded. Email/password-only Unity Personal activation was actually attempted in Unity's Android container; it exited 1 without producing a license. It passed the missing-credentials check, so both account secrets were available. No claim that account credentials were accepted by Unity, or that an existing local Hub entitlement was activated.
 - APK compilation was skipped; **no APK or release exists from this attempt**. Raw private activation logs and secrets are not published.
