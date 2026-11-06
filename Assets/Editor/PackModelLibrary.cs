@@ -93,10 +93,10 @@ namespace Fpp.Editor
                 foreach (var entry in catalog.models)
                 {
                     if (entry.name.ToLowerInvariant().Contains("kriss") || entry.name.ToLowerInvariant().Contains("mark_23")) continue;
-                    var model = Create(entry, entry.weapon ? .8f : (entry.name.ToLowerInvariant().Contains("mosque") ? 18 : 6));
+                    var model = Create(entry, entry.weapon ? .8f : (entry.name.ToLowerInvariant().Contains("mosque") ? 18 : (entry.name.ToLowerInvariant().Contains("haystack") ? 2.5f : 6)));
                     if (entry.weapon)
                     {
-                        Vector3[] spots = { new Vector3(-5, .08f, -17), new Vector3(6, .08f, 9), new Vector3(-6, .08f, 29) };
+                        Vector3[] spots = { new Vector3(-5, .08f, -17), new Vector3(6, .08f, 9), new Vector3(-10, .08f, 20) };
                         var random = new System.Random(841 + weapon);
                         var rs = model.GetComponentsInChildren<Renderer>();
                         Bounds bound = rs[0].bounds;
@@ -106,14 +106,18 @@ namespace Fpp.Editor
                         model.transform.rotation = Quaternion.AngleAxis(random.Next(0, 360), Vector3.up) * Quaternion.FromToRotation(thin, Vector3.up);
                         bound = rs[0].bounds;
                         foreach (var r in rs) bound.Encapsulate(r.bounds);
-                        model.transform.position += spots[weapon % spots.Length] - new Vector3(bound.center.x, bound.min.y, bound.center.z);
+                        Vector3 scatter = new Vector3((float)random.NextDouble()*2-1,0,(float)random.NextDouble()*2-1);
+                        model.transform.position += spots[weapon % spots.Length] + scatter - new Vector3(bound.center.x, bound.min.y, bound.center.z);
                         var pickup = model.AddComponent<WeaponPickup>();
                         pickup.displayName = entry.name.Replace("Gun pistol m", "Field pistol").Replace("Glock 17", "Glock 17");
                         weapon++;
                     }
                     else
                     {
-                        model.transform.position = new Vector3(prop % 2 == 0 ? -26 : 26, .05f, -16 + prop / 2 * 21);
+                        string name = entry.name.ToLowerInvariant();
+                        model.transform.position = name.Contains("mosque") ? new Vector3(0,.05f,32) :
+                            name.Contains("haystack") ? new Vector3(-10,.05f,12) :
+                            new Vector3(prop % 2 == 0 ? -29 : 29,.05f,-32+prop*6);
                         var collider = model.AddComponent<BoxCollider>();
                         var renderers = model.GetComponentsInChildren<Renderer>();
                         Bounds bounds = renderers[0].bounds;

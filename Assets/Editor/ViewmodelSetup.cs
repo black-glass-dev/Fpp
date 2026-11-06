@@ -18,7 +18,8 @@ namespace Fpp.Editor
             camera.depth=10;camera.nearClipPlane=.01f;camera.farClipPlane=5;camera.fieldOfView=60;camera.allowHDR=false;
             controller.weaponCamera=camera;
             var holder=new GameObject("Mark23 viewmodel");holder.transform.SetParent(overlay.transform,false);
-            var instance=(GameObject)PrefabUtility.InstantiatePrefab(model);instance.transform.SetParent(holder.transform,false);
+            var calibration=new GameObject("Viewmodel calibration");calibration.transform.SetParent(holder.transform,false);
+            var instance=(GameObject)PrefabUtility.InstantiatePrefab(model);instance.transform.SetParent(calibration.transform,false);
             var animation=instance.GetComponent<Animation>();if(animation==null)animation=instance.AddComponent<Animation>();
             AnimationClip draw=null;
             foreach(var asset in AssetDatabase.LoadAllAssetsAtPath(path))
@@ -59,13 +60,13 @@ namespace Fpp.Editor
             {
                 Vector3 forward=holder.transform.InverseTransformDirection(main.position-hand.position).normalized;
                 Vector3 up=holder.transform.InverseTransformDirection(side.position-main.position).normalized;
-                instance.transform.localRotation=Quaternion.Inverse(Quaternion.LookRotation(forward,up))*instance.transform.localRotation;
+                calibration.transform.localRotation=Quaternion.Inverse(Quaternion.LookRotation(forward,up));
             }
             Bounds bound=PosedBounds(gun,holder.transform);
             float size=Mathf.Max(bound.size.x,bound.size.y,bound.size.z);
             if(size<.0001f)throw new Exception("Invalid posed pistol bounds");
-            instance.transform.localScale*=.30f/size;
-            bound=PosedBounds(gun,holder.transform);instance.transform.localPosition-=bound.center;
+            calibration.transform.localScale*=.30f/size;
+            bound=PosedBounds(gun,holder.transform);calibration.transform.localPosition-=bound.center;
             holder.transform.localPosition=new Vector3(.115f,-.16f,.5f);
             controller.defaultViewmodel=holder;controller.pistolRenderers=gun.ToArray();
             var mount=new GameObject("Replacement weapon grip");mount.transform.SetParent(holder.transform,false);controller.weaponMount=mount.transform;

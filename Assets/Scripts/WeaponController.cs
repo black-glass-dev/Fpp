@@ -32,11 +32,20 @@ namespace Fpp
         private bool equipping;
         private Vector3 basePosition;
         private Quaternion baseRotation;
+        private Transform leftUpper, leftForearm, leftHand;
+        private Quaternion upperRest, foreRest, handRest;
+        private bool supportPoseCached;
 
         private void Start()
         {
             pickups=FindObjectsOfType<WeaponPickup>();
             rigAnimation=defaultViewmodel.GetComponentInChildren<Animation>();
+            foreach(var bone in defaultViewmodel.GetComponentsInChildren<Transform>())
+            {
+                if(bone.name=="LeftArm1_04")leftUpper=bone;
+                if(bone.name=="LeftForeArm1_05")leftForearm=bone;
+                if(bone.name=="LeftHand1_00")leftHand=bone;
+            }
             worldCamera=view.GetComponent<Camera>();
             basePosition=defaultViewmodel.transform.localPosition;baseRotation=defaultViewmodel.transform.localRotation;
             PlayClip("draw",.65f);
@@ -82,6 +91,7 @@ namespace Fpp
             defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(-recoil*3+equipBlend*25,equipBlend*-12,Reloading?Mathf.Sin((reloadEnd-Time.time)*5)*10:0);
             if(worldCamera!=null)worldCamera.fieldOfView=Mathf.Lerp(worldCamera.fieldOfView,aiming?50:68,Time.deltaTime*12);
             if(weaponCamera!=null)weaponCamera.fieldOfView=Mathf.Lerp(weaponCamera.fieldOfView,aiming?45:60,Time.deltaTime*12);
+            if(equipped!=null && DisplayName.Contains("AK") && supportPoseCached)SolveSupportHand();
         }
         public void EquipNearest()
         {
@@ -96,6 +106,7 @@ namespace Fpp
             equipping=true;
             // Original procedural lower/raise motion, not copied MWII animation data.
             for(float t=0;t<.18f;t+=Time.deltaTime){equipBlend=Mathf.SmoothStep(0,1,t/.18f);yield return null;}
+            RestoreSupportPose();
             if(equipped!=null)equipped.gameObject.SetActive(true);
             if(heldVisual!=null)Destroy(heldVisual);
             equipped=next;
@@ -121,10 +132,37 @@ namespace Fpp
                 heldVisual.transform.localPosition=-(heldVisual.transform.localRotation*(bound.center*scale));
                 next.gameObject.SetActive(false);
                 if(rigAnimation!=null)rigAnimation.Stop();
+                if(leftUpper!=null && leftForearm!=null && leftHand!=null)
+                {
+                    upperRest=leftUpper.localRotation;foreRest=leftForearm.localRotation;handRest=leftHand.localRotation;
+                    supportPoseCached=true;
+                }
             }
             rounds=magazine;reloadEnd=0;
             for(float t=0;t<.32f;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/.32f);yield return null;}
             equipBlend=0;equipping=false;nextShot=Time.time+.1f;
+        }
+        private void RestoreSupportPose()
+        {
+            if(!supportPoseCached)return;
+            leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
+            supportPoseCached=false;
+        }
+        private void SolveSupportHand()
+        {
+            leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
+            Quaternion palm=leftHand.rotation;
+            Vector3 target=weaponMount.TransformPoint(new Vector3(0,-.035f,.12f));
+            for(int i=0;i<4;i++)
+            {
+                Vector3 from=leftHand.position-leftForearm.position,to=target-leftForearm.position;
+                if(from.sqrMagnitude>.000001f && to.sqrMagnitude>.000001f)
+                    leftForearm.rotation=Quaternion.FromToRotation(from,to)*leftForearm.rotation;
+                from=leftHand.position-leftUpper.position;to=target-leftUpper.position;
+                if(from.sqrMagnitude>.000001f && to.sqrMagnitude>.000001f)
+                    leftUpper.rotation=Quaternion.FromToRotation(from,to)*leftUpper.rotation;
+            }
+            leftHand.rotation=palm;
         }
         public void Reload()
         {

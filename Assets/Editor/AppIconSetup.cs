@@ -23,7 +23,7 @@ namespace Fpp.Editor
                     if(kind==AndroidPlatformIconKind.Adaptive)
                     {
                         var background=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Icon/Background.png");
-                        slot.SetTextures(new[]{icon,background});
+                        slot.SetTextures(new[]{icon,icon});
                     }
                     else slot.SetTexture(icon);
                 }
