@@ -27,25 +27,14 @@ jobs:
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         shell: python
         run: |
-          import json, os, re, urllib.request, urllib.error
+          import json, os, re, subprocess
           repo=os.environ['REPO']; run=os.environ['RUN_ID']
           assert run.isdigit()
-          def api(path):
-              request=urllib.request.Request('https://api.github.com/repos/'+repo+path,
-                  headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'], 'Accept':'application/vnd.github+json'})
-              try:
-                  return urllib.request.urlopen(request, timeout=60).read(15*1024*1024)
-              except urllib.error.HTTPError as error:
-                  print('::error::Diagnostics API request failed, HTTP '+str(error.code)+' at '+path.split('/')[2])
-                  raise SystemExit(1)
-              except Exception as error:
-                  print('::error::Diagnostics request failed with '+type(error).__name__)
-                  raise SystemExit(1)
-          jobs=json.loads(api('/actions/runs/'+run+'/jobs'))['jobs']
-          print('::notice::Completed run job count: '+str(len(jobs)))
-          job=next(j for j in jobs if j['name']=='build')
-          assert job['status']=='completed'
-          text=api('/actions/jobs/'+str(job['id'])+'/logs').decode('utf-8',errors='replace')
+          result=subprocess.run(['gh','run','view',run,'--repo',repo,'--log-failed'],capture_output=True,text=True)
+          if result.returncode:
+              print('::error::Could not retrieve completed workflow logs with the Actions token.')
+              raise SystemExit(1)
+          text=result.stdout
           # Never emit raw logs, tokens, entitlement data, license contents or account identity.
           flags={
             'New Personal licensing route selected': r'Licensing method: personal|Requesting activation \(personal',
