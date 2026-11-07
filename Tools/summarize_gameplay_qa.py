@@ -19,6 +19,15 @@ for path in Path('QA/test-results').rglob('*results.xml'):
     out['suites'].append(suite)
 for path in Path('QA/runtime').glob('*'):
     if path.suffix in ('.csv','.txt') and path.stat().st_size<50000:out['measurements'][path.name]=path.read_text()
+# Keep only a bounded selection of genuine camera images in Git; full sequences stay CI artifacts.
+import shutil
+preview=Path('QA/Previews');preview.mkdir(exist_ok=True)
+budget=1500000
+out['reviewImages']=[]
+for name in ('recoil-wall-ak47.png','ak47-ads.png','ak47-empty-0.40.png','ak47-sprint.png'):
+    path=Path('QA/runtime')/name
+    if path.exists() and path.stat().st_size<=budget:
+        shutil.copyfile(path,preview/name);budget-=path.stat().st_size;out['reviewImages'].append(str(preview/name))
 out['playModeResultsPresent']=bool(out['suites'])
 Path('QA/native-results-'+out['run']+'.json').write_text(json.dumps(out,indent=2))
 print('Play Mode XML suites:',len(out['suites']))

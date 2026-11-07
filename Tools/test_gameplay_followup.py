@@ -52,7 +52,7 @@ class PhoneFollowupTests(unittest.TestCase):
 
     def test_flash_is_visible_immediately_and_long_enough_at_thirty_fps(self):
         code=Path('Assets/Scripts/ShotEffects.cs').read_text()
-        duration=float(re.search(r'flashUntil=Time.time\+([.\d]+)f',code).group(1))
+        duration=float(re.search(r'^  flashSeconds: ([.\d]+)',Path('Assets/Resources/Gunplay/Config.asset').read_text(),re.M).group(1))
         self.assertGreater(duration,2/30)
         self.assertIn('flash.SetActive(true)',code)
         self.assertIn('smoke.Emit(6)',code)

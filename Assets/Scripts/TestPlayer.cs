@@ -19,6 +19,7 @@ namespace Fpp
         private CharacterController controller;private WeaponController weapons;
         private float pitch,falling,sprintTime,crouchSince,jumpAt=-100,stateAt,slideEntry,fallPeak,stepPhase;
         private Vector3 momentum,mantleStart,mantleEnd,eyeHome;
+        private bool crouchWasHeld;
         private bool crouched,prone,tacticalRequested,wasGrounded;
         private void Awake(){controller=GetComponent<CharacterController>();weapons=GetComponent<WeaponController>();eyeHome=view!=null?view.localPosition:Vector3.zero;}
         public void CancelSprint(){if(IsSprinting){SprintExitedAt=Time.time;SetState(MovementState.Walk);}sprintTime=0;tacticalRequested=false;}
@@ -61,6 +62,8 @@ namespace Fpp
             bool sprintRequest=(input.Sprint||input.Tactical||tacticalRequested)&&input.Move.y>0 && !input.ADS && !input.Fire && !prone;
             if(input.Tactical)tacticalRequested=true;
             if(input.ADS&&IsSprinting)CancelSprint();
+            bool crouchReleased=crouchWasHeld&&!input.CrouchHeld;crouchWasHeld=input.CrouchHeld;
+            if(crouchReleased&&now-crouchSince<c.crouchHold&&IsSprinting){crouched=true;prone=false;CancelSprint();}
             if(input.CrouchPressed){crouchSince=now;if(!IsSprinting){crouched=!crouched;prone=false;}}
             if(input.Prone){prone=!prone;crouched=false;}
             if(input.CrouchHeld && IsSprinting && now-crouchSince>=c.crouchHold)
@@ -77,10 +80,11 @@ namespace Fpp
                 float t=Mathf.Clamp01((now-stateAt)/c.slideDuration);
                 float speed=Mathf.Lerp(slideEntry,c.crouch, (1-Mathf.Exp(-c.slideDecay*t))/(1-Mathf.Exp(-c.slideDecay)));
                 momentum=momentum.normalized*speed;
-                if(t>=1||input.Jump){crouched=true;SetState(MovementState.Crouch);special=false;}
+                if(t>=1||input.Jump||input.CrouchPressed){crouched=true;SetState(MovementState.Crouch);special=false;}
             }
             if(!special)
             {
+                if(!prone && !crouched && controller.height<c.standingHeight && !CanStand(c))crouched=true;
                 float targetSpeed=c.walk;
                 if(!grounded){SetState(MovementState.Airborne);}
                 else if(prone){SetState(MovementState.Prone);targetSpeed=c.prone;}

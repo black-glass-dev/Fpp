@@ -19,8 +19,8 @@ namespace Fpp
         public void Initialize(Transform source,Camera view,Camera scene,Material material,Material smokeSource,Material tracerSource)
         {
             muzzle=source;overlay=view;world=scene;
-            var lightObject=new GameObject("Muzzle flash light");lightObject.transform.SetParent(muzzle,false);flashLight=lightObject.AddComponent<Light>();flashLight.type=LightType.Point;flashLight.range=2;flashLight.intensity=1.5f;flashLight.color=new Color(1,.65f,.25f);flashLight.shadows=LightShadows.None;flashLight.enabled=false;
-            flash=new GameObject("Barrel flash",typeof(MeshFilter),typeof(MeshRenderer));flash.layer=8;flash.transform.SetParent(muzzle,false);flash.transform.localScale=Vector3.one*.075f;
+            var lightObject=new GameObject("Muzzle flash light");lightObject.transform.SetParent(muzzle,false);flashLight=lightObject.AddComponent<Light>();flashLight.type=LightType.Point;flashLight.range=GunplayConfig.Current.flashLightRange;flashLight.intensity=GunplayConfig.Current.flashLightIntensity;flashLight.color=new Color(1,.65f,.25f);flashLight.shadows=LightShadows.None;flashLight.enabled=false;
+            flash=new GameObject("Barrel flash",typeof(MeshFilter),typeof(MeshRenderer));flash.layer=8;flash.transform.SetParent(muzzle,false);flash.transform.localScale=Vector3.one*GunplayConfig.Current.flashSize;
             var mesh=new Mesh();mesh.vertices=new[]{new Vector3(-.5f,-.5f,0),new Vector3(.5f,-.5f,0),new Vector3(.5f,.5f,0),new Vector3(-.5f,.5f,0)};
             mesh.uv=new[]{Vector2.zero,Vector2.right,Vector2.one,Vector2.up};mesh.triangles=new[]{0,1,2,0,2,3};mesh.RecalculateBounds();
             flash.GetComponent<MeshFilter>().sharedMesh=mesh;flash.GetComponent<MeshRenderer>().sharedMaterial=material;flash.SetActive(false);if(!Application.isPlaying)flash.hideFlags=HideFlags.DontSave;
@@ -37,13 +37,13 @@ namespace Fpp
             var color=smoke.colorOverLifetime;color.enabled=true;var gradient=new Gradient();gradient.SetKeys(new[]{new GradientColorKey(Color.white,0),new GradientColorKey(Color.white,1)},new[]{new GradientAlphaKey(.95f,0),new GradientAlphaKey(0,1)});color.color=gradient;
             smoke.GetComponent<ParticleSystemRenderer>().sharedMaterial=new Material(smokeSource);smoke.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
             tracerMaterial=new Material(tracerSource);tracerMaterial.color=new Color(1,.9f,.65f,.9f);
-            for(int i=0;i<lines.Length;i++){var line=new GameObject("Fast bullet streak").AddComponent<LineRenderer>();if(!Application.isPlaying)line.gameObject.hideFlags=HideFlags.DontSave;line.sharedMaterial=tracerMaterial;line.positionCount=2;line.startWidth=.007f;line.endWidth=.002f;line.useWorldSpace=true;line.enabled=false;lines[i]=line;}
+            for(int i=0;i<lines.Length;i++){var line=new GameObject("Fast bullet streak").AddComponent<LineRenderer>();if(!Application.isPlaying)line.gameObject.hideFlags=HideFlags.DontSave;line.sharedMaterial=tracerMaterial;line.positionCount=2;line.startWidth=GunplayConfig.Current.tracerStartWidth;line.endWidth=GunplayConfig.Current.tracerEndWidth;line.useWorldSpace=true;line.enabled=false;lines[i]=line;}
         }
         public void Play(Vector3 hit,bool tracer=true){pendingHit=hit;pending=true;drawTracer=tracer;}
         private void LateUpdate(){if(pending){pending=false;if(!WeaponController.MenuOpen)EmitNow(pendingHit);}}
         private void EmitNow(Vector3 hit)
         {
-            flashUntil=Time.time+.075f;flash.SetActive(true);flashLight.enabled=true;flash.transform.localRotation=Quaternion.Euler(0,0,Random.Range(0,360));
+            flashUntil=Time.time+GunplayConfig.Current.flashSeconds;flash.SetActive(true);flashLight.enabled=true;flash.transform.localRotation=Quaternion.Euler(0,0,Random.Range(0,360));
             if(!smoke.isPlaying)smoke.Play();smoke.Emit(6);
             if(!drawTracer)return;int id=next++%lines.Length;
             // Overlay FOV differs from the world camera: project the real barrel onto
@@ -57,8 +57,8 @@ namespace Fpp
         }
         private void RenderTrace(int id,float age)
         {
-            float length=Vector3.Distance(starts[id],ends[id]);float head=Mathf.Min(length,2+age*420),tail=Mathf.Max(0,head-2);
-            lines[id].enabled=age<.18f && age<(length+2)/420 && length>.1f;
+            var c=GunplayConfig.Current;float length=Vector3.Distance(starts[id],ends[id]);float head=Mathf.Min(length,c.tracerLength+age*c.tracerSpeed),tail=Mathf.Max(0,head-c.tracerLength);
+            lines[id].enabled=age<c.tracerLife && age<(length+c.tracerLength)/c.tracerSpeed && length>.1f;
             Vector3 direction=(ends[id]-starts[id]).normalized;lines[id].SetPosition(0,starts[id]+direction*tail);lines[id].SetPosition(1,starts[id]+direction*head);
         }
         private void Update()

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using Fpp;
 namespace Fpp.Tests
 {
@@ -10,3 +11,5 @@ namespace Fpp.Tests
         public void Reset(){Value=default(InputFrame);}
     }
 }
+
+#endif

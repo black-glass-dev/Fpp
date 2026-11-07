@@ -62,8 +62,8 @@ namespace Fpp
         private void OnDestroy()
         {
             GunplayEvents.Raised-=OnEvent;
-            foreach(var p in shells)if(p.transform!=null)Destroy(p.transform.gameObject);
-            foreach(var p in impacts)if(p.transform!=null)Destroy(p.transform.gameObject);
+            if(shells!=null)foreach(var p in shells)if(p.transform!=null)Destroy(p.transform.gameObject);
+            if(impacts!=null)foreach(var p in impacts)if(p.transform!=null)Destroy(p.transform.gameObject);
             if(brass!=null)Destroy(brass);if(dust!=null)Destroy(dust);if(clickClip!=null)Destroy(clickClip);
         }
     }

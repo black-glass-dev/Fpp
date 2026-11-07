@@ -144,6 +144,7 @@ jobs:
           cliVersion: v0.1.72
           unityVersion: 2022.3.62f1
           customImage: unityci/editor:ubuntu-2022.3.62f1-android-3
+          chownFilesTo: 1001:1001
           testMode: playmode
           coverageEnabled: false
           githubToken: ''
@@ -154,7 +155,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
         run: |
           python Tools/summarize_gameplay_qa.py
-          git add QA/native-results-*.json
+          git add QA
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -163,6 +164,9 @@ jobs:
             git pull --rebase origin arena/f3a68c52-fpp
             git push origin HEAD:arena/f3a68c52-fpp
           fi
+      - name: Reject missing, empty, failed or skipped gameplay test runs
+        if: always()
+        run: python Tools/require_gameplay_qa.py
       - name: Preserve Play Mode evidence
         if: always()
         uses: actions/upload-artifact@v4

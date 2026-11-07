@@ -9,3 +9,5 @@
 - Existing legacy assets do not supply production finger/contact and movement animations; placeholder sockets/events cannot establish zero floating fingers.
 - Store acceptance evidence separately from implementation checks. Never generate FINAL_REPORT.md until all 13 acceptance groups are verified green.
 - 15:58 +06: Native run 41 compiled and built successfully; Play Mode did not start because the pinned test-runner wrapper emits `--no-coverageEnabled`, rejected by CLI v0.1.72. Adapt that single argument to `--coverageEnabled=false`; keep both upstream wrapper and working Personal CLI version pinned. Do not label this infrastructure failure a gameplay test pass.
+- A Passed XML with zero discovered cases is a red gate, not success. Require every named gameplay test to execute; keep Editor-only QA entry points behind compiler guards while the test assembly itself is Play Mode eligible.
+- Edit Mode preview code must invoke only its HUD refresh method, never GameObject.SendMessage("Update") across all sibling gameplay components.

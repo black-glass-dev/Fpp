@@ -12,7 +12,7 @@ class SurfaceFeedbackTests(unittest.TestCase):
             self.assertIn(term,code)
     def test_smoke_can_linger_but_has_a_bounded_particle_budget(self):
         code=Path('Assets/Scripts/ShotEffects.cs').read_text()
-        for term in ('(.65f,1.05f)','(.065f,.105f)','main.maxParticles=96','ParticleSystemSimulationSpace.World','turbulence.enabled=true','2+age*420'):
+        for term in ('(.65f,1.05f)','(.065f,.105f)','main.maxParticles=96','ParticleSystemSimulationSpace.World','turbulence.enabled=true','c.tracerLength+age*c.tracerSpeed'):
             self.assertIn(term,code)
         self.assertNotIn('PrimitiveType.Sphere',code)
     def test_lighting_is_enabled_at_runtime_not_just_editor(self):

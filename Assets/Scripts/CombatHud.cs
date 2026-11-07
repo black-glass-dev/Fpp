@@ -9,6 +9,7 @@ namespace Fpp
         private RectTransform reticle;
         private Image[] ticks;
         private Canvas canvas;
+        private Vector3 damageWorld;
         private float hitUntil,numberUntil,damageUntil;
         private int oldRounds=-1,oldReserve=-1;
         private string oldWeapon;
@@ -36,7 +37,7 @@ namespace Fpp
             {
                 hitUntil=Time.time+GunplayConfig.Current.hitmarkerSeconds;marker.text=e.Context=="head"?"× •":"×";
                 marker.color=e.Context=="kill"?Color.red:Color.white;marker.fontStyle=e.Context=="kill"?FontStyle.Bold:FontStyle.Normal;
-                if(GameplayInput.Instance!=null && GameplayInput.Instance.Settings.damageNumbers){damageNumber.text=Mathf.RoundToInt(e.Value).ToString();numberUntil=Time.time+GunplayConfig.Current.damageNumberSeconds;}
+                if(GameplayInput.Instance!=null && GameplayInput.Instance.Settings.damageNumbers){damageWorld=e.Position;damageNumber.text=Mathf.RoundToInt(e.Value).ToString();numberUntil=Time.time+GunplayConfig.Current.damageNumberSeconds;}
             }
             if(e.Kind==GunplayEventKind.Feed && feed!=null)feed.text=e.Context=="kill"?"TARGET ELIMINATED":e.Context=="head"?"HEADSHOT":"TARGET HIT";
             if(e.Kind==GunplayEventKind.Damage && damageArc!=null)
@@ -46,7 +47,9 @@ namespace Fpp
         {
             if(weapons==null||weapons.ActiveWeapon==null||marker==null)return;var c=GunplayConfig.Current;
             marker.enabled=Time.time<hitUntil;float hitT=Mathf.Clamp01((hitUntil-Time.time)/c.hitmarkerSeconds);marker.rectTransform.localScale=Vector3.one*Mathf.Lerp(1,c.hitmarkerPunch,hitT);
-            damageNumber.enabled=Time.time<numberUntil;damageArc.enabled=Time.time<damageUntil;
+            damageNumber.enabled=Time.time<numberUntil;
+            if(damageNumber.enabled){var viewport=Camera.main.WorldToViewportPoint(damageWorld);var size=((RectTransform)transform).rect.size;damageNumber.rectTransform.anchoredPosition=new Vector2((viewport.x-.5f)*size.x,(viewport.y-.5f)*size.y+20*(1-(numberUntil-Time.time)/c.damageNumberSeconds));damageNumber.enabled=viewport.z>0;}
+            damageArc.enabled=Time.time<damageUntil;
             if(oldRounds!=weapons.Ammo||oldReserve!=weapons.Reserve||oldWeapon!=weapons.DisplayName)
             {oldRounds=weapons.Ammo;oldReserve=weapons.Reserve;oldWeapon=weapons.DisplayName;bindings.text=weapons.ActiveWeapon.fireMode+"   "+oldRounds+" / "+oldReserve;}
             if(ticks!=null)

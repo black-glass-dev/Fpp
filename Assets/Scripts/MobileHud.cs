@@ -86,10 +86,13 @@ namespace Fpp
             LoadLayout();
             CreateEditor(); CreateCredits();CreateSettings(); ApplySafeArea();
         }
+        public void ReviewRefresh(){Update();}
         private void Update()
         {
             if (safeRoot == null) return;
             if (lastSafe != Screen.safeArea) ApplySafeArea();
+            var motor=weapons!=null?weapons.GetComponent<TestPlayer>():null;
+            foreach(var control in controls)if(control.placement.id=="mount")control.gameObject.SetActive(Editing||motor!=null&&(motor.MountAvailable||motor.Mounted));
             bool occupied=false;foreach(var control in controls)if(control.placement.x<.35f && control.placement.y>.72f)occupied=true;
             // Preserve the user's left-fire layout; move the readout instead of resetting controls.
             status.rectTransform.anchorMin=status.rectTransform.anchorMax=new Vector2(occupied?.30f:0,1);
@@ -226,7 +229,7 @@ namespace Fpp
         {
             if(Modal)return true;
             foreach(var control in controls)
-                if(RectTransformUtility.RectangleContainsScreenPoint((RectTransform)control.transform,position,null))return true;
+                if(control.gameObject.activeSelf && RectTransformUtility.RectangleContainsScreenPoint((RectTransform)control.transform,position,null))return true;
             return position.y>Screen.safeArea.yMax-Screen.height*.1f && position.x>Screen.width*.7f;
         }
         public void SetMove(Vector2 value) { Move=Modal?Vector2.zero:value; }

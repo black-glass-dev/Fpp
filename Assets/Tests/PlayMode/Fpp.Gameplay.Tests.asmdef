@@ -1,1 +1,1 @@
-{"name":"Fpp.Gameplay.Tests","rootNamespace":"Fpp.Tests","references":["Fpp.Gameplay"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"],"autoReferenced":false}
+{"name":"Fpp.Gameplay.Tests","rootNamespace":"Fpp.Tests","references":["Fpp.Gameplay"],"includePlatforms":[],"optionalUnityReferences":["TestAssemblies"],"autoReferenced":false}

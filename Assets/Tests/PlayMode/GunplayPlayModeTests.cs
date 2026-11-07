@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.IO;
@@ -161,3 +162,5 @@ namespace Fpp.Tests
         }
     }
 }
+
+#endif
