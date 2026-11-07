@@ -4,14 +4,15 @@ namespace Fpp
     // Bounded greybox pools. Assets/audio can be replaced by named bus listeners in Prompt 2.
     public sealed class GunplayFeedback : MonoBehaviour
     {
-        private struct Pooled {public Transform transform;public Vector3 velocity;public float until;public bool landed;}
-        private Pooled[] shells=new Pooled[24],impacts=new Pooled[16];
+        private struct Pooled {public Transform transform;public Vector3 velocity;public float until;public bool landed;public WeaponAsset weapon;}
+        private Pooled[] shells,impacts;
         private int shellIndex,impactIndex;
         private Material brass,dust;
         private AudioSource click;
         private AudioClip clickClip;
         private void Awake()
         {
+            shells=new Pooled[GunplayConfig.Current.shellPool];impacts=new Pooled[GunplayConfig.Current.impactPool];
             brass=new Material(Shader.Find("Standard")){color=new Color(.6f,.48f,.22f)};
             dust=new Material(Shader.Find("Sprites/Default")){color=new Color(.65f,.6f,.5f,.75f)};
             for(int i=0;i<shells.Length;i++)shells[i].transform=Make("PLACEHOLDER casing",PrimitiveType.Capsule,brass,new Vector3(.008f,.012f,.008f));
@@ -32,7 +33,7 @@ namespace Fpp
             var c=GunplayConfig.Current;
             if(e.Kind==GunplayEventKind.ShellEject)
             {
-                int i=shellIndex++%shells.Length;var p=shells[i];p.transform.position=e.Position;p.transform.gameObject.SetActive(true);p.velocity=(e.Normal+Vector3.up)*c.shellSpeed;p.until=Time.time+c.shellLife;p.landed=false;shells[i]=p;
+                int i=shellIndex++%shells.Length;var p=shells[i];p.transform.position=e.Position;p.transform.gameObject.SetActive(true);p.velocity=(e.Normal+Vector3.up)*c.shellSpeed;p.until=Time.time+c.shellLife;p.landed=false;p.weapon=e.Weapon;shells[i]=p;
             }
             if(e.Kind==GunplayEventKind.Impact)
             {
@@ -51,7 +52,7 @@ namespace Fpp
                 {
                     p.velocity+=Vector3.down*c.gravity*dt;var travel=p.velocity*dt;
                     if(Physics.Raycast(p.transform.position,travel.normalized,out var hit,travel.magnitude,~(1<<8),QueryTriggerInteraction.Ignore))
-                    {p.transform.position=hit.point;p.landed=true;GunplayEvents.Send(GunplayEventKind.ShellLand,hit.point,null,SurfaceProfile.Name(hit.collider));}
+                    {p.transform.position=hit.point;p.landed=true;GunplayEvents.Send(GunplayEventKind.ShellLand,hit.point,p.weapon,SurfaceProfile.Name(hit.collider));}
                     else p.transform.position+=travel;
                     p.transform.Rotate(Vector3.right*(c.shellSpeed*Mathf.Rad2Deg*dt));shells[i]=p;
                 }

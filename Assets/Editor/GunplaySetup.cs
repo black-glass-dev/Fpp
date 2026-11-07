@@ -42,8 +42,8 @@ namespace Fpp.Editor
                 if(collider.GetComponent<SurfaceProfile>()==null)
                 {
                     var surface=collider.gameObject.AddComponent<SurfaceProfile>();
-                    string name=collider.name.ToLowerInvariant();surface.surface=name.Contains("ground")?"earth":name.Contains("road")?"dirt":name.Contains("tree")?"wood":"stone";
-                    surface.penetration=name.Contains("wood")?PenetrationClass.Wood:PenetrationClass.None;
+                    string name=collider.name.ToLowerInvariant();surface.surface=(name.Contains("ground")||name.Contains("terrain"))?"earth":name.Contains("road")?"dirt":name.Contains("tree")?"wood":"stone";
+                    surface.penetration=surface.surface=="wood"?PenetrationClass.Wood:PenetrationClass.None;
                 }
             }
             var box=GameObject.CreatePrimitive(PrimitiveType.Cube);box.name="PLACEHOLDER ammo box";box.transform.position=player.transform.position+new Vector3(-2,.3f,2);box.transform.localScale=Vector3.one*.5f;

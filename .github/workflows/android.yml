@@ -117,8 +117,24 @@ jobs:
               message='\n'.join(lines)[:3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               print('::notice::Editor build diagnostic:%0A'+message)
           PYDIAG
+      - name: Fetch pinned test-runner wrapper
+        uses: actions/checkout@v4
+        with:
+          repository: game-ci/unity-test-runner
+          ref: 3651041789079526956e876434786ab98af4c8e8
+          path: .arena/unity-test-runner
+          persist-credentials: false
+      - name: Adapt coverage boolean to pinned CLI syntax
+        run: |
+          python - <<'PYPATCH'
+          from pathlib import Path
+          p=Path('.arena/unity-test-runner/dist/index.js')
+          text=p.read_text()
+          if '--no-coverageEnabled' not in text: raise SystemExit('Pinned wrapper changed: review coverage adapter')
+          p.write_text(text.replace('--no-coverageEnabled','--coverageEnabled=false'))
+          PYPATCH
       - name: Play Mode gameplay tests (real Unity player loop)
-        uses: game-ci/unity-test-runner@3651041789079526956e876434786ab98af4c8e8
+        uses: ./.arena/unity-test-runner
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -132,6 +148,21 @@ jobs:
           coverageEnabled: false
           githubToken: ''
           artifactsPath: QA/test-results
+      - name: Publish small, credential-free Play Mode result summary
+        if: always()
+        env:
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          python Tools/summarize_gameplay_qa.py
+          git add QA/native-results-*.json
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Preserve actual Play Mode result summary'
+            git restore --worktree --staged Assets Packages ProjectSettings
+            git pull --rebase origin arena/f3a68c52-fpp
+            git push origin HEAD:arena/f3a68c52-fpp
+          fi
       - name: Preserve Play Mode evidence
         if: always()
         uses: actions/upload-artifact@v4

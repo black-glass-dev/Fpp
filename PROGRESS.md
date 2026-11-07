@@ -23,3 +23,5 @@ No new system is Play-Mode-verified yet. No physical Android device is attached.
 13. Final report: intentionally absent until all preceding gates pass.
 
 Implementation checkpoint (before native verification): introduced serialized weapon/config assets, unified input, CharacterController states, ADS/recoil/spread math, hitscan health/parts/penetration, persistent secondary ammo, reload cancellation/foley markers, feedback pools and event bindings. Added genuine Unity Play Mode test assembly and release-gating workflow. This is NOT a SYS-green completion commit: first native compile/Play Mode pass is pending. Exact finger contacts, full primary drop behavior, wall-pattern render and device budget remain red.
+
+[15:58 +06] Run 41: native build step green; Play Mode wrapper failed before tests (`Unknown argument: noCoverageEnabled`). Release correctly blocked. Diagnostic workflow retrieved only filtered completed-run failures. Native compile is confirmed; Play Mode gameplay results are still unknown. Added explicit CLI syntax adapter and small XML result summaries for the next pass.

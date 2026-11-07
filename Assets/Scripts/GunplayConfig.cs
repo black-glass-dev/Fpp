@@ -18,6 +18,15 @@ namespace Fpp
         public float viewOmega=28, viewDamping=.9f, gunOmega=34, gunDamping=.9f, swayOmega=12;
         public float bobAmplitude=.012f, adsBobMultiplier=.2f, breathHz=.13f, breathDegrees=.04f;
         public float movementLag=.02f, sprintCant=35, sprintRaise=.06f, collisionDistance=.55f, collisionTilt=35;
+        public float landingPitch=1.2f, flinchDegrees=.8f, gunProbeHalf=.04f, roomProbe=5;
+        public float viewmodelBob=.003f, viewmodelBobFrequency=7, recoilPosition=.028f, recoilGunDegrees=3, recoilReturn=7;
+        public float holsterLower=.28f, holsterPitch=25, holsterYaw=-12;
+        public float flashSize=.075f, flashSeconds=.075f, flashLightRange=2, flashLightIntensity=1.5f;
+        public float tracerLength=2, tracerSpeed=420, tracerLife=.18f, tracerStartWidth=.007f, tracerEndWidth=.002f;
+        public float slideDecay=5, forwardThreshold=.8f, pitchLimit=89;
+        public int shellPool=24, impactPool=16, ammoBoxGrant=60;
+        public float patternResetDelay=.4f, ricochetGrazingCos=.25f;
+        public float emptyPistolActionTravel=.025f, emptyRifleActionTravel=.045f;
         public float recoveryFraction=.85f, recoilNoise=.08f;
         public float movingBloom=2.2f, sprintBloom=6, slideBloom=3, airborneBloom=5;
         public float bloomDecay=6, bloomDelay=.12f, firstShotWindow=.1f, rayDistance=300;

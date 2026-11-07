@@ -17,7 +17,7 @@ namespace Fpp
     {
         public static MobileHud Instance { get; private set; }
         public bool Editing { get; private set; }
-        public bool Modal => Editing || creditsPanel != null && creditsPanel.activeSelf;
+        public bool Modal => Editing || settingsPanel!=null && settingsPanel.activeSelf || creditsPanel != null && creditsPanel.activeSelf;
         public Vector2 Move { get; private set; }
         public bool FireHeld { get; private set; }
         public bool AimHeld { get; private set; }
@@ -29,12 +29,13 @@ namespace Fpp
         private Sprite circle;
         private WeaponController weapons;
         private Text status, pickupLabel, editLabel;
-        private GameObject editorPanel, creditsPanel;
+        private GameObject editorPanel, creditsPanel,settingsPanel;
         private Slider scaleSlider, opacitySlider;
         private InputFrame pending;private bool sprintHeld,crouchHeld;
         private HudControl selected;
         private Rect lastSafe;
         private HudControl joystick;
+        private string cachedName,cachedNearby;private int cachedAmmo=-1,cachedHits=-1;private bool cachedReload;
 
         private void Awake() { Instance = this; weapons = GetComponent<WeaponController>(); }
         private void Start()
@@ -81,8 +82,9 @@ namespace Fpp
             go.AddComponent<CombatHud>().weapons=weapons;
             TopButton("LAYOUT", new Vector2(-192,-30), () => SetEditing(true));
             TopButton("CREDITS", new Vector2(-65,-30), ShowCredits);
+            TopButton("SETTINGS",new Vector2(-320,-30),()=>{FireHeld=AimHeld=false;Move=Vector2.zero;settingsPanel.SetActive(true);});
             LoadLayout();
-            CreateEditor(); CreateCredits(); ApplySafeArea();
+            CreateEditor(); CreateCredits();CreateSettings(); ApplySafeArea();
         }
         private void Update()
         {
@@ -93,9 +95,11 @@ namespace Fpp
             status.rectTransform.anchorMin=status.rectTransform.anchorMax=new Vector2(occupied?.30f:0,1);
             if (weapons != null)
             {
+                if(cachedAmmo!=weapons.Ammo||cachedHits!=weapons.Hits||cachedName!=weapons.DisplayName||cachedReload!=weapons.Reloading)
+                {cachedAmmo=weapons.Ammo;cachedHits=weapons.Hits;cachedName=weapons.DisplayName;cachedReload=weapons.Reloading;
                 status.text = weapons.DisplayName.ToUpperInvariant() + "   " + weapons.Ammo + " / " + weapons.Capacity +
-                    (weapons.Reloading ? "   RELOADING" : "") + "\nTARGET HITS  " + weapons.Hits;
-                pickupLabel.text = weapons.NearbyName.Length > 0 ? "TAKE  •  " + weapons.NearbyName : "";
+                    (weapons.Reloading ? "   RELOADING" : "") + "\nTARGET HITS  " + weapons.Hits;}
+                if(cachedNearby!=weapons.NearbyName){cachedNearby=weapons.NearbyName;pickupLabel.text=weapons.NearbyName.Length>0?"TAKE  •  "+weapons.NearbyName:"";}
             }
         }
         private void ApplySafeArea()
@@ -166,6 +170,29 @@ namespace Fpp
             var main=Resources.Load<TextAsset>("THIRD_PARTY_NOTICES");var mosque=Resources.Load<TextAsset>("MOSQUE_NOTICE");text.text=(main!=null?main.text:"")+"\n\n"+(mosque!=null?mosque.text:"")+"\n\nHUD font: DejaVu Sans Bold. Bitstream/DejaVu license notice bundled at Fonts/LICENSE.";
             scroll.content=text.rectTransform;creditsPanel.SetActive(false);
         }
+        private void CreateSettings()
+        {
+            var p=Panel("Sensitivity settings",safeRoot,new Color(.035f,.05f,.065f,.98f));Rect(p,new Vector2(.12f,.15f),new Vector2(.88f,.86f),Vector2.zero,Vector2.zero);settingsPanel=p.gameObject;
+            var settings=GameplayInput.Instance!=null?GameplayInput.Instance.Settings:SensitivitySettings.Load();
+            SettingSlider(p,"Base look",.82f,settings.baseSensitivity,.1f,3,v=>settings.baseSensitivity=v,settings);
+            SettingSlider(p,"Horizontal",.68f,settings.horizontal,.1f,3,v=>settings.horizontal=v,settings);
+            SettingSlider(p,"Vertical",.54f,settings.vertical,.1f,3,v=>settings.vertical=v,settings);
+            SettingSlider(p,"ADS iron",.40f,settings.iron,.1f,2,v=>settings.iron=v,settings);
+            SettingSlider(p,"ADS low zoom",.26f,settings.lowZoom,.1f,2,v=>settings.lowZoom=v,settings);
+            SettingSlider(p,"ADS high zoom",.12f,settings.highZoom,.1f,2,v=>settings.highZoom=v,settings);
+            SmallButton(p,"GYRO",new Vector2(.69f,.67f),new Vector2(.96f,.80f),()=>{settings.gyro=!settings.gyro;settings.Save();});
+            SmallButton(p,"DAMAGE #",new Vector2(.69f,.50f),new Vector2(.96f,.63f),()=>{settings.damageNumbers=!settings.damageNumbers;settings.Save();});
+            SmallButton(p,"CURVE",new Vector2(.69f,.33f),new Vector2(.96f,.46f),()=>{settings.curve=(SensitivitySettings.ResponseCurve)(((int)settings.curve+1)%3);settings.Save();});
+            SmallButton(p,"SAVE / CLOSE",new Vector2(.69f,.1f),new Vector2(.96f,.25f),()=>{settings.Save();settingsPanel.SetActive(false);});
+            settingsPanel.SetActive(false);
+        }
+        private void SettingSlider(Transform parent,string title,float y,float value,float min,float max,UnityEngine.Events.UnityAction<float> update,SensitivitySettings settings)
+        {
+            var label=Label(title,parent,title,16,TextAnchor.MiddleLeft);Rect(label.rectTransform,new Vector2(.02f,y),new Vector2(.25f,y+.1f),Vector2.zero,Vector2.zero);
+            var root=Panel(title+" slider",parent,new Color(.3f,.35f,.35f,1));Rect(root,new Vector2(.27f,y+.025f),new Vector2(.63f,y+.075f),Vector2.zero,Vector2.zero);
+            var slider=root.gameObject.AddComponent<Slider>();slider.minValue=min;slider.maxValue=max;slider.SetValueWithoutNotify(value);
+            var handle=Panel("Handle",root,new Color(.9f,.76f,.4f));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(20,0));slider.handleRect=handle;slider.targetGraphic=handle.GetComponent<Image>();slider.onValueChanged.AddListener(v=>{update(v);settings.Save();});
+        }
         public void Select(HudControl control)
         {
             selected=control;if(opacitySlider!=null)opacitySlider.SetValueWithoutNotify(control.placement.opacity);scaleSlider.SetValueWithoutNotify(control.placement.scale);editLabel.text=control.placement.id.ToUpperInvariant()+"  •  Drag to move  •  SIZE "+control.placement.scale.ToString("0.0");
@@ -179,6 +206,7 @@ namespace Fpp
         public void Press(string id,bool down)
         {
             if(Modal)return;
+            if(down && weapons!=null)GunplayEvents.Send(GunplayEventKind.UI,weapons.view.position,weapons.ActiveWeapon,id);
             if(id=="fire")FireHeld=down;
             if(id=="aim")AimHeld=down;
             if(id=="sprint")sprintHeld=down;if(id=="crouch")crouchHeld=down;

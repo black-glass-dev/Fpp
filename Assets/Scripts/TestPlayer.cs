@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Profiling;
 namespace Fpp
 {
     public enum MovementState { Idle, Walk, Sprint, TacticalSprint, Crouch, Prone, Slide, Dive, Airborne, Mantle, Mount, Dead }
@@ -31,20 +32,22 @@ namespace Fpp
             if(next==MovementState.Slide)GunplayEvents.Send(GunplayEventKind.Slide,transform.position);
             if(next==MovementState.Dive)GunplayEvents.Send(GunplayEventKind.Dive,transform.position);
         }
-        private void Update()
+        private static readonly ProfilerMarker UpdateMarker=new ProfilerMarker("FPP.Movement");
+        private void Update(){using(UpdateMarker.Auto())TickGameplay();}
+        private void TickGameplay()
         {
             var c=GunplayConfig.Current;var hub=GameplayInput.Instance;if(hub==null||view==null)return;
             if(WeaponController.MenuOpen){momentum=Vector3.zero;return;}
             var input=hub.Frame;float dt=Time.deltaTime,now=Time.time;
             var look=hub.Look(weapons!=null?weapons.AdsT:0,weapons!=null?weapons.ActiveWeapon.sightFOV:c.worldFOV);
-            if(State!=MovementState.Dead){transform.Rotate(0,look.x,0);pitch=Mathf.Clamp(pitch-look.y,-89,89);}
+            if(State!=MovementState.Dead){transform.Rotate(0,look.x,0);pitch=Mathf.Clamp(pitch-look.y,-c.pitchLimit,c.pitchLimit);}
             bool grounded=controller.isGrounded;
             if(!grounded)fallPeak=Mathf.Max(fallPeak,transform.position.y);
             if(grounded&&!wasGrounded)
             {
                 float height=Mathf.Max(0,fallPeak-transform.position.y);
                 if(height>c.landingThreshold)LandingPenalty=1;
-                GunplayEvents.Send(GunplayEventKind.LandImpact,transform.position,null,null,height);
+                GunplayEvents.Send(GunplayEventKind.LandImpact,transform.position,weapons!=null?weapons.ActiveWeapon:null,null,height);
                 if(State==MovementState.Dive){prone=true;crouched=false;SetState(MovementState.Prone);}
             }
             if(grounded)fallPeak=transform.position.y;
@@ -72,7 +75,7 @@ namespace Fpp
             if(State==MovementState.Slide)
             {
                 float t=Mathf.Clamp01((now-stateAt)/c.slideDuration);
-                float speed=Mathf.Lerp(slideEntry,c.crouch, (1-Mathf.Exp(-5*t))/(1-Mathf.Exp(-5)));
+                float speed=Mathf.Lerp(slideEntry,c.crouch, (1-Mathf.Exp(-c.slideDecay*t))/(1-Mathf.Exp(-c.slideDecay)));
                 momentum=momentum.normalized*speed;
                 if(t>=1||input.Jump){crouched=true;SetState(MovementState.Crouch);special=false;}
             }
@@ -97,7 +100,7 @@ namespace Fpp
             if(grounded&&Speed>c.prone)
             {
                 stepPhase+=dt*(IsSprinting?c.sprintCadence:c.walkCadence);
-                if(stepPhase>=1){stepPhase-=1;Physics.Raycast(transform.position+Vector3.up*controller.radius,Vector3.down,out var ground,c.standingHeight,~(1<<8));GunplayEvents.Send(GunplayEventKind.Footstep,transform.position,null,SurfaceProfile.Name(ground.collider),Speed);}
+                if(stepPhase>=1){stepPhase-=1;Physics.Raycast(transform.position+Vector3.up*controller.radius,Vector3.down,out var ground,c.standingHeight,~(1<<8));GunplayEvents.Send(GunplayEventKind.Footstep,transform.position,weapons!=null?weapons.ActiveWeapon:null,SurfaceProfile.Name(ground.collider),Speed);}
             }
             UpdateEye(c,dt);
         }

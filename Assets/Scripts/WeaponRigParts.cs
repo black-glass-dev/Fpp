@@ -30,6 +30,8 @@ namespace Fpp
             }
             if(action!=null){action.localPosition=actionHome;action.position-=space.forward*(rifle?.045f:.025f)*rack;}
         }
+        public void LockEmpty(bool empty,Transform space,GunplayConfig config,bool tacticalReload=false)
+        {if(action!=null && (empty||tacticalReload)){action.localPosition=actionHome;if(empty)action.position-=space.forward*(rifle?config.emptyRifleActionTravel:config.emptyPistolActionTravel);}}
         public void RetargetMagazine(Vector3 delta,Quaternion spin)
         {
             Bind();magazine.localPosition=magHome;magazine.localRotation=magRotation;

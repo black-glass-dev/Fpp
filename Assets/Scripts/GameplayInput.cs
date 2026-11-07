@@ -40,7 +40,7 @@ namespace Fpp
             frame.FirePressed=frame.Fire&&!previousFire;previousFire=frame.Fire;
             float magnitude=frame.Move.magnitude;
             frame.Move=magnitude<=c.joystickDeadZone?Vector2.zero:frame.Move.normalized*Mathf.Pow(Mathf.InverseLerp(c.joystickDeadZone,1,magnitude),c.joystickExponent);
-            bool nowForward=frame.Move.y>.8f;
+            bool nowForward=frame.Move.y>c.forwardThreshold;
             if(nowForward&&!forward){if(Time.unscaledTime-forwardTap<c.doubleTapWindow)frame.Tactical=true;forwardTap=Time.unscaledTime;}forward=nowForward;
             for(int i=0;i<Input.touchCount;i++)
             {

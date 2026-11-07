@@ -24,6 +24,7 @@ namespace Fpp
             if(now-lastShot>c.bloomDelay)Bloom=Mathf.MoveTowards(Bloom,0,c.bloomDecay*dt);
             if(now-lastShot>w.recoilRecoveryDelaySec)
             {AimClimb=Vector2.MoveTowards(AimClimb,Vector2.zero,w.recoilRecoveryRateDegPerSec*c.recoveryFraction*dt);}
+            if(now-lastShot>c.patternResetDelay && AimClimb.sqrMagnitude<.0001f)ShotIndex=0;
             ViewKick=Spring(ViewKick,ref viewVelocity,c.viewOmega,c.viewDamping,dt);
             GunKick=Spring(GunKick,ref gunVelocity,c.gunOmega,c.gunDamping,dt);
         }

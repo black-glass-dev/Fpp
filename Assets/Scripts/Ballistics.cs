@@ -9,6 +9,8 @@ namespace Fpp
             if(!Physics.Raycast(origin,direction,out var hit,c.rayDistance,~(1<<8),QueryTriggerInteraction.Ignore))return origin+direction*c.rayDistance;
             Resolve(hit,weapon,weapon.Damage(hit.distance),ref hits);
             var surface=hit.collider.GetComponentInParent<SurfaceProfile>();
+            if(surface!=null && surface.penetration==PenetrationClass.Metal && Mathf.Abs(Vector3.Dot(direction,hit.normal))<c.ricochetGrazingCos)
+                GunplayEvents.Emit(new GunplayEvent{Kind=GunplayEventKind.Ricochet,Address="Ricochet",Position=hit.point,Normal=Vector3.Reflect(direction,hit.normal),Weapon=weapon,Context=surface.surface});
             if(surface!=null && surface.penetration!=PenetrationClass.None && weapon.penetrationClass!=PenetrationClass.None)
             {
                 // Reverse-ray the same collider to find a real exit, not an arbitrary second ray through thick walls.

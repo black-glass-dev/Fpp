@@ -107,3 +107,34 @@ MonoBehaviour:
   resolutionStep: .05
   resolutionHysteresis: 1.12
   dynamicResolution: 1
+  landingPitch: 1.2
+  flinchDegrees: .8
+  gunProbeHalf: .04
+  roomProbe: 5
+  viewmodelBob: .003
+  viewmodelBobFrequency: 7
+  recoilPosition: .028
+  recoilGunDegrees: 3
+  recoilReturn: 7
+  holsterLower: .28
+  holsterPitch: 25
+  holsterYaw: -12
+  flashSize: .075
+  flashSeconds: .075
+  flashLightRange: 2
+  flashLightIntensity: 1.5
+  tracerLength: 2
+  tracerSpeed: 420
+  tracerLife: .18
+  tracerStartWidth: .007
+  tracerEndWidth: .002
+  slideDecay: 5
+  forwardThreshold: .8
+  pitchLimit: 89
+  shellPool: 24
+  impactPool: 16
+  ammoBoxGrant: 60
+  emptyPistolActionTravel: .025
+  emptyRifleActionTravel: .045
+  patternResetDelay: .4
+  ricochetGrazingCos: .25

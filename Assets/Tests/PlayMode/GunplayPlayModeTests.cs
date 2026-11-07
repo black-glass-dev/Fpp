@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Text;
+using Unity.Profiling;
 using Fpp;
 using NUnit.Framework;
 using UnityEngine;
@@ -110,6 +111,39 @@ namespace Fpp.Tests
             while(motor.State!=MovementState.Mantle&&Time.time<until)yield return null;Assert.AreEqual(MovementState.Mantle,motor.State);
             input.Value.Move=Vector2.zero;yield return new WaitForSeconds(GunplayConfig.Current.mantleDuration+.2f);Assert.Greater(motor.transform.position.y,1.45f);
             File.WriteAllText(Output+"/movement-playmode.txt","PASS: real CharacterController slide entry="+peak+", sprint="+entry+"; dive lands prone; 1.5m mantle height="+motor.transform.position.y);
+        }
+        [UnityTest,Timeout(420000)] public IEnumerator FiveMinuteCombatSoak500Shots50Reloads()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
+            var pickups=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();float start=Time.realtimeSinceStartup;int shots=0,reloads=0,swaps=0;
+            Action<GunplayEvent> listener=e=>{if(e.Kind==GunplayEventKind.ShotFired)shots++;};GunplayEvents.Raised+=listener;
+            var gc=ProfilerRecorder.StartNew(ProfilerCategory.Memory,"GC Allocated In Frame",1);
+            var movement=ProfilerRecorder.StartNew(ProfilerCategory.Scripts,"FPP.Movement",1);
+            var weaponCPU=ProfilerRecorder.StartNew(ProfilerCategory.Scripts,"FPP.Weapons",1);
+            var viewmodel=ProfilerRecorder.StartNew(ProfilerCategory.Scripts,"FPP.Viewmodel",1);
+            long maxGC=0,maxCPU=0;
+            try
+            {
+                for(int cycle=0;cycle<50;cycle++)
+                {
+                    WeaponPickup next=cycle%4==0?null:pickups[(cycle%4)-1];
+                    weapons.QARequestEquip(next);while(weapons.QASwitching)yield return null;swaps++;
+                    weapons.GrantAmmo(weapons.ActiveWeapon.reserveMax);int goal=shots+10;
+                    while(shots<goal)
+                    {
+                        input.Value.Fire=true;input.Value.FirePressed=true;yield return null;
+                        maxGC=Math.Max(maxGC,gc.LastValue);maxCPU=Math.Max(maxCPU,movement.LastValue+weaponCPU.LastValue+viewmodel.LastValue);
+                    }
+                    input.Value.Fire=false;weapons.Reload();Assert.True(weapons.Reloading);
+                    while(weapons.Reloading)yield return null;reloads++;
+                    LogAssert.NoUnexpectedReceived();
+                }
+                while(Time.realtimeSinceStartup-start<300){yield return null;maxGC=Math.Max(maxGC,gc.LastValue);maxCPU=Math.Max(maxCPU,movement.LastValue+weaponCPU.LastValue+viewmodel.LastValue);}
+                Assert.AreEqual(500,shots);Assert.AreEqual(50,reloads);Assert.AreEqual(50,swaps);
+                File.WriteAllText(Output+"/soak-editor.txt","Actual Unity Play Mode: seconds="+(Time.realtimeSinceStartup-start)+", shots="+shots+", reloads="+reloads+", switches="+swaps+", editor max total frame GC bytes="+maxGC+", editor movement+weapons marker max nanoseconds="+maxCPU+". Editor total-frame allocation/CPU is NOT target Android combat-loop acceptance; no device profiler capture supplied.");
+            }
+            finally{GunplayEvents.Raised-=listener;gc.Dispose();movement.Dispose();weaponCPU.Dispose();viewmodel.Dispose();}
         }
         [UnityTest] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {
