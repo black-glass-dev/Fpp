@@ -76,3 +76,4 @@ MonoBehaviour:
   - {x: 0.45, y: 0.16}
   - {x: 0.4, y: 0.2}
   - {x: 0.4, y: 0.24}
+  pickupLength: .65

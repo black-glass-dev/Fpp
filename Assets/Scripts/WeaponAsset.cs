@@ -21,7 +21,7 @@ namespace Fpp
         public float reloadTacticalSec=1.6f, reloadEmptySec=2, switchInSec=.45f, switchOutSec=.35f, drawSec=.6f, holsterSec=.4f;
         public float dmg0=35, range0=20, dmg1=26, range1=35, dmg2=20, range2=300;
         public PenetrationClass penetrationClass=PenetrationClass.Thin;
-        public float muzzleFlashScale=1, sightFOV=55;
+        public float muzzleFlashScale=1, sightFOV=55, pickupLength=.27f;
         public bool mountable=true;
         public string shotEvent="weapon.shot", tailEvent="weapon.tail", reloadEvent="weapon.reload";
         public Vector3 aimPoseOffset, aimPoseEuler, supportHand, triggerFinger, magGrab;

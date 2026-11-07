@@ -33,7 +33,7 @@ patterns={
 for name,display,rpm,mag in [('mark23','Mark 23',480,12),('glock17','Glock 17',540,17),('field','Field Pistol',450,17),('ak47','AK-47',600,30)]:
     values=dict(base,id=name,displayName=display,rpm=rpm,magSize=mag)
     values['recoilPattern']='\n'+''.join('  - {x: '+str(v)+', y: '+str(h)+'}\n' for v,h in patterns[name]).rstrip('\n')
-    if name=='ak47':values.update(weaponClass=2,fireMode=1,reserveMax=300,adsTimeSec=.28,sightFOV=45,sprintOutFireDelaySec=.18,aimWalkSpeed=2.4,reloadTacticalSec=2.2,reloadEmptySec=2.7,dmg0=40,range0=25,dmg1=33,range1=45,dmg2=28,penetrationClass=2,supportHand='{x: -.075, y: -.045, z: .005}')
+    if name=='ak47':values.update(weaponClass=2,fireMode=1,reserveMax=300,adsTimeSec=.28,sightFOV=45,sprintOutFireDelaySec=.18,aimWalkSpeed=2.4,reloadTacticalSec=2.2,reloadEmptySec=2.7,dmg0=40,range0=25,dmg1=33,range1=45,dmg2=28,penetrationClass=2,pickupLength=.65,supportHand='{x: -.075, y: -.045, z: .005}')
     elif name=='glock17':values.update(reloadTacticalSec=1.7,reloadEmptySec=2.1,gunKickMult=.8)
     elif name=='field':values.update(reloadTacticalSec=1.8,reloadEmptySec=2.2)
     save(name,'WeaponAsset',values)

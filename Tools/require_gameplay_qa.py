@@ -1,7 +1,7 @@
 """An action's exit code or a Passed/0-tests XML is never acceptance."""
 import xml.etree.ElementTree as E
 from pathlib import Path
-required={'ConfigsAreSerializedAndReferenceValuesMatch','CadenceHasNoBankedShotsAndStaysFrameRateIndependent','RecoilNoiseBoundHipAsymmetryAndMountReduction','SameFrameSemiFireAndActualADSTimingAllWeapons','ReloadCancellationConservationAndDroppedAmmo','MovementSlideDiveAndMantleOnRealController','FiveMinuteCombatSoak500Shots50Reloads','DamageMarkersAndHealthAreSynchronous','SprintOutDelayAndADSCancellationUseActualInputLoop','PhysicalMountLocksMovementAndReducesActualShotImpulseRMS','ActualADS30RoundWallPatternAt15m','CapturePoseAndReloadEvidence_NotFingerContactAcceptance'}
+required={'ConfigsAreSerializedAndReferenceValuesMatch','CadenceHasNoBankedShotsAndStaysFrameRateIndependent','RecoilNoiseBoundHipAsymmetryAndMountReduction','SameFrameSemiFireAndActualADSTimingAllWeapons','ReloadCancellationConservationAndDroppedAmmo','MovementSlideDiveAndMantleOnRealController','FiveMinuteCombatSoak500Shots50Reloads','DamageMarkersAndHealthAreSynchronous','DefaultPistolDropsAsTexturedGunOnlyAndRestoresAuthoredSlot','SprintOutDelayAndADSCancellationUseActualInputLoop','PhysicalMountLocksMovementAndReducesActualShotImpulseRMS','ActualADS30RoundWallPatternAt15m','CapturePoseAndReloadEvidence_NotFingerContactAcceptance'}
 found={}
 for path in Path('QA/test-results').rglob('*results.xml'):
     root=E.parse(path).getroot()

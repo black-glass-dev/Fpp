@@ -72,7 +72,7 @@ namespace Fpp
             AddControl("fire", "FIRE", .89f,.23f,108);
             AddControl("reload", "RELOAD", .79f,.15f,82);
             AddControl("pickup", "TAKE", .78f,.35f,82);
-            AddControl("sidearm", "PISTOL", .68f,.15f,76);
+            AddControl("sidearm", "SWAP", .68f,.15f,76);
             AddControl("aim", "ADS", .9f,.45f,80);
             AddControl("jump","JUMP",.62f,.28f,68);
             AddControl("crouch","CROUCH",.52f,.15f,68);

@@ -40,7 +40,7 @@ namespace Fpp
         public int Hits => hits;
         public bool Reloading => reloadEnd > 0;
         private WeaponPickup[] pickups;
-        private WeaponPickup nearest, equipped;
+        private WeaponPickup nearest, equipped, primaryWorld;
         private GameObject heldVisual;
         private ShotEffects effects;
         private WeaponRigParts heldRig;
@@ -70,6 +70,9 @@ namespace Fpp
             InitializePose();
             motor=GetComponent<TestPlayer>();ActiveWeapon=Resources.Load<WeaponAsset>("Gunplay/mark23");
             reserve=ActiveWeapon.reserveMax;rounds=magazine=ActiveWeapon.magSize;
+            HoldDrawPose();
+            primaryWorld=new GameObject("Mark23 world pickup (gun only)").AddComponent<RuntimePickupMesh>().Build(this,ActiveWeapon);
+            var expanded=new WeaponPickup[pickups.Length+1];System.Array.Copy(pickups,expanded,pickups.Length);expanded[pickups.Length]=primaryWorld;pickups=expanded;
             drawReady=Time.time+ActiveWeapon.drawSec;
             PlayClip("draw",ActiveWeapon.drawSec);
             EnsureEffects();
@@ -237,7 +240,11 @@ namespace Fpp
         }
         public void UseSidearm()
         {
-            if(equipped!=null && !equipping){CancelReload();StartCoroutine(Equip(null));}
+            if(equipping)return;
+            CancelReload();
+            if(primaryWorld!=null && primaryWorld.gameObject.activeSelf && Vector3.Distance(transform.position,primaryWorld.transform.position)<=GunplayConfig.Current.pickupRadius)StartCoroutine(Equip(primaryWorld));
+            else if(nearest!=null)StartCoroutine(Equip(nearest));
+            else if(primaryWorld==null && equipped!=null)StartCoroutine(Equip(null));
         }
         private IEnumerator Equip(WeaponPickup next)
         {
@@ -251,16 +258,26 @@ namespace Fpp
         private void ApplyWeapon(WeaponPickup next)
         {
             RestoreSupportPose();HoldDrawPose();
+            bool sidearm=next==null || next.Asset.id=="mark23";
             if(equipped!=null)
             {
                 equipped.Store(rounds,reserve);
                 if(Application.isPlaying)equipped.Drop(transform.position+transform.forward*GunplayConfig.Current.pickupRadius,transform.forward);
                 else equipped.gameObject.SetActive(true);
             }
-            else {sidearmRounds=rounds;sidearmReserve=reserve;}
+            else
+            {
+                sidearmRounds=rounds;sidearmReserve=reserve;
+                if(Application.isPlaying && primaryWorld!=null && !sidearm)
+                {primaryWorld.Store(rounds,reserve);primaryWorld.transform.rotation=Quaternion.Euler(0,transform.eulerAngles.y,90);primaryWorld.Drop(transform.position+transform.forward*GunplayConfig.Current.pickupRadius,transform.forward);}
+            }
+            if(sidearm && primaryWorld!=null)
+            {
+                if(next!=null){sidearmRounds=next.Rounds;sidearmReserve=next.Reserve;}
+                primaryWorld.gameObject.SetActive(false);
+            }
             if(heldVisual!=null)Remove(heldVisual);
-            equipped=next;heldRig=null;
-            bool sidearm=next==null;
+            equipped=sidearm?null:next;heldRig=null;
             foreach(var renderer in pistolRenderers)renderer.enabled=sidearm;
             if(sidearm)
             {

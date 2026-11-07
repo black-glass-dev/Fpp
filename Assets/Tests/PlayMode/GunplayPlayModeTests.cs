@@ -196,6 +196,22 @@ namespace Fpp.Tests
             }
             finally{GunplayEvents.Raised-=listener;}
         }
+        [UnityTest] public IEnumerator DefaultPistolDropsAsTexturedGunOnlyAndRestoresAuthoredSlot()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();GameplayInput.Instance.OverrideProvider=new ScriptedInputProvider();
+            weapons.QAAmmo(5,65);WeaponPickup secondary=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="ak47")secondary=p;
+            weapons.QAEquip(secondary);yield return null;
+            WeaponPickup dropped=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="mark23")dropped=p;
+            Assert.NotNull(dropped);Assert.AreEqual(5,dropped.Rounds);Assert.AreEqual(65,dropped.Reserve);Assert.AreEqual(WeaponState.Dropped,dropped.State);
+            Assert.AreEqual(0,dropped.GetComponentsInChildren<SkinnedMeshRenderer>().Length,"world item must not include a live arms rig");
+            var renderers=dropped.GetComponentsInChildren<Renderer>();Assert.Greater(renderers.Length,0);
+            foreach(var r in renderers)foreach(var m in r.sharedMaterials){Assert.NotNull(m.mainTexture);Assert.False(m.name.Contains("Hand")||m.name.Contains("Glove"),"no arms in floor pickup");}
+            var bounds=WeaponController.LocalBounds(dropped.transform);float length=Mathf.Max(bounds.size.x,Mathf.Max(bounds.size.y,bounds.size.z))*dropped.transform.localScale.x;Assert.That(length,Is.EqualTo(dropped.Asset.pickupLength).Within(.001f));
+            weapons.QAEquip(dropped);yield return null;Assert.AreEqual("Mark 23",weapons.DisplayName);Assert.AreEqual(5,weapons.Ammo);Assert.AreEqual(65,weapons.Reserve);Assert.False(dropped.gameObject.activeSelf);
+            weapons.Reload();yield return new WaitForSeconds(weapons.ActiveWeapon.reloadTacticalSec+.1f);Assert.AreEqual(12,weapons.Ammo);Assert.AreEqual(58,weapons.Reserve);
+            File.WriteAllText(Output+"/primary-drop-playmode.txt","Actual Mark23 gun-only textured world pickup preserves 5+65; pickup restores original animated default slot; tactical reload conserves total as 12+58.");
+        }
         [UnityTest] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
