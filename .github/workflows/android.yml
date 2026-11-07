@@ -143,8 +143,11 @@ jobs:
       - name: Preserve actual Unity render previews
         run: |
           if [ -f Docs/Previews/unity-spawn.png ]; then
-            python -m pip install --quiet pillow==13.0.0
-            python Tools/optimize_previews.py
+            if python -m pip install --quiet pillow==12.0.0; then
+              python Tools/optimize_previews.py
+            else
+              echo '::warning::Optional PNG compression unavailable; preserving original camera pixels.'
+            fi
             git add Docs/Previews/unity-*.png
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
