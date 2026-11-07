@@ -9,6 +9,7 @@ namespace Fpp.Editor
     {
         public static void Build(GameObject root,string name)
         {
+            Directory.CreateDirectory("Assets/Generated/WeaponRig");AssetDatabase.Refresh();
             var rig=root.AddComponent<WeaponRigParts>();rig.rifle=name.Contains("AK");
             var mag=new GameObject("Animated magazine").transform;mag.SetParent(root.transform,false);rig.magazine=mag;
             var action=new GameObject("Animated action").transform;action.SetParent(root.transform,false);rig.action=action;
@@ -46,7 +47,7 @@ namespace Fpp.Editor
                         piece.transform.SetPositionAndRotation(filter.transform.position,filter.transform.rotation);piece.transform.localScale=filter.transform.lossyScale;
                         piece.transform.SetParent(group==1?mag:group==2?action:root.transform,true);
                         var split=Subset(mesh,buckets[group]);
-                        string folder="Assets/Generated/WeaponRig";Directory.CreateDirectory(folder);AssetDatabase.Refresh();
+                        string folder="Assets/Generated/WeaponRig";
                         string path=folder+"/"+name.Replace(' ','_')+"_"+index+"_"+group+".asset";
                         AssetDatabase.DeleteAsset(path);AssetDatabase.CreateAsset(split,path);
                         piece.GetComponent<MeshFilter>().sharedMesh=split;piece.GetComponent<MeshRenderer>().sharedMaterial=material;

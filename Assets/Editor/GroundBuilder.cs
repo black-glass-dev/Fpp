@@ -20,6 +20,7 @@ namespace Fpp.Editor
         }
         public static void Create(Material grass)
         {
+            Directory.CreateDirectory("Assets/Generated/Ground");AssetDatabase.Refresh();
             const int width=71,depth=91;var vertices=new Vector3[width*depth];var uv=new Vector2[vertices.Length];var triangles=new List<int>();
             for(int z=0;z<depth;z++)for(int x=0;x<width;x++)
             {int i=z*width+x;float px=x-35,pz=z-45;vertices[i]=new Vector3(px,Height(px,pz),pz);uv[i]=new Vector2(x/4f,z/4f);}
@@ -43,6 +44,6 @@ namespace Fpp.Editor
             stones.GetComponent<Renderer>().sharedMaterial=mat;stones.GetComponent<Renderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;stones.isStatic=true;
         }
         private static void SaveMesh(Mesh mesh,string name)
-        {Directory.CreateDirectory("Assets/Generated/Ground");AssetDatabase.Refresh();string path="Assets/Generated/Ground/"+name+".asset";AssetDatabase.DeleteAsset(path);AssetDatabase.CreateAsset(mesh,path);}
+        {string path="Assets/Generated/Ground/"+name+".asset";AssetDatabase.DeleteAsset(path);AssetDatabase.CreateAsset(mesh,path);}
     }
 }
