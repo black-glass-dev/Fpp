@@ -11,20 +11,20 @@ namespace Fpp
         public Vector2 AimClimb {get;private set;}
         public Vector2 ViewKick {get;private set;}
         public Vector2 GunKick {get;private set;}
-        private Vector2 viewVelocity,gunVelocity;
+        private Vector2 viewVelocity,gunVelocity,residualAim;
         private float lastShot=-100, stoppedAt=-100, adsAt=-100;
         private bool moving,aimed;
         private uint seed=0x12345678;
         public float Noise(){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return (seed&0xFFFFFF)/(float)0xFFFFFF;}
-        public void Reset(){AdsT=Bloom=NextShot=0;ShotIndex=0;AimClimb=ViewKick=GunKick=viewVelocity=gunVelocity=Vector2.zero;lastShot=stoppedAt=adsAt=-100;moving=aimed=false;seed=0x12345678;}
+        public void Reset(){AdsT=Bloom=NextShot=0;ShotIndex=0;AimClimb=ViewKick=GunKick=viewVelocity=gunVelocity=residualAim=Vector2.zero;lastShot=stoppedAt=adsAt=-100;moving=aimed=false;seed=0x12345678;}
         public void Tick(float dt,float now,bool ads,bool isMoving,WeaponAsset w,GunplayConfig c)
         {
             AdsT=Mathf.MoveTowards(AdsT,ads?1:0,dt/w.adsTimeSec);
             if(moving&&!isMoving)stoppedAt=now;if(ads&&!aimed)adsAt=now;moving=isMoving;aimed=ads;
             if(now-lastShot>c.bloomDelay)Bloom=Mathf.MoveTowards(Bloom,0,c.bloomDecay*dt);
             if(now-lastShot>w.recoilRecoveryDelaySec)
-            {AimClimb=Vector2.MoveTowards(AimClimb,Vector2.zero,w.recoilRecoveryRateDegPerSec*c.recoveryFraction*dt);}
-            if(now-lastShot>c.patternResetDelay && AimClimb.sqrMagnitude<.0001f)ShotIndex=0;
+            {AimClimb=Vector2.MoveTowards(AimClimb,residualAim,w.recoilRecoveryRateDegPerSec*dt);}
+            if(now-lastShot>c.patternResetDelay && (AimClimb-residualAim).sqrMagnitude<.0001f)ShotIndex=0;
             ViewKick=Spring(ViewKick,ref viewVelocity,c.viewOmega,c.viewDamping,dt);
             GunKick=Spring(GunKick,ref gunVelocity,c.gunOmega,c.gunDamping,dt);
         }
@@ -47,7 +47,7 @@ namespace Fpp
         public bool CanShoot(float now)=>now>=NextShot;
         public void Schedule(float now,WeaponAsset w)
         {
-            float interval=60/w.rpm;NextShot=NextShot<now-interval?now+interval:NextShot+interval;
+            float interval=60/w.rpm;NextShot=NextShot<=now-interval?now+interval:NextShot+interval;
         }
         public Vector2 Pattern(WeaponAsset w,int index)
         {
@@ -61,7 +61,7 @@ namespace Fpp
             Vector2 impulse=Pattern(w,ShotIndex)*(1+(Noise()*2-1)*c.recoilNoise)*w.adsRecoilMult;
             if(mounted)impulse*=c.mountRecoil;
             // Hip has visual kick but no authored-pattern displacement of aim.
-            if(ads)AimClimb+=impulse;
+            if(ads){AimClimb+=impulse;residualAim+=impulse*(1-c.recoveryFraction);}
             ViewKick+=impulse*w.viewKickMult;
             GunKick+=impulse*w.gunKickMult*(mounted?c.mountGunKick:1);
             Bloom=Mathf.Min(w.bloomCap,Bloom+w.bloomPerShot);lastShot=now;ShotIndex++;return ads?impulse:Vector2.zero;

@@ -177,7 +177,7 @@ namespace Fpp
             float progress=Reloading?Mathf.Clamp01(1-(reloadEnd-Time.time)/reloadDuration):0;
             if(equipped!=null && !Reloading)HoldDrawPose();
             var pose=Presentation(aiming && !Reloading,progress);
-            pose.offset*=Mathf.SmoothStep(0,1,model.AdsT);
+            pose.offset*=Mathf.SmoothStep(0,1,model.AdsT);pose.euler*=Mathf.SmoothStep(0,1,model.AdsT);
             var config=GunplayConfig.Current;
             if(motor!=null && motor.IsSprinting){pose.euler.z=config.sprintCant;pose.offset.y+=config.sprintRaise;}
             if(motor!=null && (motor.State==MovementState.Dive||motor.State==MovementState.Mantle)){pose.offset.y-=config.sprintRaise;pose.euler.x+=config.collisionTilt;}
@@ -193,7 +193,7 @@ namespace Fpp
             position+=new Vector3(Mathf.Sin(Time.time*config.viewmodelBobFrequency)*config.viewmodelBob,Mathf.Cos(Time.time*config.viewmodelBobFrequency*2)*config.viewmodelBob,0)*walk;
             defaultViewmodel.transform.localPosition=position;
             defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler+new Vector3(-recoil*config.recoilGunDegrees+equipBlend*config.holsterPitch,equipBlend*config.holsterYaw,0));
-            if(worldCamera!=null){worldCamera.fieldOfView=Mathf.Lerp(Mathf.Clamp(config.worldFOV,config.minFOV,config.maxFOV),ActiveWeapon.sightFOV,Mathf.SmoothStep(0,1,model.AdsT));worldCamera.nearClipPlane=config.nearClip;}
+            if(worldCamera!=null){worldCamera.fieldOfView=Mathf.Lerp(Mathf.Clamp(GameplayInput.Instance!=null?GameplayInput.Instance.Settings.worldFOV:config.worldFOV,config.minFOV,config.maxFOV),ActiveWeapon.sightFOV,Mathf.SmoothStep(0,1,model.AdsT));worldCamera.nearClipPlane=config.nearClip;}
             if(motor!=null){float breath=Mathf.PerlinNoise(Time.time*config.breathHz,0)*2-1;view.localRotation=Quaternion.Euler(motor.LookEuler+CameraAngles+new Vector3(breath*config.breathDegrees+(motor!=null?motor.LandingPenalty*config.landingPitch:0)-flinch.x,flinch.y,0));}
             if(weaponCamera!=null)weaponCamera.fieldOfView=config.viewmodelFOV;
             PoseSecondary(progress);
@@ -205,6 +205,7 @@ namespace Fpp
         {
             var pose=WeaponPresentation.Sample(aim,equipped!=null,progress,secondaryAimLift);
             if(aim){pose.offset.x=-basePosition.x-(equipped!=null?secondaryAimSide:defaultSightRest.x);pose.offset.y=equipped!=null?secondaryAimLift:-basePosition.y-defaultSightRest.y;}
+            if(aim && ActiveWeapon!=null){pose.offset+=ActiveWeapon.aimPoseOffset;pose.euler+=ActiveWeapon.aimPoseEuler;}
             return pose;
         }
         private void PoseSecondary(float progress)
@@ -243,7 +244,7 @@ namespace Fpp
             equipping=true;State=WeaponState.SwitchingOut;GunplayEvents.Send(GunplayEventKind.WeaponSwap,view.position,ActiveWeapon,"holster");
             // Original procedural lower/raise motion, not copied MWII animation data.
             for(float t=0;t<ActiveWeapon.switchOutSec;t+=Time.deltaTime){equipBlend=Mathf.SmoothStep(0,1,t/ActiveWeapon.switchOutSec);yield return null;}
-            ApplyWeapon(next);
+            ApplyWeapon(next);State=WeaponState.Drawing;drawReady=Time.time+ActiveWeapon.switchInSec;
             for(float t=0;t<ActiveWeapon.switchInSec;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/ActiveWeapon.switchInSec);yield return null;}
             equipBlend=0;equipping=false;State=WeaponState.Idle;GunplayEvents.Send(GunplayEventKind.WeaponSwap,view.position,ActiveWeapon,"draw");
         }
@@ -308,7 +309,7 @@ namespace Fpp
         }
         private void SolveRifleSupport()
         {
-            Vector3 target=weaponMount.TransformPoint(new Vector3(-.075f,-.045f,.005f));
+            Vector3 target=weaponMount.TransformPoint(ActiveWeapon.supportHand);
             Vector3 root=leftUpper.position;float a=Vector3.Distance(root,leftForearm.position),b=Vector3.Distance(leftForearm.position,leftHand.position);
             Vector3 delta=target-root;float distance=Mathf.Clamp(delta.magnitude,Mathf.Abs(a-b)+.001f,(a+b)*.985f);Vector3 direction=delta.normalized;
             // Use the authored elbow plane, never a guessed camera-space pole that swings
@@ -500,7 +501,7 @@ namespace Fpp
             defaultViewmodel.transform.localPosition=basePosition+pose.offset;
             defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler);
             PoseSecondary(reloadProgress);
-            worldCamera.fieldOfView=aim?50:68;weaponCamera.fieldOfView=aim?45:60;
+            worldCamera.fieldOfView=aim?ActiveWeapon.sightFOV:GunplayConfig.Current.worldFOV;weaponCamera.fieldOfView=GunplayConfig.Current.viewmodelFOV;
         }
 #endif
         private static AudioClip MakeShotSound()

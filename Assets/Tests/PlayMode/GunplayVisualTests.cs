@@ -15,15 +15,15 @@ namespace Fpp.Tests
         // No live recoil-model calls in the oracle: integrate the authored noiseless impulses independently.
         private sealed class PatternOracle
         {
-            public Vector2 climb,kick,velocity;public float last=-100;
+            public Vector2 climb,kick,velocity,residual;public float last=-100;
             public void Tick(float dt,float now,WeaponAsset w,GunplayConfig c)
             {
-                if(now-last>w.recoilRecoveryDelaySec)climb=Vector2.MoveTowards(climb,Vector2.zero,w.recoilRecoveryRateDegPerSec*c.recoveryFraction*dt);
+                if(now-last>w.recoilRecoveryDelaySec)climb=Vector2.MoveTowards(climb,residual,w.recoilRecoveryRateDegPerSec*dt);
                 float f=1+2*dt*c.viewDamping*c.viewOmega,oo=c.viewOmega*c.viewOmega,den=f+dt*dt*oo;
                 var previous=kick;kick=(f*previous+dt*velocity)/den;velocity=(velocity-dt*oo*previous)/den;
             }
-            public void Shot(int index,float now,WeaponAsset w)
-            {var p=w.recoilPattern[index%w.recoilPattern.Length];if((index/w.recoilPattern.Length)%2==1)p.y=-p.y;climb+=p*w.adsRecoilMult;kick+=p*w.adsRecoilMult*w.viewKickMult;last=now;}
+            public void Shot(int index,float now,WeaponAsset w,GunplayConfig c)
+            {var p=w.recoilPattern[index%w.recoilPattern.Length];if((index/w.recoilPattern.Length)%2==1)p.y=-p.y;climb+=p*w.adsRecoilMult;residual+=p*w.adsRecoilMult*(1-c.recoveryFraction);kick+=p*w.adsRecoilMult*w.viewKickMult;last=now;}
         }
         [UnityTest] public IEnumerator ActualADS30RoundWallPatternAt15m()
         {
@@ -34,7 +34,7 @@ namespace Fpp.Tests
             cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
             WeaponPickup ak=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="ak47")ak=p;
             weapons.QAEquip(ak);input.Value.ADS=true;while(weapons.AdsT<1)yield return null;
-            var wall=GameObject.CreatePrimitive(PrimitiveType.Cube);wall.name="QA pattern wall exactly 15m";wall.transform.position=weapons.view.position+Vector3.forward*15;wall.transform.localScale=new Vector3(20,20,.1f);Physics.SyncTransforms();
+            var wall=GameObject.CreatePrimitive(PrimitiveType.Cube);wall.name="QA pattern wall exactly 15m";wall.transform.position=weapons.view.position+Vector3.forward*15.05f;wall.transform.localScale=new Vector3(20,20,.1f);Physics.SyncTransforms();
             var reference=new PatternOracle();var w=weapons.ActiveWeapon;var c=GunplayConfig.Current;bool active=true;int shots=0,impacts=0;float squaredError=0;
             var csv=new StringBuilder("shot,worldX,worldY,worldZ,expectedPitch,expectedYaw,actualPitch,actualYaw,errorDeg\n");
             var dotMaterial=new Material(Shader.Find("Sprites/Default")){color=Color.red};
@@ -49,7 +49,7 @@ namespace Fpp.Tests
                     csv.AppendLine(impacts+","+e.Position.x+","+e.Position.y+","+e.Position.z+","+expected.x+","+expected.y+","+pitch+","+yaw+","+error);impacts++;
                     var dot=GameObject.CreatePrimitive(PrimitiveType.Quad);dot.name="QA recorded impact dot (not projectile)";UnityEngine.Object.Destroy(dot.GetComponent<Collider>());dot.transform.position=e.Position+e.Normal*.005f;dot.transform.rotation=Quaternion.LookRotation(-e.Normal);dot.transform.localScale=Vector3.one*.04f;dot.GetComponent<Renderer>().sharedMaterial=dotMaterial;
                 }
-                if(e.Kind==GunplayEventKind.ShotFired){reference.Shot(shots,Time.time,w);shots++;if(shots==30)input.Value.Fire=false;}
+                if(e.Kind==GunplayEventKind.ShotFired){reference.Shot(shots,Time.time,w,c);shots++;if(shots==30)input.Value.Fire=false;}
             };
             GunplayEvents.Raised+=listener;
             try

@@ -99,6 +99,10 @@ namespace Fpp.Tests
             input.Value.CrouchPressed=input.Value.CrouchHeld=true;float until=Time.time+1;
             while(motor.State!=MovementState.Slide && Time.time<until)yield return null;
             Assert.AreEqual(MovementState.Slide,motor.State);Assert.GreaterOrEqual(motor.Speed,entry*1.35f-.01f);float peak=motor.Speed;
+            float slideShotSpread=-1;Action<GunplayEvent> slideListener=e=>{if(e.Kind==GunplayEventKind.ShotFired)slideShotSpread=e.Spread;};GunplayEvents.Raised+=slideListener;
+            try{yield return new WaitForSeconds(.2f);input.Value.ADS=input.Value.Fire=input.Value.FirePressed=true;yield return null;yield return null;Assert.That(slideShotSpread,Is.InRange(0,Weapon("mark23").adsSpreadDeg+.001f));}
+            finally{GunplayEvents.Raised-=slideListener;}
+            input.Value.ADS=input.Value.Fire=false;
             input.Value.Sprint=input.Value.CrouchHeld=false;yield return new WaitForSeconds(GunplayConfig.Current.slideDuration+.1f);Assert.Less(motor.Speed,peak);
             // Stand, then explicitly request tactical sprint and hold crouch into dive.
             input.Value.CrouchPressed=true;yield return null;input.Value.Sprint=input.Value.Tactical=true;yield return new WaitForSeconds(.4f);
@@ -117,8 +121,9 @@ namespace Fpp.Tests
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
-            var pickups=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();float start=Time.realtimeSinceStartup;int shots=0,reloads=0,swaps=0;
-            Action<GunplayEvent> listener=e=>{if(e.Kind==GunplayEventKind.ShotFired)shots++;};GunplayEvents.Raised+=listener;
+            var pickups=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();float start=Time.realtimeSinceStartup;int shots=0,reloads=0,swaps=0,cycleShots=0;float firstInCycle=0;
+            var cadence=new StringBuilder("weapon,cycle,shot,timeSec,rpmCap\n");
+            Action<GunplayEvent> listener=e=>{if(e.Kind==GunplayEventKind.ShotFired){if(cycleShots==0)firstInCycle=Time.time;else Assert.GreaterOrEqual(Time.time-firstInCycle,cycleShots*60/e.Weapon.rpm-.005f);cadence.AppendLine(e.Weapon.id+","+swaps+","+cycleShots+","+Time.time+","+e.Weapon.rpm);cycleShots++;shots++;}};GunplayEvents.Raised+=listener;
             var gc=ProfilerRecorder.StartNew(ProfilerCategory.Memory,"GC Allocated In Frame",1);
             var movement=ProfilerRecorder.StartNew(ProfilerCategory.Scripts,"FPP.Movement",1);
             var weaponCPU=ProfilerRecorder.StartNew(ProfilerCategory.Scripts,"FPP.Weapons",1);
@@ -130,7 +135,7 @@ namespace Fpp.Tests
                 {
                     WeaponPickup next=cycle%4==0?null:pickups[(cycle%4)-1];
                     weapons.QARequestEquip(next);while(weapons.QASwitching)yield return null;swaps++;
-                    weapons.GrantAmmo(weapons.ActiveWeapon.reserveMax);int goal=shots+10;
+                    weapons.GrantAmmo(weapons.ActiveWeapon.reserveMax);cycleShots=0;int goal=shots+10;
                     while(shots<goal)
                     {
                         input.Value.Fire=true;input.Value.FirePressed=true;yield return null;
@@ -142,9 +147,54 @@ namespace Fpp.Tests
                 }
                 while(Time.realtimeSinceStartup-start<300){yield return null;maxGC=Math.Max(maxGC,gc.LastValue);maxCPU=Math.Max(maxCPU,movement.LastValue+weaponCPU.LastValue+viewmodel.LastValue);}
                 Assert.AreEqual(500,shots);Assert.AreEqual(50,reloads);Assert.AreEqual(50,swaps);
+                File.WriteAllText(Output+"/fast-tap-actual-cadence.csv",cadence.ToString());
                 File.WriteAllText(Output+"/soak-editor.txt","Actual Unity Play Mode: seconds="+(Time.realtimeSinceStartup-start)+", shots="+shots+", reloads="+reloads+", switches="+swaps+", editor max total frame GC bytes="+maxGC+", editor movement+weapons marker max nanoseconds="+maxCPU+". Editor total-frame allocation/CPU is NOT target Android combat-loop acceptance; no device profiler capture supplied.");
             }
             finally{GunplayEvents.Raised-=listener;gc.Dispose();movement.Dispose();weaponCPU.Dispose();viewmodel.Dispose();}
+        }
+        [UnityTest] public IEnumerator SprintOutDelayAndADSCancellationUseActualInputLoop()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
+            var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
+            var cc=motor.GetComponent<CharacterController>();cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
+            weapons.QAEquip(null);yield return new WaitForSeconds(.2f);input.Value.Move=Vector2.up;input.Value.Sprint=true;yield return new WaitForSeconds(.4f);Assert.True(motor.IsSprinting);
+            float fired=-1;Action<GunplayEvent> listener=e=>{if(e.Kind==GunplayEventKind.ShotFired&&fired<0)fired=Time.time;};GunplayEvents.Raised+=listener;
+            try
+            {
+                input.Value.Fire=input.Value.FirePressed=true;float deadline=Time.time+1;while(fired<0&&Time.time<deadline)yield return null;
+                Assert.Greater(fired,0);float delay=fired-motor.SprintExitedAt;Assert.GreaterOrEqual(delay,weapons.ActiveWeapon.sprintOutFireDelaySec-.001f);
+                input.Value.Fire=false;yield return new WaitForSeconds(.4f);Assert.True(motor.IsSprinting);
+                input.Value.ADS=true;yield return null;yield return null;Assert.False(motor.IsSprinting);
+                File.WriteAllText(Output+"/sprint-out-playmode.txt","Actual pistol sprint-out fire delay="+delay+" sec; target minimum="+weapons.ActiveWeapon.sprintOutFireDelaySec+"; ADS cancels sprint.");
+            }
+            finally{GunplayEvents.Raised-=listener;}
+        }
+        [UnityTest] public IEnumerator PhysicalMountLocksMovementAndReducesActualShotImpulseRMS()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
+            var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
+            var cc=motor.GetComponent<CharacterController>();cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
+            float[] energy=new float[2];int shots=0,phase=0;Action<GunplayEvent> listener=e=>{if(e.Kind==GunplayEventKind.ShotFired){energy[phase]+=e.Pattern.sqrMagnitude;shots++;}};GunplayEvents.Raised+=listener;
+            try
+            {
+                for(phase=0;phase<2;phase++)
+                {
+                    weapons.QAEquip(null);weapons.QAAmmo(weapons.Capacity,weapons.ActiveWeapon.reserveMax);input.Value=default(InputFrame);input.Value.ADS=true;while(weapons.AdsT<1)yield return null;
+                    if(phase==1)
+                    {
+                        var cover=GameObject.CreatePrimitive(PrimitiveType.Cube);cover.name="QA chest-height mount cover";cover.transform.position=new Vector3(motor.transform.position.x,.75f,motor.transform.position.z+.45f);cover.transform.localScale=new Vector3(2,1.5f,.1f);Physics.SyncTransforms();yield return null;yield return null;
+                        Assert.True(motor.MountAvailable);input.Value.Mount=true;yield return null;yield return null;Assert.True(motor.Mounted);Assert.AreEqual(0,motor.Speed);
+                    }
+                    int goal=shots+10;float deadline=Time.time+4;
+                    while(shots<goal&&Time.time<deadline){input.Value.Fire=input.Value.FirePressed=true;yield return null;}
+                    input.Value.Fire=false;Assert.AreEqual(goal,shots);
+                }
+                float ratio=Mathf.Sqrt(energy[1]/energy[0]);Assert.LessOrEqual(ratio,.2f);input.Value.Move=Vector2.right;yield return null;yield return null;Assert.False(motor.Mounted);
+                File.WriteAllText(Output+"/mount-playmode.txt","Actual ledge probe/mount + shot-event recoil RMS ratio="+ratio+"; maximum .2. Movement locked while mounted and move exits mount.");
+            }
+            finally{GunplayEvents.Raised-=listener;}
         }
         [UnityTest] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {

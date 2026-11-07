@@ -53,7 +53,7 @@ MonoBehaviour:
   reloadEvent: weapon.reload
   aimPoseOffset: {x: 0, y: 0, z: 0}
   aimPoseEuler: {x: 0, y: 0, z: 0}
-  supportHand: {x: 0, y: 0, z: 0}
+  supportHand: {x: -.075, y: -.045, z: .005}
   triggerFinger: {x: 0, y: 0, z: 0}
   magGrab: {x: 0, y: 0, z: 0}
   ejectOffset: {x: .04, y: .01, z: 0}

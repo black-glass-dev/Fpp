@@ -7,6 +7,7 @@ namespace Fpp
     {
         public float horizontal=1, vertical=1, baseSensitivity=1;
         public float iron=1, lowZoom=.85f, highZoom=.6f;
+        public float worldFOV=-1;
         public bool gyro;
         public ResponseCurve curve=ResponseCurve.Linear;
         public bool damageNumbers;
@@ -63,7 +64,7 @@ namespace Fpp
         public SensitivitySettings Settings {get;private set;}
         private bool uiFire;
         private readonly IInputProvider touch=new TouchInputProvider(),desktop=new KeyboardMouseInputProvider();
-        private void Awake(){Instance=this;Settings=SensitivitySettings.Load();}
+        private void Awake(){Instance=this;Settings=SensitivitySettings.Load();if(Settings.worldFOV<GunplayConfig.Current.minFOV)Settings.worldFOV=GunplayConfig.Current.worldFOV;}
         private void Update()
         {
             if(WeaponController.MenuOpen){Frame=default(InputFrame);touch.Reset();desktop.Reset();return;}
@@ -72,13 +73,14 @@ namespace Fpp
             {
                 var ui=MobileHud.Instance.ConsumeInput();var f=Frame;f.Move+=ui.Move;f.Fire|=ui.Fire;f.FirePressed|=ui.Fire&&!uiFire;uiFire=ui.Fire;f.ADS|=ui.ADS;f.Reload|=ui.Reload;f.Swap|=ui.Swap;f.Pickup|=ui.Pickup;f.Jump|=ui.Jump;f.CrouchPressed|=ui.CrouchPressed;f.CrouchHeld|=ui.CrouchHeld;f.Sprint|=ui.Sprint;f.Prone|=ui.Prone;f.Mount|=ui.Mount;Frame=f;
             }
-            if(Settings.gyro&&SystemInfo.supportsGyroscope){Input.gyro.enabled=true;var f=Frame;var rate=Input.gyro.rotationRateUnbiased;f.Look+=new Vector2(-rate.y,rate.x)*GunplayConfig.Current.gyroSensitivity;Frame=f;}
+            if(SystemInfo.supportsGyroscope && Input.gyro.enabled!=Settings.gyro)Input.gyro.enabled=Settings.gyro;
+            if(Settings.gyro&&SystemInfo.supportsGyroscope){var f=Frame;var rate=Input.gyro.rotationRateUnbiased;f.Look+=new Vector2(-rate.y,rate.x)*GunplayConfig.Current.gyroSensitivity*Time.unscaledDeltaTime*Mathf.Rad2Deg;Frame=f;}
         }
         public Vector2 Look(float ads,float fov)
         {
             var v=Frame.Look;float m=v.magnitude;
             if(m>0 && Settings.curve!=SensitivitySettings.ResponseCurve.Linear){float power=Settings.curve==SensitivitySettings.ResponseCurve.Classic?1.4f:.8f;v=v.normalized*Mathf.Pow(m,power);}
-            return Vector2.Scale(v,new Vector2(Settings.horizontal,Settings.vertical))*Settings.baseSensitivity*Mathf.Lerp(1,Settings.Zoom(fov),ads);
+            return Vector2.Scale(v,new Vector2(Settings.horizontal*GunplayConfig.Current.horizontalSensitivity,Settings.vertical*GunplayConfig.Current.verticalSensitivity))*Settings.baseSensitivity*Mathf.Lerp(1,GunplayConfig.Current.adsSensitivity*Settings.Zoom(fov),ads);
         }
         private void OnApplicationFocus(bool focus){Frame=default(InputFrame);touch.Reset();desktop.Reset();}
         private void OnDestroy(){if(Instance==this)Instance=null;}

@@ -183,6 +183,7 @@ namespace Fpp
             SettingSlider(p,"ADS iron",.40f,settings.iron,.1f,2,v=>settings.iron=v,settings);
             SettingSlider(p,"ADS low zoom",.26f,settings.lowZoom,.1f,2,v=>settings.lowZoom=v,settings);
             SettingSlider(p,"ADS high zoom",.12f,settings.highZoom,.1f,2,v=>settings.highZoom=v,settings);
+            SettingSlider(p,"World FOV",.005f,settings.worldFOV<0?GunplayConfig.Current.worldFOV:settings.worldFOV,GunplayConfig.Current.minFOV,GunplayConfig.Current.maxFOV,v=>settings.worldFOV=v,settings);
             SmallButton(p,"GYRO",new Vector2(.69f,.67f),new Vector2(.96f,.80f),()=>{settings.gyro=!settings.gyro;settings.Save();});
             SmallButton(p,"DAMAGE #",new Vector2(.69f,.50f),new Vector2(.96f,.63f),()=>{settings.damageNumbers=!settings.damageNumbers;settings.Save();});
             SmallButton(p,"CURVE",new Vector2(.69f,.33f),new Vector2(.96f,.46f),()=>{settings.curve=(SensitivitySettings.ResponseCurve)(((int)settings.curve+1)%3);settings.Save();});
@@ -191,10 +192,10 @@ namespace Fpp
         }
         private void SettingSlider(Transform parent,string title,float y,float value,float min,float max,UnityEngine.Events.UnityAction<float> update,SensitivitySettings settings)
         {
-            var label=Label(title,parent,title,16,TextAnchor.MiddleLeft);Rect(label.rectTransform,new Vector2(.02f,y),new Vector2(.25f,y+.1f),Vector2.zero,Vector2.zero);
+            var label=Label(title,parent,title+": "+value.ToString("0.00"),16,TextAnchor.MiddleLeft);Rect(label.rectTransform,new Vector2(.02f,y),new Vector2(.25f,y+.1f),Vector2.zero,Vector2.zero);
             var root=Panel(title+" slider",parent,new Color(.3f,.35f,.35f,1));Rect(root,new Vector2(.27f,y+.025f),new Vector2(.63f,y+.075f),Vector2.zero,Vector2.zero);
             var slider=root.gameObject.AddComponent<Slider>();slider.minValue=min;slider.maxValue=max;slider.SetValueWithoutNotify(value);
-            var handle=Panel("Handle",root,new Color(.9f,.76f,.4f));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(20,0));slider.handleRect=handle;slider.targetGraphic=handle.GetComponent<Image>();slider.onValueChanged.AddListener(v=>{update(v);settings.Save();});
+            var handle=Panel("Handle",root,new Color(.9f,.76f,.4f));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(20,0));slider.handleRect=handle;slider.targetGraphic=handle.GetComponent<Image>();slider.onValueChanged.AddListener(v=>{update(v);label.text=title+": "+v.ToString("0.00");settings.Save();});
         }
         public void Select(HudControl control)
         {

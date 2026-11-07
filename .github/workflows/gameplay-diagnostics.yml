@@ -20,7 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RUN: ${{ github.event.workflow_run.id || '42362222722' }}
+          RUN: ${{ github.event.workflow_run.id || '42363070548' }}
         run: |
           gh run view "$RUN" --log > /tmp/failed.log || true
           gh api "repos/$GH_REPO/actions/runs/$RUN/logs" > /tmp/run-logs.zip || true
@@ -65,7 +65,13 @@ jobs:
               results.append(result)
           pathlib.Path('QA/recovered-results-'+os.environ['RUN']+'.json').write_text(json.dumps(results,indent=2))
           PYXML
-          git add QA/native-diagnostic-*.json QA/recovered-results-*.json
+          if [ -d /tmp/previous-qa/test-results ]; then
+            mkdir -p QA/test-results QA/runtime
+            cp -R /tmp/previous-qa/test-results/. QA/test-results/
+            if [ -d /tmp/previous-qa/runtime ]; then cp -R /tmp/previous-qa/runtime/. QA/runtime/; fi
+            RUN_ID="$RUN" python Tools/summarize_gameplay_qa.py
+          fi
+          git add QA
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

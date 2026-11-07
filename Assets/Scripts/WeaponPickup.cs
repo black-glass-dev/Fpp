@@ -4,6 +4,7 @@ namespace Fpp
     public sealed class WeaponPickup : MonoBehaviour
     {
         public string displayName;
+        public WeaponState State=>gameObject.activeSelf?WeaponState.Dropped:WeaponState.Holstered;
         public WeaponAsset config;
         [SerializeField] private int rounds=-1,reserve=-1;
         public WeaponAsset Asset {get {if(config==null)config=Resources.Load<WeaponAsset>("Gunplay/"+(displayName.Contains("AK")?"ak47":displayName.Contains("Glock")?"glock17":"field"));return config;}}
