@@ -101,6 +101,22 @@ jobs:
           buildMethod: Fpp.Editor.AndroidBuild.Build
           customParameters: -fppVersionCode ${{ github.run_number }}
           androidTargetSdkVersion: '35'
+      - name: Report editor-method diagnostics without private activation logs
+        if: always()
+        run: |
+          python - <<'PYDIAG'
+          import pathlib,re
+          p=pathlib.Path('build/fpp-diagnostic.txt')
+          if p.is_file():
+              lines=[]
+              for line in p.read_text(errors='replace').splitlines():
+                  if re.search(r'password|token|secret|serial|license|credential',line,re.I):continue
+                  line=re.sub(r'[^\s@]+@[^\s@]+','[EMAIL]',line)
+                  line=re.sub(r'https?://\S+','[URL]',line)
+                  lines.append(line[:600])
+              message='\n'.join(lines)[:3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+              print('::notice::Editor build diagnostic:%0A'+message)
+          PYDIAG
       - name: Verify fresh APK and signature independently of builder cleanup
         env:
           BUILDER_OUTCOME: ${{ steps.unity.outcome }}

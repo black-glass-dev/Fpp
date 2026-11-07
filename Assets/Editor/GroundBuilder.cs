@@ -38,9 +38,9 @@ namespace Fpp.Editor
                 v.Add(c+Vector3.up*h);for(int k=0;k<6;k++){float angle=k*Mathf.PI/3;v.Add(c+new Vector3(Mathf.Cos(angle)*radius,0,Mathf.Sin(angle)*radius*.8f));}
                 for(int k=0;k<6;k++)indices.AddRange(new[]{b,b+1+k,b+1+(k+1)%6});
             }
-            var rocks=new Mesh();rocks.SetVertices(v);rocks.SetTriangles(indices,0);rocks.RecalculateNormals();rocks.RecalculateBounds();SaveMesh(rocks,"Pebbles");
+            var rocks=new Mesh();rocks.SetVertices(v);rocks.SetUVs(0,v.ConvertAll(p=>new Vector2(p.x*4,p.z*4)));rocks.SetTriangles(indices,0);rocks.RecalculateNormals();rocks.RecalculateBounds();SaveMesh(rocks,"Pebbles");
             var stones=new GameObject("Batched small ground stones",typeof(MeshFilter),typeof(MeshRenderer));stones.GetComponent<MeshFilter>().sharedMesh=rocks;
-            string path="Assets/Materials/TestMap/Ground stones.mat";var mat=AssetDatabase.LoadAssetAtPath<Material>(path);if(mat==null){mat=new Material(Shader.Find("Standard"));AssetDatabase.CreateAsset(mat,path);}mat.color=new Color(.3f,.29f,.25f);mat.SetFloat("_Glossiness",0);
+            string path="Assets/Materials/TestMap/Ground stones.mat";var mat=AssetDatabase.LoadAssetAtPath<Material>(path);if(mat==null){mat=new Material(Shader.Find("Standard"));AssetDatabase.CreateAsset(mat,path);}mat.mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Stone.png");mat.color=new Color(.65f,.62f,.55f);mat.SetFloat("_Glossiness",0);
             stones.GetComponent<Renderer>().sharedMaterial=mat;stones.GetComponent<Renderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;stones.isStatic=true;
         }
         private static void SaveMesh(Mesh mesh,string name)

@@ -35,7 +35,7 @@ namespace Fpp
         public void Play(Vector3 hit)
         {
             flashUntil=Time.time+.075f;flash.SetActive(true);flash.transform.localRotation=Quaternion.Euler(0,0,Random.Range(0,360));
-            smoke.Emit(5);
+            if(!smoke.isPlaying)smoke.Play();smoke.Emit(5);
             int id=next++%lines.Length;
             // Overlay FOV differs from the world camera: project the real barrel onto
             // the scene ray instead of drawing a world tracer behind the gun.

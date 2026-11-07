@@ -62,9 +62,9 @@ namespace Fpp.Editor
                 extension.transform.position=new Vector3(baseBounds.center.x,baseBounds.max.y+bounds.size.y*.16f,baseBounds.center.z);
                 extension.transform.localScale=new Vector3(Mathf.Max(.025f,baseBounds.size.x*.57f),bounds.size.y*.32f,Mathf.Max(.025f,baseBounds.size.z*.65f));
                 extension.transform.SetParent(mag,true);UnityEngine.Object.DestroyImmediate(extension.GetComponent<Collider>());
-                var metal=new Material(Shader.Find("Standard"));metal.color=new Color(.09f,.095f,.1f);metal.SetFloat("_Metallic",.3f);
+                var metal=new Material(Shader.Find("Standard"));metal.color=new Color(.2f,.21f,.22f);metal.mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Metal.png");metal.SetFloat("_Metallic",.3f);
                 string matPath="Assets/Generated/WeaponRig/MagazineMetal.mat";
-                var existing=AssetDatabase.LoadAssetAtPath<Material>(matPath);if(existing==null){AssetDatabase.CreateAsset(metal,matPath);existing=metal;}else UnityEngine.Object.DestroyImmediate(metal);
+                var existing=AssetDatabase.LoadAssetAtPath<Material>(matPath);if(existing==null){AssetDatabase.CreateAsset(metal,matPath);existing=metal;}else{UnityEngine.Object.DestroyImmediate(metal);existing.mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Metal.png");}
                 extension.GetComponent<Renderer>().sharedMaterial=existing;
             }
             CenterPivot(mag);CenterPivot(action);

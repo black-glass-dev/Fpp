@@ -48,6 +48,11 @@ namespace Fpp.Editor
         [MenuItem("FPP/Build Android APK")]
         public static void Build()
         {
+            try{BuildChecked();}
+            catch(Exception error){Directory.CreateDirectory("build");File.WriteAllText("build/fpp-diagnostic.txt",error.ToString());throw;}
+        }
+        private static void BuildChecked()
+        {
             TextureRepair.Ensure2D();
             CottageMap.Create();
             EnvironmentAudit.Validate();
