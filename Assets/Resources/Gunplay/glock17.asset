@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1e36ba531ad5e9a831fad92fe87830b, type: 3}
+  m_Name: glock17
+  m_EditorClassIdentifier: 
+  burstCount: 3
+  magSize: 17
+  reserveMax: 120
+  tracerEveryN: 4
+  rpm: 540
+  adsTimeSec: .16
+  sprintOutFireDelaySec: .1
+  aimWalkSpeed: 2.8
+  adsSpreadDeg: .03
+  bloomPerShot: .55
+  bloomCap: 4
+  adsRecoilMult: 1
+  recoilSmoothness: .85
+  viewKickMult: 1
+  gunKickMult: 0.8
+  recoilRecoveryDelaySec: .06
+  recoilRecoveryRateDegPerSec: 8
+  reloadTacticalSec: 1.7
+  reloadEmptySec: 2.1
+  switchInSec: .45
+  switchOutSec: .35
+  drawSec: .6
+  holsterSec: .4
+  dmg0: 35
+  range0: 20
+  dmg1: 26
+  range1: 35
+  dmg2: 20
+  range2: 300
+  muzzleFlashScale: 1
+  sightFOV: 55
+  mountable: 1
+  weaponClass: 0
+  fireMode: 0
+  penetrationClass: 1
+  hipSpreadDeg: {x: 1, y: 8}
+  shotEvent: weapon.shot
+  tailEvent: weapon.tail
+  reloadEvent: weapon.reload
+  aimPoseOffset: {x: 0, y: 0, z: 0}
+  aimPoseEuler: {x: 0, y: 0, z: 0}
+  supportHand: {x: 0, y: 0, z: 0}
+  triggerFinger: {x: 0, y: 0, z: 0}
+  magGrab: {x: 0, y: 0, z: 0}
+  ejectOffset: {x: .04, y: .01, z: 0}
+  casingPrefab: {fileID: 0}
+  id: glock17
+  displayName: Glock 17
+  recoilPattern: 
+  - {x: 0.5, y: -0.06}
+  - {x: 0.55, y: 0.1}
+  - {x: 0.6, y: -0.1}
+  - {x: 0.5, y: 0.12}

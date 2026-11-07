@@ -29,8 +29,8 @@ namespace Fpp.Editor
                 canvas=GameObject.Find("Mobile HUD").GetComponent<Canvas>();Canvas.ForceUpdateCanvases();
                 Require(GameObject.Find("Reticle").GetComponentsInChildren<Image>().Length==6,"font-independent reticle marks");
                 var controls=canvas.GetComponentsInChildren<HudControl>(true);
-                Require(controls.Length==6,"expected six action/movement controls");
-                foreach(string id in new[]{"move","fire","reload","pickup","aim","sidearm"})
+                Require(controls.Length==11,"expected eleven action/movement controls");
+                foreach(string id in new[]{"move","fire","reload","pickup","aim","sidearm","jump","crouch","sprint","mount","prone"})
                     Require(controls.Count(c=>c.placement.id==id)==1,"missing or duplicate "+id);
                 foreach(var text in canvas.GetComponentsInChildren<Text>(true))Require(text.font!=null,"font missing: "+text.name);
                 var fire=controls.Single(c=>c.placement.id=="fire");var aim=controls.Single(c=>c.placement.id=="aim");

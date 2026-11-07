@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1e36ba531ad5e9a831fad92fe87830b, type: 3}
+  m_Name: ak47
+  m_EditorClassIdentifier: 
+  burstCount: 3
+  magSize: 30
+  reserveMax: 300
+  tracerEveryN: 4
+  rpm: 600
+  adsTimeSec: 0.28
+  sprintOutFireDelaySec: 0.18
+  aimWalkSpeed: 2.4
+  adsSpreadDeg: .03
+  bloomPerShot: .55
+  bloomCap: 4
+  adsRecoilMult: 1
+  recoilSmoothness: .85
+  viewKickMult: 1
+  gunKickMult: 1
+  recoilRecoveryDelaySec: .06
+  recoilRecoveryRateDegPerSec: 8
+  reloadTacticalSec: 2.2
+  reloadEmptySec: 2.7
+  switchInSec: .45
+  switchOutSec: .35
+  drawSec: .6
+  holsterSec: .4
+  dmg0: 40
+  range0: 25
+  dmg1: 33
+  range1: 45
+  dmg2: 28
+  range2: 300
+  muzzleFlashScale: 1
+  sightFOV: 45
+  mountable: 1
+  weaponClass: 2
+  fireMode: 1
+  penetrationClass: 2
+  hipSpreadDeg: {x: 1, y: 8}
+  shotEvent: weapon.shot
+  tailEvent: weapon.tail
+  reloadEvent: weapon.reload
+  aimPoseOffset: {x: 0, y: 0, z: 0}
+  aimPoseEuler: {x: 0, y: 0, z: 0}
+  supportHand: {x: 0, y: 0, z: 0}
+  triggerFinger: {x: 0, y: 0, z: 0}
+  magGrab: {x: 0, y: 0, z: 0}
+  ejectOffset: {x: .04, y: .01, z: 0}
+  casingPrefab: {fileID: 0}
+  id: ak47
+  displayName: AK-47
+  recoilPattern: 
+  - {x: 0.75, y: -0.08}
+  - {x: 0.8, y: 0.05}
+  - {x: 0.85, y: -0.12}
+  - {x: 0.9, y: 0.12}
+  - {x: 0.85, y: 0.15}
+  - {x: 0.8, y: 0.2}
+  - {x: 0.55, y: 0.22}
+  - {x: 0.5, y: 0.25}
+  - {x: 0.45, y: 0.2}
+  - {x: 0.4, y: 0.24}
+  - {x: 0.35, y: 0.18}
+  - {x: 0.4, y: 0.22}
+  - {x: 0.45, y: 0.16}
+  - {x: 0.4, y: 0.2}
+  - {x: 0.4, y: 0.24}

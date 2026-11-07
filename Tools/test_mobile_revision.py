@@ -16,7 +16,8 @@ class MobileRevisionTests(unittest.TestCase):
         controller=Path('Assets/Scripts/WeaponController.cs').read_text()
         self.assertNotIn('PrimitiveType.Sphere',controller)
         self.assertNotIn('OnGUI',controller)
-        self.assertIn('Physics.Raycast',controller)
+        self.assertIn('Ballistics.Fire',controller)
+        self.assertIn('Physics.Raycast',Path('Assets/Scripts/Ballistics.cs').read_text())
         self.assertIn('PlayClip("shoot"',controller)
         self.assertIn('PlayClip("reload"',controller)
     def test_mobile_layout_persistence(self):

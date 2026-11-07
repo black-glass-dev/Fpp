@@ -9,7 +9,7 @@ namespace Fpp
     [Serializable] public class ControlPlacement
     {
         public string id;
-        public float x, y, scale = 1;
+        public float x, y, scale = 1, opacity = 1;
     }
     [Serializable] public class ControlLayout { public ControlPlacement[] controls; }
 
@@ -30,7 +30,8 @@ namespace Fpp
         private WeaponController weapons;
         private Text status, pickupLabel, editLabel;
         private GameObject editorPanel, creditsPanel;
-        private Slider scaleSlider;
+        private Slider scaleSlider, opacitySlider;
+        private InputFrame pending;private bool sprintHeld,crouchHeld;
         private HudControl selected;
         private Rect lastSafe;
         private HudControl joystick;
@@ -64,12 +65,20 @@ namespace Fpp
             }
             pickupLabel = Label("Pickup hint", safeRoot, "", 20, TextAnchor.MiddleCenter);
             Rect(pickupLabel.rectTransform, new Vector2(.2f,.36f), new Vector2(.8f,.36f), Vector2.zero, new Vector2(0,40));
+            var zone=Panel("Floating joystick zone",safeRoot,Color.clear);Rect(zone,Vector2.zero,new Vector2(.5f,1),Vector2.zero,Vector2.zero);
             joystick = AddControl("move", "MOVE", .14f,.22f,150);
+            zone.gameObject.AddComponent<FloatingJoystickZone>().control=joystick;
             AddControl("fire", "FIRE", .89f,.23f,108);
             AddControl("reload", "RELOAD", .79f,.15f,82);
             AddControl("pickup", "TAKE", .78f,.35f,82);
             AddControl("sidearm", "PISTOL", .68f,.15f,76);
             AddControl("aim", "ADS", .9f,.45f,80);
+            AddControl("jump","JUMP",.62f,.28f,68);
+            AddControl("crouch","CROUCH",.52f,.15f,68);
+            AddControl("sprint","SPRINT",.27f,.30f,68);
+            AddControl("mount","MOUNT",.68f,.40f,68);
+            AddControl("prone","PRONE",.43f,.15f,60);
+            go.AddComponent<CombatHud>().weapons=weapons;
             TopButton("LAYOUT", new Vector2(-192,-30), () => SetEditing(true));
             TopButton("CREDITS", new Vector2(-65,-30), ShowCredits);
             LoadLayout();
@@ -132,6 +141,11 @@ namespace Fpp
             var handle=Panel("Handle",sliderRoot,new Color(.9f,.76f,.4f,1));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(24,0));
             scaleSlider.handleRect=handle;scaleSlider.targetGraphic=handle.GetComponent<Image>();
             scaleSlider.onValueChanged.AddListener(value=> { if(selected!=null) { selected.placement.scale=value;selected.Apply();Select(selected); } });
+            var opacityRoot=Panel("Opacity slider",root,new Color(.3f,.35f,.35f,1));Rect(opacityRoot,new Vector2(.07f,.1f),new Vector2(.6f,.25f),Vector2.zero,Vector2.zero);
+            opacitySlider=opacityRoot.gameObject.AddComponent<Slider>();opacitySlider.minValue=.15f;opacitySlider.maxValue=1;
+            var opacityHandle=Panel("Opacity handle",opacityRoot,new Color(.9f,.76f,.4f,1));Rect(opacityHandle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(24,0));
+            opacitySlider.handleRect=opacityHandle;opacitySlider.targetGraphic=opacityHandle.GetComponent<Image>();
+            opacitySlider.onValueChanged.AddListener(value=>{if(selected!=null){selected.placement.opacity=value;selected.Apply();}});
             SmallButton(root,"RESET",new Vector2(.65f,.12f),new Vector2(.8f,.55f),ResetLayout);
             SmallButton(root,"SAVE",new Vector2(.82f,.12f),new Vector2(.98f,.55f),()=>SetEditing(false));
             editorPanel.SetActive(false);
@@ -154,7 +168,7 @@ namespace Fpp
         }
         public void Select(HudControl control)
         {
-            selected=control;scaleSlider.SetValueWithoutNotify(control.placement.scale);editLabel.text=control.placement.id.ToUpperInvariant()+"  •  Drag to move  •  SIZE "+control.placement.scale.ToString("0.0");
+            selected=control;if(opacitySlider!=null)opacitySlider.SetValueWithoutNotify(control.placement.opacity);scaleSlider.SetValueWithoutNotify(control.placement.scale);editLabel.text=control.placement.id.ToUpperInvariant()+"  •  Drag to move  •  SIZE "+control.placement.scale.ToString("0.0");
         }
         public void SetEditing(bool editing)
         {
@@ -167,9 +181,18 @@ namespace Fpp
             if(Modal)return;
             if(id=="fire")FireHeld=down;
             if(id=="aim")AimHeld=down;
-            if(down && id=="reload")weapons.Reload();
-            if(down && id=="pickup")weapons.EquipNearest();
-            if(down && id=="sidearm")weapons.UseSidearm();
+            if(id=="sprint")sprintHeld=down;if(id=="crouch")crouchHeld=down;
+            if(down && id=="reload")pending.Reload=true;
+            if(down && id=="jump")pending.Jump=true;
+            if(down && id=="crouch")pending.CrouchPressed=true;
+            if(down && id=="mount")pending.Mount=true;
+            if(down && id=="prone")pending.Prone=true;
+            if(down && id=="pickup")pending.Pickup=true;
+            if(down && id=="sidearm")pending.Swap=true;
+        }
+        public InputFrame ConsumeInput()
+        {
+            var frame=pending;pending=default(InputFrame);frame.Move=Move;frame.Fire=FireHeld;frame.ADS=AimHeld;frame.Sprint=sprintHeld;frame.CrouchHeld=crouchHeld;return frame;
         }
         public bool BlocksLook(Vector2 position)
         {
@@ -181,12 +204,13 @@ namespace Fpp
         public void SetMove(Vector2 value) { Move=Modal?Vector2.zero:value; }
         public void Release(string id)
         {
+            if(id=="sprint")sprintHeld=false;if(id=="crouch")crouchHeld=false;
             if(id=="fire")FireHeld=false;if(id=="aim")AimHeld=false;if(id=="move")Move=Vector2.zero;
         }
         private void ShowCredits() { FireHeld=AimHeld=false;Move=Vector2.zero;creditsPanel.SetActive(true); }
         private void ResetLayout()
         {
-            foreach(var c in controls) { c.placement.x=c.defaultPosition.x;c.placement.y=c.defaultPosition.y;c.placement.scale=1;c.Apply(); }
+            foreach(var c in controls) { c.placement.x=c.defaultPosition.x;c.placement.y=c.defaultPosition.y;c.placement.scale=1;c.placement.opacity=1;c.Apply(); }
             PlayerPrefs.DeleteKey(PrefKey);Select(controls[0]);
         }
         private void SaveLayout()
@@ -198,17 +222,17 @@ namespace Fpp
         {
             try
             {
-                var layout=JsonUtility.FromJson<ControlLayout>(PlayerPrefs.GetString(PrefKey,"{}"));
+                var json=PlayerPrefs.GetString(PrefKey,"{}");bool opacitySaved=json.Contains("\"opacity\"");var layout=JsonUtility.FromJson<ControlLayout>(json);
                 if(layout==null || layout.controls==null)return;
                 foreach(var saved in layout.controls)
                 foreach(var c in controls) if(c.placement.id==saved.id)
-                { c.placement.x=Mathf.Clamp(saved.x,.07f,.93f);c.placement.y=Mathf.Clamp(saved.y,.09f,.85f);c.placement.scale=Mathf.Clamp(saved.scale,.6f,1.6f);c.Apply(); }
+                { c.placement.x=Mathf.Clamp(saved.x,.07f,.93f);c.placement.y=Mathf.Clamp(saved.y,.09f,.85f);c.placement.scale=Mathf.Clamp(saved.scale,.6f,1.6f);c.placement.opacity=opacitySaved?Mathf.Clamp(saved.opacity,.15f,1):1;c.Apply(); }
             }
             catch(Exception) { PlayerPrefs.DeleteKey(PrefKey); }
         }
         private void OnApplicationFocus(bool focused)
         {
-            if(!focused) { FireHeld=AimHeld=false;Move=Vector2.zero;foreach(var c in controls)c.ResetInput(); }
+            if(!focused) { FireHeld=AimHeld=sprintHeld=crouchHeld=false;pending=default(InputFrame);Move=Vector2.zero;foreach(var c in controls)c.ResetInput(); }
         }
         private void OnDestroy() { if(Instance==this)Instance=null; }
         private Text Label(string name,Transform parent,string content,int size,TextAnchor align)

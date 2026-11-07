@@ -33,3 +33,7 @@ __pycache__/
 # Rebuilt deterministically by editor scene generation
 Assets/Generated/
 Assets/Generated.meta
+
+# Native runtime QA captures are CI artifacts, not repository art.
+QA/runtime/
+QA/test-results/

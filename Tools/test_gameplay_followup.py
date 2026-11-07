@@ -21,14 +21,14 @@ class PhoneFollowupTests(unittest.TestCase):
         controller=Path('Assets/Scripts/WeaponController.cs').read_text()
         self.assertIn('heldRig.RetargetMagazine',controller)
         self.assertIn('heldVisual.transform.SetParent(rightHand,true)',controller)
-        self.assertIn('else PlayClip("reload",reloadDuration)',controller)
+        self.assertIn('PlayClip("reload",reloadDuration)',controller)
         self.assertNotIn('rigAnimation.enabled=false',controller)
         self.assertIn('angle>10f?10f/angle:1f',controller)
         self.assertIn('Vector3.ProjectOnPlane(leftForearm.position-root,direction)',controller)
         self.assertIn('foreach(var bone in skin.bones)',controller)
         self.assertIn('forceMatrixRecalculationPerRender=true',Path('Assets/Editor/ViewmodelSetup.cs').read_text())
         self.assertIn('angle>35f?35f/angle:1f',controller)
-        self.assertIn('if(equipped==null)PlayClip("reload",1.6f)',controller)
+        self.assertIn('ActiveWeapon.reloadTacticalSec',controller)
 
     def test_pistol_partition_is_nonempty_and_preserves_every_original_face(self):
         models=json.loads(Path('Assets/PackModels/catalog.json').read_text())['models']
@@ -59,7 +59,7 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertIn('if(!smoke.isPlaying)smoke.Play()',code)
         self.assertIn('Mathf.Min(.8f,hitDistance*.6f)-nearOffset',code)
         self.assertIn('if(hitDistance<=nearOffset)',code)
-        self.assertIn('[DefaultExecutionOrder(100)]',code)
+        self.assertIn('[DefaultExecutionOrder(200)]',code)
         self.assertIn('private void LateUpdate()',code)
         self.assertIn('overlay.WorldToViewportPoint(muzzle.position)',code)
         self.assertIn('world.ViewportPointToRay(viewport)',code)

@@ -1,9 +1,10 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
+
 
 namespace Fpp
 {
+    [DefaultExecutionOrder(100)]
     public sealed class WeaponController : MonoBehaviour
     {
         public Transform view;
@@ -17,6 +18,22 @@ namespace Fpp
         public string NearbyName => nearest != null ? nearest.displayName : "";
         public int Ammo => rounds;
         public int Capacity => magazine;
+        public int Reserve => reserve;
+        public WeaponAsset ActiveWeapon {get;private set;}
+        public WeaponState State {get;private set;}=WeaponState.Drawing;
+        public float AdsT=>model.AdsT;
+        public float SpreadDegrees {get;private set;}
+        public float ReloadProgress=>Reloading?Mathf.Clamp01(1-(reloadEnd-Time.time)/reloadDuration):0;
+        public readonly GunplayModel model=new GunplayModel();
+        private TestPlayer motor;
+        private int reserve=120,sidearmRounds=12,sidearmReserve=120;
+        private bool previousADS, pendingSemi, emptyReload;
+        private int reloadStage, burstRemaining;
+        private float reloadFinished=-100,drawReady;
+        private AnimationState drawState,reloadState,shootState;
+        private Vector2 sway,swayVelocity;
+        private Vector3 previousLook;
+        public Vector3 CameraAngles=>new Vector3(-model.AimClimb.x-model.ViewKick.x,model.AimClimb.y+model.ViewKick.y,0);
         public int Hits => hits;
         public bool Reloading => reloadEnd > 0;
         private WeaponPickup[] pickups;
@@ -45,7 +62,10 @@ namespace Fpp
         private void Start()
         {
             InitializePose();
-            PlayClip("draw",.65f);
+            motor=GetComponent<TestPlayer>();ActiveWeapon=Resources.Load<WeaponAsset>("Gunplay/mark23");
+            reserve=ActiveWeapon.reserveMax;rounds=magazine=ActiveWeapon.magSize;
+            drawReady=Time.time+ActiveWeapon.drawSec;
+            PlayClip("draw",ActiveWeapon.drawSec);
             EnsureEffects();
             sound=gameObject.AddComponent<AudioSource>();sound.spatialBlend=0;sound.volume=.2f;shotSound=MakeShotSound();
         }
@@ -55,7 +75,9 @@ namespace Fpp
         {
             if(poseInitialized)return;poseInitialized=true;
             pickups=FindObjectsOfType<WeaponPickup>();
+            if(ActiveWeapon==null)ActiveWeapon=Resources.Load<WeaponAsset>("Gunplay/mark23");
             rigAnimation=defaultViewmodel.GetComponentInChildren<Animation>();
+            foreach(AnimationState clip in rigAnimation){var n=clip.name.ToLowerInvariant();if(n.Contains("draw"))drawState=clip;if(n.Contains("reload"))reloadState=clip;if(n.Contains("shoot"))shootState=clip;}
             foreach(var bone in defaultViewmodel.GetComponentsInChildren<Transform>())
             {
                 if(bone.name=="LeftArm1_04")leftUpper=bone;
@@ -103,37 +125,63 @@ namespace Fpp
         }
         private void Update()
         {
-            if(MenuOpen)return;
-            nearest=null;float distance=2.6f;
+            if(MenuOpen || ActiveWeapon==null)return;
+            var c=GunplayConfig.Current;var hub=GameplayInput.Instance;
+            var input=hub!=null?hub.Frame:default(InputFrame);float now=Time.time;
+            nearest=null;float distance=c.pickupRadius;
             foreach(var pickup in pickups)
             {
                 if(pickup==null || pickup==equipped || !pickup.gameObject.activeSelf)continue;
                 float d=Vector3.Distance(transform.position,pickup.transform.position);
-                if(d<distance){ nearest=pickup;distance=d; }
+                if(d<=distance){nearest=pickup;distance=d;}
             }
-            CompleteReload(Time.time);
-            if(Input.GetKeyDown(KeyCode.E))EquipNearest();
-            if(Input.GetKeyDown(KeyCode.R))Reload();
-            if(Input.GetKeyDown(KeyCode.Alpha1))UseSidearm();
-            bool mouse=Input.touchCount==0 && Input.GetMouseButton(0) && (EventSystem.current==null || !EventSystem.current.IsPointerOverGameObject());
-            if(mouse || MobileHud.Instance!=null && MobileHud.Instance.FireHeld)Fire();
+            if(input.Pickup)EquipNearest();if(input.Swap)UseSidearm();if(input.Reload)Reload();
+            if(Reloading && motor!=null && (motor.IsSprinting || motor.State==MovementState.Dive))CancelReload();
+            if(rigAnimation==null)TickReloadMarkers();CompleteReload(now);
+            bool aiming=input.ADS && !Reloading && !equipping && (motor==null || !motor.BlocksFire);
+            if(aiming!=previousADS){GunplayEvents.Send(aiming?GunplayEventKind.ADSIn:GunplayEventKind.ADSOut,view.position,ActiveWeapon);previousADS=aiming;}
+            model.Tick(Time.deltaTime,now,aiming,input.Move.sqrMagnitude>0,ActiveWeapon,c);
+            var state=motor!=null?motor.State:MovementState.Idle;
+            SpreadDegrees=model.Spread(now,ActiveWeapon,c,state,motor!=null?motor.Speed:0,motor!=null?motor.LandingPenalty:0);
+            if(motor!=null)view.localRotation=Quaternion.Euler(motor.LookEuler+CameraAngles);
+            if(State==WeaponState.Drawing && now>=drawReady)State=WeaponState.Idle;
+            if(!Reloading&&!equipping&&State!=WeaponState.Drawing)State=aiming?WeaponState.Aiming:WeaponState.Idle;
+            if(input.FirePressed){pendingSemi=true;if(ActiveWeapon.fireMode==FireMode.Burst && burstRemaining==0)burstRemaining=ActiveWeapon.burstCount;}
+            bool wantsFire=ActiveWeapon.fireMode==FireMode.Auto?input.Fire:ActiveWeapon.fireMode==FireMode.Burst?burstRemaining>0:pendingSemi;
+            if(wantsFire && motor!=null && motor.IsSprinting)motor.CancelSprint();
+            if(wantsFire && (motor==null || !motor.BlocksFire && now-motor.SprintExitedAt>=ActiveWeapon.sprintOutFireDelaySec))
+            {
+                int before=rounds;Fire();if(rounds<before){pendingSemi=false;if(burstRemaining>0)burstRemaining--;}
+                if(rounds==0 && input.FirePressed){GunplayEvents.Send(GunplayEventKind.DryFire,muzzle.position,ActiveWeapon);pendingSemi=false;burstRemaining=0;}
+            }
         }
         private void LateUpdate()
         {
             if(defaultViewmodel==null)return;
             recoil=Mathf.MoveTowards(recoil,0,Time.deltaTime*7);
-            bool aiming=!MenuOpen && (MobileHud.Instance!=null && MobileHud.Instance.AimHeld || Input.touchCount==0 && Input.GetMouseButton(1));
+            bool aiming=!MenuOpen && model.AdsT>0;
             float progress=Reloading?Mathf.Clamp01(1-(reloadEnd-Time.time)/reloadDuration):0;
             if(equipped!=null && !Reloading)HoldDrawPose();
             var pose=Presentation(aiming && !Reloading,progress);
+            pose.offset*=Mathf.SmoothStep(0,1,model.AdsT);
+            var config=GunplayConfig.Current;
+            if(motor!=null && motor.IsSprinting){pose.euler.z=config.sprintCant;pose.offset.y+=config.sprintRaise;}
+            if(motor!=null && (motor.State==MovementState.Dive||motor.State==MovementState.Mantle)){pose.offset.y-=config.sprintRaise;pose.euler.x+=config.collisionTilt;}
+            if(Physics.SphereCast(view.position,config.nearClip,view.forward,out _,config.collisionDistance,~(1<<8),QueryTriggerInteraction.Ignore))pose.euler+=new Vector3(config.collisionTilt,0,-config.collisionTilt);
+            var look=GameplayInput.Instance!=null?GameplayInput.Instance.Frame.Look:Vector2.zero;
+            sway+=look*Time.deltaTime;sway=GunplayModel.Spring(sway,ref swayVelocity,config.swayOmega,config.viewDamping,Time.deltaTime);
+            pose.euler+=new Vector3(sway.y,-sway.x,0);
+            pose.offset.x-=Mathf.Clamp(look.x,-1,1)*config.movementLag;
+            pose.euler.x-=model.GunKick.x;pose.euler.y+=model.GunKick.y;
             Vector3 position=basePosition+pose.offset;
             position+=new Vector3(0,-equipBlend*.28f,-recoil*.028f);
-            float walk=MobileHud.Instance!=null?MobileHud.Instance.Move.magnitude:Mathf.Clamp01(Mathf.Abs(Input.GetAxisRaw("Vertical"))+Mathf.Abs(Input.GetAxisRaw("Horizontal")));
+            float walk=GameplayInput.Instance!=null?GameplayInput.Instance.Frame.Move.magnitude:0;
             position+=new Vector3(Mathf.Sin(Time.time*7)*.003f,Mathf.Cos(Time.time*14)*.003f,0)*walk;
-            defaultViewmodel.transform.localPosition=Vector3.Lerp(defaultViewmodel.transform.localPosition,position,Time.deltaTime*18);
+            defaultViewmodel.transform.localPosition=position;
             defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler+new Vector3(-recoil*3+equipBlend*25,equipBlend*-12,0));
-            if(worldCamera!=null)worldCamera.fieldOfView=Mathf.Lerp(worldCamera.fieldOfView,aiming?50:68,Time.deltaTime*12);
-            if(weaponCamera!=null)weaponCamera.fieldOfView=Mathf.Lerp(weaponCamera.fieldOfView,aiming?45:60,Time.deltaTime*12);
+            if(worldCamera!=null){worldCamera.fieldOfView=Mathf.Lerp(Mathf.Clamp(config.worldFOV,config.minFOV,config.maxFOV),ActiveWeapon.sightFOV,Mathf.SmoothStep(0,1,model.AdsT));worldCamera.nearClipPlane=config.nearClip;}
+            if(motor!=null){float breath=Mathf.PerlinNoise(Time.time*config.breathHz,0)*2-1;view.localRotation=Quaternion.Euler(motor.LookEuler+CameraAngles+new Vector3(breath*config.breathDegrees,0,0));}
+            if(weaponCamera!=null)weaponCamera.fieldOfView=config.viewmodelFOV;
             PoseSecondary(progress);
         }
         private WeaponPresentation.Pose Presentation(bool aim,float progress)
@@ -167,36 +215,42 @@ namespace Fpp
 
         public void EquipNearest()
         {
-            if(nearest!=null && !equipping && !Reloading)StartCoroutine(Equip(nearest));
+            if(nearest!=null && !equipping){CancelReload();StartCoroutine(Equip(nearest));}
         }
         public void UseSidearm()
         {
-            if(equipped!=null && !equipping && !Reloading)StartCoroutine(Equip(null));
+            if(equipped!=null && !equipping){CancelReload();StartCoroutine(Equip(null));}
         }
         private IEnumerator Equip(WeaponPickup next)
         {
-            equipping=true;
+            equipping=true;State=WeaponState.SwitchingOut;GunplayEvents.Send(GunplayEventKind.WeaponSwap,view.position,ActiveWeapon,"holster");
             // Original procedural lower/raise motion, not copied MWII animation data.
-            for(float t=0;t<.18f;t+=Time.deltaTime){equipBlend=Mathf.SmoothStep(0,1,t/.18f);yield return null;}
+            for(float t=0;t<ActiveWeapon.switchOutSec;t+=Time.deltaTime){equipBlend=Mathf.SmoothStep(0,1,t/ActiveWeapon.switchOutSec);yield return null;}
             ApplyWeapon(next);
-            for(float t=0;t<.32f;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/.32f);yield return null;}
-            equipBlend=0;equipping=false;nextShot=Time.time+.1f;
+            for(float t=0;t<ActiveWeapon.switchInSec;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/ActiveWeapon.switchInSec);yield return null;}
+            equipBlend=0;equipping=false;State=WeaponState.Idle;GunplayEvents.Send(GunplayEventKind.WeaponSwap,view.position,ActiveWeapon,"draw");
         }
         private void ApplyWeapon(WeaponPickup next)
         {
             RestoreSupportPose();HoldDrawPose();
-            if(equipped!=null)equipped.gameObject.SetActive(true);
+            if(equipped!=null)
+            {
+                equipped.Store(rounds,reserve);
+                if(Application.isPlaying)equipped.Drop(transform.position+transform.forward*GunplayConfig.Current.pickupRadius,transform.forward);
+                else equipped.gameObject.SetActive(true);
+            }
+            else {sidearmRounds=rounds;sidearmReserve=reserve;}
             if(heldVisual!=null)Remove(heldVisual);
             equipped=next;heldRig=null;
             bool sidearm=next==null;
             foreach(var renderer in pistolRenderers)renderer.enabled=sidearm;
             if(sidearm)
             {
-                DisplayName="Mark 23";magazine=12;PlayClip("draw",.55f);
+                DisplayName="Mark 23";ActiveWeapon=Resources.Load<WeaponAsset>("Gunplay/mark23");magazine=ActiveWeapon.magSize;PlayClip("draw",ActiveWeapon.drawSec);
             }
             else
             {
-                DisplayName=next.displayName;magazine=DisplayName.Contains("AK")?30:17;
+                DisplayName=next.displayName;ActiveWeapon=next.Asset;magazine=ActiveWeapon.magSize;
                 heldVisual=Instantiate(next.gameObject,weaponMount,false);Remove(heldVisual.GetComponent<WeaponPickup>());
                 foreach(var collider in heldVisual.GetComponentsInChildren<Collider>())Remove(collider);
                 heldVisual.transform.localPosition=Vector3.zero;heldVisual.transform.localRotation=Quaternion.identity;heldVisual.transform.localScale=Vector3.one;
@@ -213,7 +267,7 @@ namespace Fpp
                 if(heldRig==null || heldRig.sight==null)throw new System.Exception("Missing precomputed gun sight");
                 Vector3 sight=weaponMount.InverseTransformPoint(heldRig.sight.position);
                 secondaryAimLift=-basePosition.y-sight.y;secondaryAimSide=sight.x;
-                heldRig.Bind();
+                heldRig.Bind();heldVisual.AddComponent<WeaponSockets>().Build(muzzle,heldRig.sight,ActiveWeapon);
                 next.gameObject.SetActive(false);
                 HoldDrawPose();
                 if(leftUpper!=null && leftForearm!=null && leftHand!=null)
@@ -225,7 +279,9 @@ namespace Fpp
             }
             if(!sidearm && rightHand)heldVisual.transform.SetParent(rightHand,true);
             if(sidearm)PositionMuzzle(defaultMuzzleRest);
-            rounds=magazine;reloadEnd=0;
+            rounds=sidearm?sidearmRounds:next.Rounds;reserve=sidearm?sidearmReserve:next.Reserve;reloadEnd=0;
+            model.Reset();pendingSemi=false;burstRemaining=0;
+            if(Application.isPlaying)GunplayEvents.Send(GunplayEventKind.Pickup,view.position,ActiveWeapon);
         }
         private void RestoreSupportPose()
         {
@@ -282,45 +338,61 @@ namespace Fpp
             foreach(AnimationState state in rigAnimation)if(state.name.ToLowerInvariant().Contains("reload")){rigAnimation.enabled=true;rigAnimation.Play(state.name);state.speed=0;state.time=state.length*progress;rigAnimation.Sample();return;}
         }
         private void CompleteReload(float now)
-        { if(reloadEnd>0 && now>=reloadEnd){rounds=magazine;reloadEnd=0;} }
+        {
+            if(reloadEnd<=0 || now<reloadEnd)return;
+            int transfer=Mathf.Min(magazine-rounds,reserve);rounds+=transfer;reserve-=transfer;
+            reloadEnd=0;reloadFinished=now;State=WeaponState.Idle;
+            GunplayEvents.Send(GunplayEventKind.ReloadProgress,view.position,ActiveWeapon,"complete",1);
+        }
+        public void CancelReload()
+        {
+            if(!Reloading)return;reloadEnd=0;State=WeaponState.Idle;HoldDrawPose();
+            GunplayEvents.Send(GunplayEventKind.ReloadProgress,view.position,ActiveWeapon,"cancel",0);
+        }
         public void Reload()
         {
-            if(rounds>=magazine || Reloading || equipping || MenuOpen)return;
-            reloadDuration=equipped==null?1.6f:DisplayName.Contains("AK")?2.2f:2f;
-            reloadEnd=Time.time+reloadDuration;if(equipped==null)PlayClip("reload",1.6f);else PlayClip("reload",reloadDuration);
+            if(ActiveWeapon==null || rounds>=magazine || reserve<=0 || Reloading || equipping || MenuOpen || Time.time-reloadFinished<GunplayConfig.Current.reloadDebounce)return;
+            emptyReload=rounds==0;reloadStage=0;pendingSemi=false;burstRemaining=0;
+            reloadDuration=emptyReload?ActiveWeapon.reloadEmptySec:ActiveWeapon.reloadTacticalSec;
+            State=emptyReload?WeaponState.ReloadEmpty:WeaponState.ReloadTactical;
+            reloadEnd=Time.time+reloadDuration;PlayClip("reload",reloadDuration);
         }
+        public void ReloadFoleyMarker(string stage)
+        {if(!Reloading || stage=="boltRelease"&&!emptyReload)return;GunplayEvents.Send(GunplayEventKind.ReloadFoley,muzzle.position,ActiveWeapon,stage);}
+        private void TickReloadMarkers()
+        {
+            if(!Reloading)return;var c=GunplayConfig.Current;float p=ReloadProgress;
+            if(reloadStage==0&&p>=c.magOutMarker){reloadStage=1;ReloadFoleyMarker("magOut");}
+            if(reloadStage==1&&p>=c.magInMarker){reloadStage=2;ReloadFoleyMarker("magIn");}
+            if(reloadStage==2&&p>=c.boltMarker){reloadStage=3;if(emptyReload)ReloadFoleyMarker("boltRelease");}
+            GunplayEvents.Send(GunplayEventKind.ReloadProgress,view.position,ActiveWeapon,null,p);
+        }
+        public int GrantAmmo(int amount){int added=Mathf.Min(Mathf.Max(0,amount),ActiveWeapon.reserveMax-reserve);reserve+=added;return added;}
         private void Fire()
         {
-            if(rounds<=0 || Reloading || equipping || Time.time<nextShot)return;
-            nextShot=Time.time+(equipped!=null && DisplayName.Contains("AK")?.12f:.22f);rounds--;recoil=1;
-            if(equipped==null)PlayClip("shoot",.18f);
-            Vector3 end=view.position+view.forward*100;
-            if(Physics.Raycast(view.position,view.forward,out RaycastHit hit,100,~(1<<8),QueryTriggerInteraction.Ignore))
-            {
-                end=hit.point;var target=hit.collider.GetComponent<TestTarget>();if(target!=null){target.Hit();hits++;}
-            }
-            EnsureEffects();effects.Play(end);
-            sound.PlayOneShot(shotSound);
+            if(rounds<=0 || Reloading || equipping || State==WeaponState.Drawing && Time.time<drawReady || !model.CanShoot(Time.time))return;
+            model.Schedule(Time.time,ActiveWeapon);rounds--;recoil=1;State=WeaponState.Firing;
+            if(equipped==null)PlayClip("shoot",60/ActiveWeapon.rpm);
+            Vector3 direction=model.ShotDirection(view,SpreadDegrees);
+            Vector3 end=Ballistics.Fire(view.position,direction,ActiveWeapon,ref hits);
+            Vector2 impulse=model.Shot(Time.time,ActiveWeapon,GunplayConfig.Current,model.AdsT>=1,motor!=null&&motor.Mounted);
+            EnsureEffects();effects.Play(end,model.ShotIndex%ActiveWeapon.tracerEveryN==0);
+            if(sound!=null)sound.PlayOneShot(shotSound);
+            GunplayEvents.Emit(new GunplayEvent{Kind=GunplayEventKind.ShotFired,Address=ActiveWeapon.shotEvent,Weapon=ActiveWeapon,Position=muzzle.position,ADS=model.AdsT>=1,Context="outdoor",Index=model.ShotIndex-1,Pattern=impulse,Spread=SpreadDegrees});
+            GunplayEvents.Send(GunplayEventKind.ShotTailRequest,muzzle.position,ActiveWeapon,"outdoor");
+            GunplayEvents.Emit(new GunplayEvent{Kind=GunplayEventKind.ShellEject,Address="ShellEject",Position=muzzle.position+muzzle.TransformVector(ActiveWeapon.ejectOffset),Normal=muzzle.right,Weapon=ActiveWeapon});
+            if(rounds==0)GunplayEvents.Send(GunplayEventKind.MechanicalClick,muzzle.position,ActiveWeapon,"lockEmpty");
         }
         private void HoldDrawPose()
         {
-            if(rigAnimation==null)return;
-            rigAnimation.enabled=true;
-            foreach(AnimationState state in rigAnimation)
-            {
-                if(!state.name.ToLowerInvariant().Contains("draw"))continue;
-                state.wrapMode=WrapMode.ClampForever;rigAnimation.Play(state.name);
-                state.time=Mathf.Max(0,state.length-.001f);state.speed=0;rigAnimation.Sample();return;
-            }
+            if(rigAnimation==null||drawState==null)return;rigAnimation.enabled=true;
+            drawState.wrapMode=WrapMode.ClampForever;rigAnimation.Play(drawState.name);drawState.time=Mathf.Max(0,drawState.length-.001f);drawState.speed=0;rigAnimation.Sample();
         }
         private void PlayClip(string word,float duration)
         {
             if(rigAnimation==null)return;rigAnimation.enabled=true;
-            foreach(AnimationState state in rigAnimation)
-            {
-                if(!state.name.ToLowerInvariant().Contains(word))continue;
-                state.wrapMode=WrapMode.ClampForever;state.speed=state.length/Mathf.Max(.1f,duration);state.time=0;rigAnimation.Play(state.name);return;
-            }
+            var state=word=="draw"?drawState:word=="reload"?reloadState:shootState;if(state==null)return;
+            state.wrapMode=WrapMode.ClampForever;state.speed=state.length/Mathf.Max(.1f,duration);state.time=0;rigAnimation.Play(state.name);
         }
         public static void SetLayer(GameObject root,int layer)
         { foreach(var t in root.GetComponentsInChildren<Transform>(true))t.gameObject.layer=layer; }
@@ -372,6 +444,10 @@ namespace Fpp
             return result;
         }
 #if UNITY_EDITOR
+        public void QAEquip(WeaponPickup pickup){InitializePose();CancelReload();ApplyWeapon(pickup);drawReady=0;State=WeaponState.Idle;reloadFinished=-100;}
+        public void QAAmmo(int mag,int spare){rounds=Mathf.Clamp(mag,0,magazine);reserve=Mathf.Clamp(spare,0,ActiveWeapon.reserveMax);reloadFinished=-100;}
+        public void QARequestEquip(WeaponPickup pickup){if(!equipping){CancelReload();StartCoroutine(Equip(pickup));}}
+        public bool QASwitching=>equipping;
         public void ReviewRetargetAudit(WeaponPickup pickup)
         {
             ReviewPose(pickup,false,0);
@@ -387,7 +463,7 @@ namespace Fpp
         }
         public void ReviewAmmoAudit(WeaponPickup pickup)
         {
-            ReviewPose(pickup,false,0);rounds=1;Reload();
+            ReviewPose(pickup,false,0);rounds=1;reserve=ActiveWeapon.reserveMax;reloadFinished=-100;Reload();
             if(!Reloading || rounds!=1)throw new System.Exception("Reload must wait before refilling ammo");
             Fire();if(rounds!=1)throw new System.Exception("Firing was not blocked during reload");
             CompleteReload(Time.time+reloadDuration+.01f);

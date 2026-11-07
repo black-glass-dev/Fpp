@@ -13,9 +13,10 @@ namespace Fpp
         public RectTransform knob;
         private int finger=int.MinValue;
         private RectTransform rect;
-        private Vector2 dragOffset;
+        private Vector2 dragOffset;private Vector2 floatingOrigin;
         public void Apply()
         {
+            var group=GetComponent<CanvasGroup>();if(group==null)group=gameObject.AddComponent<CanvasGroup>();group.alpha=placement.opacity;
             rect=(RectTransform)transform;rect.anchorMin=rect.anchorMax=new Vector2(placement.x,placement.y);
             rect.anchoredPosition=Vector2.zero;rect.sizeDelta=Vector2.one*(baseSize*placement.scale);
             var label=GetComponentInChildren<Text>();
@@ -38,7 +39,7 @@ namespace Fpp
                 RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)rect.parent,data.position,data.pressEventCamera,out var point);
                 dragOffset=rect.localPosition-(Vector3)point;
             }
-            else { owner.Press(placement.id,true);if(placement.id=="move")Move(data); }
+            else { owner.Press(placement.id,true);if(placement.id=="move"){RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)rect.parent,data.position,data.pressEventCamera,out floatingOrigin);rect.localPosition=floatingOrigin;Move(data);} }
         }
         public void OnDrag(PointerEventData data)
         {
@@ -61,7 +62,7 @@ namespace Fpp
             if(knob!=null)knob.anchoredPosition=value*rect.rect.width*.28f;
         }
         public void OnPointerUp(PointerEventData data) { if(data.pointerId==finger)ResetInput(); }
-        public void ResetInput() { finger=int.MinValue;owner.Release(placement.id);if(knob!=null)knob.anchoredPosition=Vector2.zero; }
+        public void ResetInput() { finger=int.MinValue;owner.Release(placement.id);if(knob!=null){knob.anchoredPosition=Vector2.zero;if(rect!=null)rect.anchoredPosition=Vector2.zero;} }
         private void OnDisable() { if(owner!=null)ResetInput(); }
     }
 }

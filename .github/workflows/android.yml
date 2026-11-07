@@ -117,6 +117,29 @@ jobs:
               message='\n'.join(lines)[:3000].replace('%','%25').replace('\r','%0D').replace('\n','%0A')
               print('::notice::Editor build diagnostic:%0A'+message)
           PYDIAG
+      - name: Play Mode gameplay tests (real Unity player loop)
+        uses: game-ci/unity-test-runner@3651041789079526956e876434786ab98af4c8e8
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          cliVersion: v0.1.72
+          unityVersion: 2022.3.62f1
+          customImage: unityci/editor:ubuntu-2022.3.62f1-android-3
+          testMode: playmode
+          coverageEnabled: false
+          githubToken: ''
+          artifactsPath: QA/test-results
+      - name: Preserve Play Mode evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameplay-qa-${{ github.run_number }}
+          path: QA/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify fresh APK and signature independently of builder cleanup
         env:
           BUILDER_OUTCOME: ${{ steps.unity.outcome }}

@@ -46,9 +46,9 @@ class StaticWeaponRepairTests(unittest.TestCase):
     def test_other_weapons_reload_does_not_override_original_clip(self):
         code=Path('Assets/Scripts/WeaponController.cs').read_text()
         self.assertNotIn('Mathf.Sin((reloadEnd-Time.time)',code)
-        self.assertIn('if(equipped==null)PlayClip("reload",1.6f)',code)
+        self.assertIn('ActiveWeapon.reloadTacticalSec',code)
         self.assertIn('heldRig.RetargetMagazine',code)
-        self.assertIn('CompleteReload(Time.time)',code)
+        self.assertIn('CompleteReload(now)',code)
         self.assertIn('SecondaryWeaponAudit.Validate',Path('Assets/Editor/BuildPreview.cs').read_text())
 
 if __name__=='__main__':unittest.main()
