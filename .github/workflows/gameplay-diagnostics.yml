@@ -20,7 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RUN: ${{ github.event.workflow_run.id || '42365618935' }}
+          RUN: ${{ github.event.workflow_run.id || '42371511250' }}
         run: |
           gh run view "$RUN" --log > /tmp/failed.log || true
           gh api "repos/$GH_REPO/actions/runs/$RUN/logs" > /tmp/run-logs.zip || true
@@ -77,8 +77,8 @@ jobs:
               if runtime.exists():shutil.copytree(runtime,'QA/runtime',dirs_exist_ok=True)
               env=dict(os.environ,RUN_ID=os.environ['RUN'])
               subprocess.run(['python','Tools/summarize_gameplay_qa.py'],env=env,check=True)
-              review=Path('QA/Review-'+os.environ['RUN']);review.mkdir(exist_ok=True);budget=400000
-              for name in ('ak47-idle','ak47-ads','ak47-fire','ak47-tactical-0.40','ak47-sprint'):
+              review=Path('QA/Review-'+os.environ['RUN']);review.mkdir(exist_ok=True);budget=180000
+              for name in ('touch-pressed','ak47-fire','ak47-tactical-0.40'):
                   source=runtime/(name+'.png')
                   if not source.exists():continue
                   image=Image.open(source).convert('RGB');image.thumbnail((960,540))
