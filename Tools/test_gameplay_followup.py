@@ -25,6 +25,7 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertNotIn('rigAnimation.enabled=false',controller)
         self.assertNotIn('leftUpper.rotation=',controller)
         self.assertIn('foreach(var bone in skin.bones)',controller)
+        self.assertIn('forceMatrixRecalculationPerRender=true',Path('Assets/Editor/ViewmodelSetup.cs').read_text())
         self.assertIn('angle>35f?35f/angle:1f',controller)
         self.assertIn('if(equipped==null)PlayClip("reload",1.6f)',controller)
 

@@ -48,7 +48,7 @@ namespace Fpp.Editor
                     if(materialName=="Mark23_D" && !gun.Contains(renderer))gun.Add(renderer);
                 }
                 renderer.sharedMaterials=slots;renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;renderer.receiveShadows=false;
-                var skinned=renderer as SkinnedMeshRenderer;if(skinned!=null)skinned.updateWhenOffscreen=true;
+                var skinned=renderer as SkinnedMeshRenderer;if(skinned!=null){skinned.updateWhenOffscreen=true;skinned.forceMatrixRecalculationPerRender=true;}
             }
             if(gun.Count==0)throw new Exception("Could not identify pistol geometry");
             Transform hand=null,main=null,side=null;
