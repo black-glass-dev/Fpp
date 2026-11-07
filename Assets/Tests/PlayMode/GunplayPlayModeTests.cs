@@ -268,7 +268,7 @@ namespace Fpp.Tests
             var worldData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(world);
             var overlayData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(overlay);
             Assert.AreEqual(UnityEngine.Rendering.Universal.CameraRenderType.Base,worldData.renderType);Assert.AreEqual(UnityEngine.Rendering.Universal.CameraRenderType.Overlay,overlayData.renderType);
-            Assert.Contains(overlay,worldData.cameraStack);Assert.False(worldData.renderPostProcessing,"do not tone-map the world twice");Assert.True(overlayData.renderPostProcessing);Assert.AreEqual(.01f,overlay.nearClipPlane,.0001f);Assert.AreEqual(1<<8,overlay.cullingMask);Assert.AreEqual(0,world.cullingMask&(1<<8));
+            Assert.True(overlayData.clearDepth,"overlay must clear world depth");Assert.Contains(overlay,worldData.cameraStack);Assert.False(worldData.renderPostProcessing,"do not tone-map the world twice");Assert.True(overlayData.renderPostProcessing);Assert.AreEqual(.01f,overlay.nearClipPlane,.0001f);Assert.AreEqual(1<<8,overlay.cullingMask);Assert.AreEqual(0,world.cullingMask&(1<<8));
             foreach(PresentationTier tier in Enum.GetValues(typeof(PresentationTier)))
             {
                 presentation.SetTier(tier);yield return null;

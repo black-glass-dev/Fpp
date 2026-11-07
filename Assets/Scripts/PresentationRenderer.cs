@@ -22,7 +22,7 @@ namespace Fpp
             world.allowHDR=true;world.allowMSAA=true;baseData.renderPostProcessing=overlay==null;baseData.requiresDepthTexture=true;
             if(overlay!=null)
             {
-                overlay.allowHDR=true;overlay.allowMSAA=true;var data=overlay.GetUniversalAdditionalCameraData();data.renderType=CameraRenderType.Overlay;data.clearDepth=true;data.renderPostProcessing=true;
+                overlay.allowHDR=true;overlay.allowMSAA=true;var data=overlay.GetUniversalAdditionalCameraData();data.renderType=CameraRenderType.Overlay;data.renderPostProcessing=true; // URP14 clearDepth is read-only, defaults true.
                 if(!baseData.cameraStack.Contains(overlay))baseData.cameraStack.Add(overlay);
             }
         }
