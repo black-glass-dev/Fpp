@@ -8,7 +8,7 @@ namespace Fpp
         private static Sprite[] sprites;
         public static Sprite Get(string id)
         {
-            if(sprites==null)
+            if(sprites==null || sprites[0]==null)
             {
                 var texture=Resources.Load<Texture2D>("Presentation/TouchIcons");if(texture==null)return null;
                 sprites=new Sprite[ids.Length];

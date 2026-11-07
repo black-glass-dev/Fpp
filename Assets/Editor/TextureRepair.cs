@@ -12,7 +12,7 @@ namespace Fpp.Editor
         public static void Ensure2D()
         {
             AssetDatabase.Refresh();
-            foreach(string root in new[]{"Assets/PackModels","Assets/MosquePack","Assets/Viewmodels","Assets/Art"})
+            foreach(string root in new[]{"Assets/PackModels","Assets/MosquePack","Assets/Viewmodels","Assets/Art","Assets/Resources/Presentation"})
             {
                 foreach(string path in Directory.GetFiles(root,"*.png",SearchOption.AllDirectories))
                 {
@@ -20,14 +20,16 @@ namespace Fpp.Editor
                     var importer=AssetImporter.GetAtPath(assetPath) as TextureImporter;
                     if(importer==null)throw new Exception("No texture importer: "+assetPath);
                     bool normal=assetPath.EndsWith("Normal.png");var type=normal?TextureImporterType.NormalMap:TextureImporterType.Default;
-                    bool ground=assetPath.Contains("/Ground/");bool icon=assetPath.Contains("/Icon/");
+                    bool ground=assetPath.Contains("/Ground/");bool glyph=assetPath.Contains("/Presentation/");bool icon=assetPath.Contains("/Icon/")||glyph;
                     var filter=ground || assetPath.Contains("/PackModels/") || assetPath.Contains("/MosquePack/")?FilterMode.Trilinear:FilterMode.Bilinear;
                     int aniso=ground?4:icon?1:2;
                     if(importer.textureShape!=TextureImporterShape.Texture2D || importer.textureType!=type ||
-                       importer.sRGBTexture==normal || importer.filterMode!=filter || importer.anisoLevel!=aniso)
+                       importer.sRGBTexture==normal || importer.filterMode!=filter || importer.anisoLevel!=aniso ||
+                       glyph && (importer.mipmapEnabled || importer.npotScale!=TextureImporterNPOTScale.None || importer.textureCompression!=TextureImporterCompression.Uncompressed))
                     {
                         importer.textureType=type;importer.textureShape=TextureImporterShape.Texture2D;
                         importer.sRGBTexture=!normal;importer.filterMode=filter;importer.anisoLevel=aniso;
+                        if(glyph){importer.mipmapEnabled=false;importer.npotScale=TextureImporterNPOTScale.None;importer.alphaIsTransparency=true;importer.textureCompression=TextureImporterCompression.Uncompressed;importer.wrapMode=TextureWrapMode.Clamp;}
                         importer.SaveAndReimport();
                     }
                     if(AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath)==null)

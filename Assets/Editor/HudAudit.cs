@@ -32,6 +32,7 @@ namespace Fpp.Editor
                 Require(controls.Length==11,"expected eleven action/movement controls");
                 foreach(string id in new[]{"move","fire","reload","pickup","aim","sidearm","jump","crouch","sprint","mount","prone"})
                     Require(controls.Count(c=>c.placement.id==id)==1,"missing or duplicate "+id);
+                foreach(var control in controls)Require(control.transform.Find("Icon")!=null,"atlas glyph missing: "+control.placement.id);
                 foreach(var text in canvas.GetComponentsInChildren<Text>(true))Require(text.font!=null,"font missing: "+text.name);
                 var fire=controls.Single(c=>c.placement.id=="fire");var aim=controls.Single(c=>c.placement.id=="aim");
                 var events=UnityEngine.Object.FindObjectOfType<EventSystem>();
