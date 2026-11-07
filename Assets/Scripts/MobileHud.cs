@@ -79,6 +79,9 @@ namespace Fpp
         {
             if (safeRoot == null) return;
             if (lastSafe != Screen.safeArea) ApplySafeArea();
+            bool occupied=false;foreach(var control in controls)if(control.placement.x<.35f && control.placement.y>.72f)occupied=true;
+            // Preserve the user's left-fire layout; move the readout instead of resetting controls.
+            status.rectTransform.anchorMin=status.rectTransform.anchorMax=new Vector2(occupied?.30f:0,1);
             if (weapons != null)
             {
                 status.text = weapons.DisplayName.ToUpperInvariant() + "   " + weapons.Ammo + " / " + weapons.Capacity +

@@ -13,6 +13,7 @@ Shader "FPP/Mobile Scan"
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+            #include "Lighting.cginc"
             struct appdata {float4 vertex:POSITION;float3 normal:NORMAL;float2 uv:TEXCOORD0;};
             struct v2f {float4 pos:SV_POSITION;float2 uv:TEXCOORD0;float3 normal:TEXCOORD1;float worldY:TEXCOORD2;float2 worldXZ:TEXCOORD3;};
             sampler2D _MainTex;float4 _MainTex_ST;fixed4 _Color;float _TrimBelow;float _ScanGroundBelow;float4 _SkirtRect;float4 _InteriorRect;float _InteriorTop;float4 _Entry;
@@ -32,7 +33,7 @@ Shader "FPP/Mobile Scan"
                 float doorX=i.worldXZ.x-_Entry.x;
                 if(i.worldY<_Entry.w && i.worldXZ.y>_Entry.y && i.worldXZ.y<_Entry.z && min(abs(doorX),min(abs(doorX-3.55),abs(doorX+3.55)))<.88)clip(-1);
                 fixed4 c=tex2D(_MainTex,i.uv)*_Color;
-                fixed lighting=.6+.4*abs(dot(normalize(i.normal),normalize(_WorldSpaceLightPos0.xyz)));
+                half3 n=normalize(i.normal);half3 lighting=max(.18,ShadeSH9(half4(n,1)))+.72*_LightColor0.rgb*saturate(dot(n,normalize(_WorldSpaceLightPos0.xyz)));
                 return fixed4(c.rgb*lighting,1);
             }
             ENDCG

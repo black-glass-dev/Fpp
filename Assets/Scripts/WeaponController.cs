@@ -155,7 +155,7 @@ namespace Fpp
             if(supportPoseCached)
             {
                 if(progress>0)SolveSupportHand(heldRig.magazine.position+muzzle.rotation*new Vector3(-.025f,.015f,0));
-                else if(DisplayName.Contains("AK"))SolveSupportHand(weaponMount.TransformPoint(new Vector3(0,-.035f,.065f)));
+                else if(DisplayName.Contains("AK"))SolveRifleSupport();
             }
         }
 
@@ -226,6 +226,23 @@ namespace Fpp
             if(!supportPoseCached)return;
             leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
             supportPoseCached=false;
+        }
+        private void SolveRifleSupport()
+        {
+            Vector3 target=weaponMount.TransformPoint(new Vector3(-.025f,-.005f,.055f));
+            Vector3 root=leftUpper.position;float a=Vector3.Distance(root,leftForearm.position),b=Vector3.Distance(leftForearm.position,leftHand.position);
+            Vector3 delta=target-root;float distance=Mathf.Clamp(delta.magnitude,Mathf.Abs(a-b)+.001f,(a+b)*.985f);Vector3 direction=delta.normalized;
+            // Use the authored elbow plane, never a guessed camera-space pole that swings
+            // the cut shoulder toward the near plane. Upper-arm correction is bounded.
+            Vector3 bend=Vector3.ProjectOnPlane(leftForearm.position-root,direction).normalized;
+            if(bend.sqrMagnitude<.1f)bend=Vector3.ProjectOnPlane(-weaponMount.right-weaponMount.up,direction).normalized;
+            float along=(a*a-b*b+distance*distance)/(2*distance);
+            Vector3 elbow=root+direction*along+bend*Mathf.Sqrt(Mathf.Max(0,a*a-along*along));
+            Quaternion upper=Quaternion.FromToRotation(leftForearm.position-root,elbow-root);float angle=Quaternion.Angle(Quaternion.identity,upper);
+            Quaternion palm=Quaternion.AngleAxis(60,weaponMount.forward)*leftHand.rotation;
+            leftUpper.rotation=Quaternion.Slerp(Quaternion.identity,upper,angle>30f?30f/angle:1f)*leftUpper.rotation;
+            leftForearm.rotation=Quaternion.FromToRotation(leftHand.position-leftForearm.position,root+direction*distance-leftForearm.position)*leftForearm.rotation;
+            leftHand.rotation=palm;
         }
         private void SolveSupportHand(Vector3 target)
         {

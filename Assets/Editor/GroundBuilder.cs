@@ -16,7 +16,7 @@ namespace Fpp.Editor
             }
             float mosque=Mathf.Max(Mathf.Abs(x)-9.5f,Mathf.Abs(z-32)-10.5f);
             mask*=Mathf.SmoothStep(0,1,Mathf.InverseLerp(0,3,mosque));
-            return mask*(.1f+.65f*Mathf.PerlinNoise(x*.13f+51,z*.13f+91)+.13f*Mathf.PerlinNoise(x*.43f+7,z*.43f+9));
+            return mask*(.14f+1.05f*Mathf.PerlinNoise(x*.13f+51,z*.13f+91)+.20f*Mathf.PerlinNoise(x*.43f+7,z*.43f+9));
         }
         public static void Create(Material grass)
         {

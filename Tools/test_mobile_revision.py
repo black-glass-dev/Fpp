@@ -28,6 +28,6 @@ class MobileRevisionTests(unittest.TestCase):
     def test_ground_and_icon(self):
         for name in ('Grass','Dirt','Stone'):
             with Image.open('Assets/Art/Ground/'+name+'.png') as image:
-                self.assertEqual(image.size,(512,512));self.assertIsNotNone(image.getbbox())
+                self.assertEqual(image.size,((512,512) if name=="Stone" else (2048,2048)));self.assertIsNotNone(image.getbbox())
         with Image.open('Assets/Art/Icon/FppIcon.png') as image:self.assertEqual(image.size,(512,512))
 if __name__=='__main__':unittest.main()

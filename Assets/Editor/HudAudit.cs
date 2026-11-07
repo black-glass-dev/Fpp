@@ -47,6 +47,8 @@ namespace Fpp.Editor
                 hud.SetEditing(false);Require(PlayerPrefs.GetString(Key,"").Contains("fire"),"layout save");
                 fire.placement.scale=1;fire.placement.x=.8f;Invoke("LoadLayout");
                 Require(Mathf.Abs(fire.placement.scale-1.4f)<.001f && Mathf.Abs(fire.placement.x-.66f)<.001f,"layout reload/scale");
+                fire.placement.x=.12f;fire.placement.y=.9f;fire.Apply();Invoke("Update");
+                var readout=GameObject.Find("Weapon status").GetComponent<Text>();Require(readout.rectTransform.anchorMin.x>.1f,"left-fire layout must not obscure status");
                 hud.SetEditing(true);Invoke("ResetLayout");
                 foreach(var control in controls)Require(control.placement.scale==1 && Mathf.Abs(control.placement.x-control.defaultPosition.x)<.001f,"layout reset");
                 hud.SetEditing(false);

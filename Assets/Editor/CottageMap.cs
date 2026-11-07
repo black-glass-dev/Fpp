@@ -31,6 +31,16 @@ namespace Fpp.Editor
             road.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Dirt.png");
             road.mainTextureScale = new Vector2(3, 22);
             road.SetTexture("_BumpMap",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/DirtNormal.png"));road.EnableKeyword("_NORMALMAP");road.SetFloat("_BumpScale",.7f);
+            foreach(var groundMaterial in new[]{grass,road})
+            {
+                groundMaterial.shader=Shader.Find("FPP/Layered Ground");
+                groundMaterial.SetTexture("_MainTex",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Grass.png"));
+                groundMaterial.SetTexture("_SoilTex",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Dirt.png"));
+                groundMaterial.SetTexture("_BumpMap",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/GrassNormal.png"));
+                groundMaterial.SetTexture("_SoilNormal",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/DirtNormal.png"));
+                groundMaterial.SetFloat("_Road",groundMaterial==road?1:0);groundMaterial.SetFloat("_DetailScale",.55f);
+            }
+            wall.shader=Shader.Find("FPP/World Brick");
             wall.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Stone.png");
             wall.mainTextureScale = new Vector2(2, 2);
             GroundBuilder.Create(grass);
@@ -55,7 +65,7 @@ namespace Fpp.Editor
                         var materials = renderer.sharedMaterials;
                         for (int i = 0; i < materials.Length; i++) materials[i] = material;
                         renderer.sharedMaterials = materials;
-                        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
                     }
                     foreach (var filter in house.GetComponentsInChildren<MeshFilter>())
                         if (filter.sharedMesh != null && filter.GetComponent<Collider>() == null)
@@ -80,11 +90,16 @@ namespace Fpp.Editor
             }
             var sun = new GameObject("Sun").AddComponent<Light>();
             sun.type = LightType.Directional;
-            sun.transform.rotation = Quaternion.Euler(50, -30, 0);
-            sun.shadows = LightShadows.None;
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientIntensity = 1;
-            RenderSettings.ambientLight = new Color(.6f, .63f, .68f);
+            sun.transform.rotation = Quaternion.Euler(34,-36,0);sun.color=new Color(1,.91f,.76f);sun.intensity=1.12f;
+            sun.shadows=LightShadows.Hard;sun.shadowStrength=.68f;sun.shadowBias=.04f;sun.shadowNormalBias=.25f;
+            QualitySettings.shadows=ShadowQuality.HardOnly;QualitySettings.shadowDistance=28;QualitySettings.shadowCascades=0;QualitySettings.shadowResolution=ShadowResolution.Medium;
+            RenderSettings.ambientMode=UnityEngine.Rendering.AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor=new Color(.42f,.49f,.57f);RenderSettings.ambientEquatorColor=new Color(.34f,.34f,.29f);RenderSettings.ambientGroundColor=new Color(.17f,.15f,.12f);
+            string skyPath="Assets/Materials/TestMap/Daylight sky.mat";var sky=AssetDatabase.LoadAssetAtPath<Material>(skyPath);
+            if(sky==null){sky=new Material(Shader.Find("Skybox/Procedural"));AssetDatabase.CreateAsset(sky,skyPath);}
+            sky.SetFloat("_SunSize",.025f);sky.SetFloat("_AtmosphereThickness",.8f);sky.SetFloat("_Exposure",1.1f);
+            sky.SetColor("_SkyTint",new Color(.48f,.55f,.64f));sky.SetColor("_GroundColor",new Color(.32f,.29f,.23f));RenderSettings.skybox=sky;RenderSettings.sun=sun;
+            RenderSettings.fog=true;RenderSettings.fogMode=FogMode.ExponentialSquared;RenderSettings.fogDensity=.007f;RenderSettings.fogColor=new Color(.65f,.71f,.73f);
             var player = new GameObject("Player");
             player.transform.position = new Vector3(0, .15f, -36);
             var controller = player.AddComponent<CharacterController>();
@@ -100,7 +115,7 @@ namespace Fpp.Editor
             lens.fieldOfView = 68;
             lens.cullingMask = ~(1 << 8);
             lens.farClipPlane = 120;
-            lens.clearFlags = CameraClearFlags.SolidColor;
+            lens.clearFlags = CameraClearFlags.Skybox;
             lens.backgroundColor = new Color(.42f, .57f, .68f);
             camera.AddComponent<AudioListener>();
             player.AddComponent<MobileBootstrap>();

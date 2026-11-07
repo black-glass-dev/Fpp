@@ -51,6 +51,8 @@ namespace Fpp.Editor
                 {
                     main.transform.position=new Vector3(8,2,-8);main.transform.LookAt(new Vector3(26,4,5));
                     overlay.enabled=false;Save(main,null,"Docs/Previews/unity-environment.png");
+                    main.transform.position=new Vector3(7,1.05f,-10);main.transform.LookAt(new Vector3(11,.25f,-6));
+                    Save(main,null,"Docs/Previews/unity-ground-detail.png");
                     main.transform.position=new Vector3(10,3,15);main.transform.LookAt(new Vector3(0,5,32));
                     Save(main,null,"Docs/Previews/unity-mosque.png");
                     main.transform.position=new Vector3(0,2.5f,43);main.transform.LookAt(new Vector3(0,4,32));

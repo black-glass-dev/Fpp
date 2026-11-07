@@ -101,7 +101,7 @@ namespace Fpp.Editor
             if(!assetPath.StartsWith("Assets/Viewmodels/") && !assetPath.StartsWith("Assets/Art/"))return;
             var importer=(TextureImporter)assetImporter;
             importer.textureType=assetPath.EndsWith("Normal.png")?TextureImporterType.NormalMap:TextureImporterType.Default;
-            importer.textureShape=TextureImporterShape.Texture2D;importer.maxTextureSize=1024;importer.mipmapEnabled=!assetPath.Contains("/Icon/");
+            importer.textureShape=TextureImporterShape.Texture2D;importer.maxTextureSize=assetPath.Contains("/Ground/")?2048:1024;importer.mipmapEnabled=!assetPath.Contains("/Icon/");
             importer.wrapMode=assetPath.Contains("/Ground/")?TextureWrapMode.Repeat:TextureWrapMode.Clamp;
             importer.textureCompression=TextureImporterCompression.Compressed;importer.isReadable=false;
         }

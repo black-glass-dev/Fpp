@@ -24,22 +24,25 @@ namespace Fpp
             flash.GetComponent<MeshFilter>().sharedMesh=mesh;flash.GetComponent<MeshRenderer>().sharedMaterial=material;flash.SetActive(false);if(!Application.isPlaying)flash.hideFlags=HideFlags.DontSave;
             var go=new GameObject("Barrel smoke");go.layer=8;go.transform.SetParent(muzzle,false);smoke=go.AddComponent<ParticleSystem>();smoke.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
             if(!Application.isPlaying)go.hideFlags=HideFlags.DontSave;
-            var main=smoke.main;main.playOnAwake=false;main.loop=false;main.duration=1;main.startLifetime=new ParticleSystem.MinMaxCurve(.28f,.55f);main.startSpeed=new ParticleSystem.MinMaxCurve(.12f,.3f);
-            main.startSize=new ParticleSystem.MinMaxCurve(.025f,.055f);main.startColor=new Color(.65f,.68f,.7f,.3f);main.maxParticles=40;main.simulationSpace=ParticleSystemSimulationSpace.World;
+            var main=smoke.main;main.playOnAwake=false;main.loop=false;main.duration=1;main.startLifetime=new ParticleSystem.MinMaxCurve(.65f,1.05f);main.startSpeed=new ParticleSystem.MinMaxCurve(.35f,.7f);
+            main.startSize=new ParticleSystem.MinMaxCurve(.065f,.105f);main.startColor=new Color(.48f,.51f,.54f,.65f);main.maxParticles=96;main.simulationSpace=ParticleSystemSimulationSpace.World;
             var emission=smoke.emission;emission.enabled=false;
             var shape=smoke.shape;shape.shapeType=ParticleSystemShapeType.Cone;shape.angle=14;shape.radius=.008f;
-            var size=smoke.sizeOverLifetime;size.enabled=true;size.size=new ParticleSystem.MinMaxCurve(1,new AnimationCurve(new Keyframe(0,.4f),new Keyframe(1,2.5f)));
-            var color=smoke.colorOverLifetime;color.enabled=true;var gradient=new Gradient();gradient.SetKeys(new[]{new GradientColorKey(Color.white,0),new GradientColorKey(Color.white,1)},new[]{new GradientAlphaKey(.85f,0),new GradientAlphaKey(0,1)});color.color=gradient;
+            var size=smoke.sizeOverLifetime;size.enabled=true;size.size=new ParticleSystem.MinMaxCurve(1,new AnimationCurve(new Keyframe(0,.65f),new Keyframe(.35f,1.9f),new Keyframe(1,3.2f)));
+            var drift=smoke.velocityOverLifetime;drift.enabled=true;drift.space=ParticleSystemSimulationSpace.World;drift.x=.025f;drift.y=.10f;drift.z=.015f;
+            var turbulence=smoke.noise;turbulence.enabled=true;turbulence.strength=.065f;turbulence.frequency=1.2f;
+            var spin=smoke.main;spin.startRotation=new ParticleSystem.MinMaxCurve(0,Mathf.PI*2);
+            var color=smoke.colorOverLifetime;color.enabled=true;var gradient=new Gradient();gradient.SetKeys(new[]{new GradientColorKey(Color.white,0),new GradientColorKey(Color.white,1)},new[]{new GradientAlphaKey(.95f,0),new GradientAlphaKey(0,1)});color.color=gradient;
             smoke.GetComponent<ParticleSystemRenderer>().sharedMaterial=new Material(smokeSource);smoke.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
-            tracerMaterial=new Material(tracerSource);tracerMaterial.color=new Color(1,.79f,.32f,.85f);
-            for(int i=0;i<lines.Length;i++){var line=new GameObject("Fast bullet streak").AddComponent<LineRenderer>();if(!Application.isPlaying)line.gameObject.hideFlags=HideFlags.DontSave;line.sharedMaterial=tracerMaterial;line.positionCount=2;line.startWidth=.012f;line.endWidth=.005f;line.useWorldSpace=true;line.enabled=false;lines[i]=line;}
+            tracerMaterial=new Material(tracerSource);tracerMaterial.color=new Color(1,.9f,.65f,.9f);
+            for(int i=0;i<lines.Length;i++){var line=new GameObject("Fast bullet streak").AddComponent<LineRenderer>();if(!Application.isPlaying)line.gameObject.hideFlags=HideFlags.DontSave;line.sharedMaterial=tracerMaterial;line.positionCount=2;line.startWidth=.007f;line.endWidth=.002f;line.useWorldSpace=true;line.enabled=false;lines[i]=line;}
         }
         public void Play(Vector3 hit){pendingHit=hit;pending=true;}
         private void LateUpdate(){if(pending){pending=false;if(!WeaponController.MenuOpen)EmitNow(pendingHit);}}
         private void EmitNow(Vector3 hit)
         {
             flashUntil=Time.time+.075f;flash.SetActive(true);flash.transform.localRotation=Quaternion.Euler(0,0,Random.Range(0,360));
-            if(!smoke.isPlaying)smoke.Play();smoke.Emit(5);
+            if(!smoke.isPlaying)smoke.Play();smoke.Emit(6);
             int id=next++%lines.Length;
             // Overlay FOV differs from the world camera: project the real barrel onto
             // the scene ray instead of drawing a world tracer behind the gun.
@@ -52,8 +55,8 @@ namespace Fpp
         }
         private void RenderTrace(int id,float age)
         {
-            float length=Vector3.Distance(starts[id],ends[id]);float head=Mathf.Min(length,8+age*260),tail=Mathf.Max(0,head-8);
-            lines[id].enabled=age<.18f && age<(length+8)/260 && length>.1f;
+            float length=Vector3.Distance(starts[id],ends[id]);float head=Mathf.Min(length,2+age*420),tail=Mathf.Max(0,head-2);
+            lines[id].enabled=age<.18f && age<(length+2)/420 && length>.1f;
             Vector3 direction=(ends[id]-starts[id]).normalized;lines[id].SetPosition(0,starts[id]+direction*tail);lines[id].SetPosition(1,starts[id]+direction*head);
         }
         private void Update()
