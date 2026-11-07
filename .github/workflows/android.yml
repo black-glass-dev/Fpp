@@ -127,6 +127,8 @@ jobs:
       - name: Preserve actual Unity render previews
         run: |
           if [ -f Docs/Previews/unity-spawn.png ]; then
+            python -m pip install --quiet pillow==13.0.0
+            python Tools/optimize_previews.py
             git add Docs/Previews/unity-*.png
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

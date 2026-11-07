@@ -50,6 +50,7 @@ namespace Fpp.Editor
         {
             TextureRepair.Ensure2D();
             CottageMap.Create();
+            EnvironmentAudit.Validate();
             AppIconSetup.Apply();
             RevisionAudit.Validate();
             BuildPreview.Capture();

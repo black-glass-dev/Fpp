@@ -26,12 +26,14 @@ namespace Fpp.Editor
             var road = MakeMaterial("Road", Color.white);
             var wall = MakeMaterial("Cover", Color.white);
             grass.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Grass.png");
-            grass.mainTextureScale = new Vector2(18, 23);
+            grass.mainTextureScale = Vector2.one;
+            grass.SetTexture("_BumpMap",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/GrassNormal.png"));grass.EnableKeyword("_NORMALMAP");grass.SetFloat("_BumpScale",.65f);
             road.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Dirt.png");
             road.mainTextureScale = new Vector2(3, 22);
+            road.SetTexture("_BumpMap",AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/DirtNormal.png"));road.EnableKeyword("_NORMALMAP");road.SetFloat("_BumpScale",.7f);
             wall.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Stone.png");
             wall.mainTextureScale = new Vector2(2, 2);
-            Cube("Ground", new Vector3(0, -.3f, 0), new Vector3(70, .6f, 90), grass);
+            GroundBuilder.Create(grass);
             Cube("Main lane", new Vector3(0, .015f, 0), new Vector3(10, .03f, 88), road);
             Cube("Courtyard", new Vector3(0, .02f, 0), new Vector3(35, .04f, 12), road);
             for (int row = 0; row < 3; row++)

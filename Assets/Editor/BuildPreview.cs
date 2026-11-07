@@ -32,6 +32,7 @@ namespace Fpp.Editor
                     string id=pickup.displayName.Contains("Glock")?"glock":pickup.displayName.Contains("AK")?"ak":"field";
                     weapons.ReviewPose(pickup,false,0);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
                     Save(main,overlay,"Docs/Previews/unity-"+id+"-held.png");
+                    if(id=="ak"){weapons.ReviewPose(pickup,true,0);Save(main,overlay,"Docs/Previews/unity-ak-ads.png");}
                     if(id=="glock")
                     {
                         weapons.ReviewPose(pickup,true,0);Save(main,overlay,"Docs/Previews/unity-glock-ads.png");
@@ -53,6 +54,8 @@ namespace Fpp.Editor
                     Save(main,null,"Docs/Previews/unity-mosque.png");
                     main.transform.position=new Vector3(0,2.5f,43);main.transform.LookAt(new Vector3(0,4,32));
                     Save(main,null,"Docs/Previews/unity-mosque-entry.png");
+                    main.transform.position=new Vector3(0,2.65f,33);main.transform.LookAt(new Vector3(1.4f,3.2f,28));
+                    Save(main,null,"Docs/Previews/unity-mosque-interior.png");
                     foreach(var pickup in pickups)if(pickup.displayName.Contains("Glock"))
                     {
                         main.transform.position=pickup.transform.position+new Vector3(.6f,.8f,-.6f);
@@ -61,6 +64,8 @@ namespace Fpp.Editor
                     }
                 }
                 finally {main.transform.position=position;main.transform.rotation=rotation;overlay.enabled=true;}
+                weapons.ReviewPose(null,false,0);weapons.ReviewShotEffects();
+                Save(main,overlay,"Docs/Previews/unity-shot-effects.png");
             }
             finally {HudAudit.Cleanup();}
         }

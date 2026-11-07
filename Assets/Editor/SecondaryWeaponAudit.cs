@@ -25,8 +25,14 @@ namespace Fpp.Editor
             {
                 foreach(var renderer in pickup.GetComponentsInChildren<Renderer>())
                 foreach(var mat in renderer.sharedMaterials)
-                    if(mat.shader.name!="FPP/Mobile Scan" || mat.mainTexture==null || mat.GetFloat("_TrimBelow")>-1000)
+                    if(renderer.name!="Magazine internal body" && (mat.shader.name!="FPP/Mobile Scan" || mat.mainTexture==null || mat.GetFloat("_TrimBelow")>-1000))
                         throw new Exception("Floor weapon must use opaque two-sided untrimmed textured material");
+                var rig=pickup.GetComponent<WeaponRigParts>();
+                if(rig==null || rig.magazine==null || rig.action==null)throw new Exception("Missing real animated weapon parts");
+                rig.Bind();var home=rig.magazine.position;var actionHome=rig.action.position;
+                rig.Pose(.36f,pickup.transform);if(Vector3.Distance(home,rig.magazine.position)<.1f)throw new Exception("Magazine must actually leave its well");
+                rig.Pose(.8f,pickup.transform);if(Vector3.Distance(actionHome,rig.action.position)<.02f)throw new Exception("Action must actually rack");
+                rig.Pose(1,pickup.transform);if(Vector3.Distance(home,rig.magazine.position)>.0001f || Vector3.Distance(actionHome,rig.action.position)>.0001f)throw new Exception("Weapon parts must return home");
                 weapons.ReviewAmmoAudit(pickup);
             }
             weapons.ReviewAmmoAudit(null);weapons.ReviewPose(null,false,0);

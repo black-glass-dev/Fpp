@@ -53,7 +53,8 @@ namespace Fpp
             safeRoot = Panel("Safe area", go.transform, Color.clear); safeRoot.GetComponent<Image>().raycastTarget = false;
             status = Label("Weapon status", safeRoot, "MARK 23  •  READY", 22, TextAnchor.UpperLeft);
             Rect(status.rectTransform, new Vector2(0,1), new Vector2(0,1), new Vector2(270,-50), new Vector2(500,70));
-            var reticle=Panel("Reticle",safeRoot,Color.clear);reticle.GetComponent<Image>().raycastTarget=false;
+            // Aim uses the camera viewport, not the asymmetric notch-safe control area.
+            var reticle=Panel("Reticle",go.transform,Color.clear);reticle.GetComponent<Image>().raycastTarget=false;
             Rect(reticle,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(20,20));
             foreach(var offset in new[]{new Vector2(-6,0),new Vector2(6,0),new Vector2(0,-6),new Vector2(0,6),Vector2.zero})
             {

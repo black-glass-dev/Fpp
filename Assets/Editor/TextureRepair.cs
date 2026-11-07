@@ -19,14 +19,15 @@ namespace Fpp.Editor
                     string assetPath=path.Replace('\\','/');
                     var importer=AssetImporter.GetAtPath(assetPath) as TextureImporter;
                     if(importer==null)throw new Exception("No texture importer: "+assetPath);
+                    bool normal=assetPath.EndsWith("Normal.png");var type=normal?TextureImporterType.NormalMap:TextureImporterType.Default;
                     bool ground=assetPath.Contains("/Ground/");bool icon=assetPath.Contains("/Icon/");
                     var filter=ground || assetPath.Contains("/PackModels/") || assetPath.Contains("/MosquePack/")?FilterMode.Trilinear:FilterMode.Bilinear;
                     int aniso=ground?4:icon?1:2;
-                    if(importer.textureShape!=TextureImporterShape.Texture2D || importer.textureType!=TextureImporterType.Default ||
-                       !importer.sRGBTexture || importer.filterMode!=filter || importer.anisoLevel!=aniso)
+                    if(importer.textureShape!=TextureImporterShape.Texture2D || importer.textureType!=type ||
+                       importer.sRGBTexture==normal || importer.filterMode!=filter || importer.anisoLevel!=aniso)
                     {
-                        importer.textureType=TextureImporterType.Default;importer.textureShape=TextureImporterShape.Texture2D;
-                        importer.sRGBTexture=true;importer.filterMode=filter;importer.anisoLevel=aniso;
+                        importer.textureType=type;importer.textureShape=TextureImporterShape.Texture2D;
+                        importer.sRGBTexture=!normal;importer.filterMode=filter;importer.anisoLevel=aniso;
                         importer.SaveAndReimport();
                     }
                     if(AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath)==null)

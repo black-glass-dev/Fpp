@@ -30,6 +30,7 @@ namespace Fpp.Editor
                 var asset = AssetDatabase.LoadAssetAtPath<GameObject>(part.model);
                 if (asset == null) throw new Exception("Missing model: " + part.model);
                 var instance = (GameObject)PrefabUtility.InstantiatePrefab(asset);
+                if(entry.weapon)PrefabUtility.UnpackPrefabInstance(instance,PrefabUnpackMode.Completely,InteractionMode.AutomatedAction);
                 instance.transform.SetParent(root.transform, false);
                 string materialPath = Path.ChangeExtension(part.model, ".mat");
                 var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
@@ -102,6 +103,7 @@ namespace Fpp.Editor
                     var model = Create(entry, entry.weapon ? .8f : (entry.name.ToLowerInvariant().Contains("mosque") ? 18 : (entry.name.ToLowerInvariant().Contains("haystack") ? 2.5f : 6)));
                     if (entry.weapon)
                     {
+                        SecondaryWeaponRigBuilder.Build(model,entry.name);
                         Vector3[] spots = { new Vector3(-5, .08f, -17), new Vector3(6, .08f, 9), new Vector3(-10, .08f, 20) };
                         var random = new System.Random(841 + weapon);
                         var rs = model.GetComponentsInChildren<Renderer>();
@@ -114,6 +116,7 @@ namespace Fpp.Editor
                         foreach (var r in rs) bound.Encapsulate(r.bounds);
                         Vector3 scatter = new Vector3((float)random.NextDouble()*2-1,0,(float)random.NextDouble()*2-1);
                         model.transform.position += spots[weapon % spots.Length] + scatter - new Vector3(bound.center.x, bound.min.y, bound.center.z);
+                        var pos=model.transform.position;model.transform.position=pos+Vector3.up*GroundBuilder.Height(pos.x,pos.z);
                         var pickup = model.AddComponent<WeaponPickup>();
                         pickup.displayName = entry.name.Replace("Gun pistol m", "Field pistol").Replace("Glock 17", "Glock 17");
                         weapon++;
@@ -124,12 +127,18 @@ namespace Fpp.Editor
                         model.transform.position = name.Contains("mosque") ? new Vector3(0,.05f,32) :
                             name.Contains("haystack") ? new Vector3(-10,.05f,12) :
                             new Vector3(prop % 2 == 0 ? -29 : 29,.05f,-32+prop*6);
+                        if(!name.Contains("mosque"))model.transform.position+=Vector3.up*GroundBuilder.Height(model.transform.position.x,model.transform.position.z);
                         var collider = model.AddComponent<BoxCollider>();
                         var renderers = model.GetComponentsInChildren<Renderer>();
                         Bounds bounds = renderers[0].bounds;
                         foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
                         collider.center = model.transform.InverseTransformPoint(bounds.center);
                         collider.size = bounds.size;
+                        if(name.Contains("tree"))
+                        {
+                            UnityEngine.Object.DestroyImmediate(collider);var trunk=model.AddComponent<CapsuleCollider>();
+                            trunk.radius=.24f;trunk.height=4.5f;trunk.center=model.transform.InverseTransformPoint(new Vector3(bounds.center.x,bounds.min.y+2.25f,bounds.center.z));
+                        }
                         if(name.Contains("mosque")){UnityEngine.Object.DestroyImmediate(collider);MosqueSurfaceRepair.Apply(model,bounds);}
                         model.isStatic = true;
                         prop++;
@@ -141,6 +150,7 @@ namespace Fpp.Editor
 
     public sealed class PackModelImport : AssetPostprocessor
     {
+        public override uint GetVersion(){return 3;}
         private bool IsPack => assetPath.StartsWith("Assets/PackModels/") || assetPath.StartsWith("Assets/MosquePack/");
         private void OnPreprocessModel()
         {
@@ -149,7 +159,7 @@ namespace Fpp.Editor
             importer.globalScale = 1;
             importer.useFileScale = false;
             importer.importAnimation = false;
-            importer.isReadable = false;
+            importer.isReadable = assetPath.Contains("/Glock_17/") || assetPath.Contains("/Gun_pistol_m/");
             importer.materialImportMode = ModelImporterMaterialImportMode.None;
         }
         private void OnPreprocessTexture()

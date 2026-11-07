@@ -76,6 +76,13 @@ namespace Fpp.Editor
             var flash=AssetDatabase.LoadAssetAtPath<Material>(flashPath);
             var shader=Shader.Find("FPP/Muzzle");if(shader==null)throw new Exception("Muzzle shader missing");
             if(flash==null){flash=new Material(shader);AssetDatabase.CreateAsset(flash,flashPath);}controller.flashMaterial=flash;
+            controller.smokeMaterial=EffectMaterial("Smoke","FPP/Smoke",Color.white);
+            controller.tracerMaterial=EffectMaterial("Tracer","Sprites/Default",new Color(1,.79f,.32f,.85f));
+        }
+        private static Material EffectMaterial(string name,string shader,Color color)
+        {
+            string path="Assets/Materials/TestMap/"+name+".mat";var mat=AssetDatabase.LoadAssetAtPath<Material>(path);
+            if(mat==null){mat=new Material(Shader.Find(shader));AssetDatabase.CreateAsset(mat,path);}mat.color=color;return mat;
         }
     }
 
@@ -92,7 +99,7 @@ namespace Fpp.Editor
         {
             if(!assetPath.StartsWith("Assets/Viewmodels/") && !assetPath.StartsWith("Assets/Art/"))return;
             var importer=(TextureImporter)assetImporter;
-            importer.textureType=TextureImporterType.Default;
+            importer.textureType=assetPath.EndsWith("Normal.png")?TextureImporterType.NormalMap:TextureImporterType.Default;
             importer.textureShape=TextureImporterShape.Texture2D;importer.maxTextureSize=1024;importer.mipmapEnabled=!assetPath.Contains("/Icon/");
             importer.wrapMode=assetPath.Contains("/Ground/")?TextureWrapMode.Repeat:TextureWrapMode.Clamp;
             importer.textureCompression=TextureImporterCompression.Compressed;importer.isReadable=false;

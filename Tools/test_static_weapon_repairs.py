@@ -36,7 +36,9 @@ class StaticWeaponRepairTests(unittest.TestCase):
         shader=Path('Assets/Shaders/MobileScan.shader').read_text()
         vertex=shader[shader.index('v2f vert'):shader.index('fixed4 frag')]
         self.assertNotIn('world.y=',vertex)
-        self.assertIn('abs(normalize(i.normal).y)>.6)clip(-1)',shader)
+        self.assertNotIn('abs(normalize(i.normal).y)>.6)clip(-1)',shader)
+        self.assertIn('_InteriorRect',shader)
+        self.assertIn('_Entry',shader)
         importer=Path('Assets/Editor/PackModelLibrary.cs').read_text()
         self.assertIn('assetPath.StartsWith("Assets/MosquePack/")?2048:1024',importer)
         self.assertIn('maxTextureSize = size',importer)

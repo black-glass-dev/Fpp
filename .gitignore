@@ -29,3 +29,7 @@ google_drive/
 
 __pycache__/
 *.pyc
+
+# Rebuilt deterministically by editor scene generation
+Assets/Generated/
+Assets/Generated.meta
