@@ -24,6 +24,7 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertIn('else PlayClip("reload",reloadDuration)',controller)
         self.assertNotIn('rigAnimation.enabled=false',controller)
         self.assertNotIn('leftUpper.rotation=',controller)
+        self.assertIn('foreach(var bone in skin.bones)',controller)
         self.assertIn('angle>35f?35f/angle:1f',controller)
         self.assertIn('if(equipped==null)PlayClip("reload",1.6f)',controller)
 

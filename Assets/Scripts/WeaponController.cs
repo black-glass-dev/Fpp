@@ -66,6 +66,28 @@ namespace Fpp
                 if(bone.name=="RightForeArm1_028")rightForearm=bone;
                 if(bone.name=="RightHand1_029")rightHand=bone;
             }
+            // FBX imports may contain separate skeleton copies for the gun and arms.
+            // Resolve weighted joints from each renderer's actual bone palette, not the
+            // last same-named transform in the full model hierarchy.
+            foreach(var skin in defaultViewmodel.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                bool arms=false,pistol=false;
+                foreach(var material in skin.sharedMaterials)if(material!=null)
+                {arms|=material.name.Contains("Hand") || material.name.Contains("Glove");pistol|=material.name.Contains("Mark23");}
+                foreach(var bone in skin.bones)
+                {
+                    if(bone==null)continue;
+                    if(arms)
+                    {
+                        if(bone.name=="LeftArm1_04")leftUpper=bone;
+                        if(bone.name=="LeftForeArm1_05")leftForearm=bone;
+                        if(bone.name=="LeftHand1_00")leftHand=bone;
+                        if(bone.name=="RightForeArm1_028")rightForearm=bone;
+                        if(bone.name=="RightHand1_029")rightHand=bone;
+                    }
+                    if(pistol){if(bone.name=="main_j_050")gunBone=bone;if(bone.name=="Mag_j_052")sourceMagazine=bone;}
+                }
+            }
             if(gunBone && sourceMagazine){sourceMagRest=gunBone.InverseTransformPoint(sourceMagazine.position);sourceMagRotation=Quaternion.Inverse(gunBone.rotation)*sourceMagazine.rotation;}
             if(gunBone && rightHand){rightGripInGun=gunBone.InverseTransformPoint(rightHand.position);rightGripRotation=Quaternion.Inverse(gunBone.rotation)*rightHand.rotation;}
             if(muzzle)defaultMuzzleRest=weaponMount.InverseTransformPoint(muzzle.position);
