@@ -1,0 +1,87 @@
+[
+  {
+    "root": {
+      "id": "2",
+      "testcasecount": "13",
+      "result": "Passed",
+      "total": "13",
+      "passed": "13",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-11-07 10:56:47Z",
+      "end-time": "2026-11-07 11:02:46Z",
+      "duration": "358.6445238"
+    },
+    "cases": [
+      {
+        "name": "CadenceHasNoBankedShotsAndStaysFrameRateIndependent",
+        "result": "Passed",
+        "duration": "0.030313"
+      },
+      {
+        "name": "ConfigsAreSerializedAndReferenceValuesMatch",
+        "result": "Passed",
+        "duration": "0.012132"
+      },
+      {
+        "name": "DamageMarkersAndHealthAreSynchronous",
+        "result": "Passed",
+        "duration": "0.970677"
+      },
+      {
+        "name": "DefaultPistolDropsAsTexturedGunOnlyAndRestoresAuthoredSlot",
+        "result": "Passed",
+        "duration": "1.944371"
+      },
+      {
+        "name": "FiveMinuteCombatSoak500Shots50Reloads",
+        "result": "Passed",
+        "duration": "300.272457"
+      },
+      {
+        "name": "MovementSlideDiveAndMantleOnRealController",
+        "result": "Passed",
+        "duration": "4.375045"
+      },
+      {
+        "name": "PhysicalMountLocksMovementAndReducesActualShotImpulseRMS",
+        "result": "Passed",
+        "duration": "2.905679"
+      },
+      {
+        "name": "RecoilNoiseBoundHipAsymmetryAndMountReduction",
+        "result": "Passed",
+        "duration": "0.011627"
+      },
+      {
+        "name": "ReloadCancellationConservationAndDroppedAmmo",
+        "result": "Passed",
+        "duration": "5.605489"
+      },
+      {
+        "name": "SameFrameSemiFireAndActualADSTimingAllWeapons",
+        "result": "Passed",
+        "duration": "2.902373"
+      },
+      {
+        "name": "SprintOutDelayAndADSCancellationUseActualInputLoop",
+        "result": "Passed",
+        "duration": "1.332620"
+      },
+      {
+        "name": "ActualADS30RoundWallPatternAt15m",
+        "result": "Passed",
+        "duration": "3.951541"
+      },
+      {
+        "name": "CapturePoseAndReloadEvidence_NotFingerContactAcceptance",
+        "result": "Passed",
+        "duration": "34.290817"
+      }
+    ]
+  }
+]
