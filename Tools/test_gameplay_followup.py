@@ -23,7 +23,7 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertIn('heldVisual.transform.SetParent(rightHand,true)',controller)
         self.assertIn('else PlayClip("reload",reloadDuration)',controller)
         self.assertNotIn('rigAnimation.enabled=false',controller)
-        self.assertIn('angle>30f?30f/angle:1f',controller)
+        self.assertIn('angle>10f?10f/angle:1f',controller)
         self.assertIn('Vector3.ProjectOnPlane(leftForearm.position-root,direction)',controller)
         self.assertIn('foreach(var bone in skin.bones)',controller)
         self.assertIn('forceMatrixRecalculationPerRender=true',Path('Assets/Editor/ViewmodelSetup.cs').read_text())

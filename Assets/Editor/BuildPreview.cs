@@ -69,6 +69,7 @@ namespace Fpp.Editor
                 finally {main.transform.position=position;main.transform.rotation=rotation;overlay.enabled=true;}
                 weapons.ReviewPose(null,false,0);weapons.ReviewShotEffects();
                 Save(main,overlay,"Docs/Previews/unity-shot-effects.png");
+                weapons.ReviewSmokeBurst();Save(main,overlay,"Docs/Previews/unity-smoke-burst.png");
             }
             finally {HudAudit.Cleanup();}
         }

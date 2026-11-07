@@ -65,6 +65,11 @@ namespace Fpp
             for(int i=0;i<lines.Length;i++)if(lines[i].enabled)RenderTrace(i,Time.time-times[i]);
         }
 #if UNITY_EDITOR
+        public void ReviewBurst(Vector3 hit)
+        {
+            smoke.Clear();for(int i=0;i<3;i++){EmitNow(hit);smoke.Simulate(.12f,true,false,false);}
+            flash.SetActive(false);foreach(var line in lines)line.enabled=false;
+        }
         public void Review(Vector3 hit)
         {EmitNow(hit);smoke.Simulate(.1f,true,false,false);flash.SetActive(true);}
 #endif

@@ -33,7 +33,7 @@ namespace Fpp
         private bool equipping;
         private Vector3 basePosition;
         private Quaternion baseRotation;
-        private Transform leftUpper, leftForearm, leftHand, gunBone, sourceMagazine, rightForearm, rightHand;
+        private Transform leftUpper, leftForearm, leftHand, gunBone, sourceMagazine, rightForearm, rightHand, leftMiddle, leftIndex, leftPinky;
         private Vector3 rightGripInGun;private Quaternion rightGripRotation;
         private Vector3 sourceMagRest, defaultMuzzleRest, defaultSightRest;
         private Quaternion sourceMagRotation;
@@ -61,6 +61,9 @@ namespace Fpp
                 if(bone.name=="LeftArm1_04")leftUpper=bone;
                 if(bone.name=="LeftForeArm1_05")leftForearm=bone;
                 if(bone.name=="LeftHand1_00")leftHand=bone;
+                        if(bone.name=="LeftHandMiddle1_1_014")leftMiddle=bone;
+                        if(bone.name=="LeftHandIndex1_1_010")leftIndex=bone;
+                        if(bone.name=="LeftHandPinky1_1_022")leftPinky=bone;
                 if(bone.name=="main_j_050")gunBone=bone;
                 if(bone.name=="Mag_j_052")sourceMagazine=bone;
                 if(bone.name=="RightForeArm1_028")rightForearm=bone;
@@ -82,6 +85,9 @@ namespace Fpp
                         if(bone.name=="LeftArm1_04")leftUpper=bone;
                         if(bone.name=="LeftForeArm1_05")leftForearm=bone;
                         if(bone.name=="LeftHand1_00")leftHand=bone;
+                        if(bone.name=="LeftHandMiddle1_1_014")leftMiddle=bone;
+                        if(bone.name=="LeftHandIndex1_1_010")leftIndex=bone;
+                        if(bone.name=="LeftHandPinky1_1_022")leftPinky=bone;
                         if(bone.name=="RightForeArm1_028")rightForearm=bone;
                         if(bone.name=="RightHand1_029")rightHand=bone;
                     }
@@ -229,7 +235,7 @@ namespace Fpp
         }
         private void SolveRifleSupport()
         {
-            Vector3 target=weaponMount.TransformPoint(new Vector3(-.025f,-.005f,.055f));
+            Vector3 target=weaponMount.TransformPoint(new Vector3(-.075f,-.045f,.005f));
             Vector3 root=leftUpper.position;float a=Vector3.Distance(root,leftForearm.position),b=Vector3.Distance(leftForearm.position,leftHand.position);
             Vector3 delta=target-root;float distance=Mathf.Clamp(delta.magnitude,Mathf.Abs(a-b)+.001f,(a+b)*.985f);Vector3 direction=delta.normalized;
             // Use the authored elbow plane, never a guessed camera-space pole that swings
@@ -239,8 +245,16 @@ namespace Fpp
             float along=(a*a-b*b+distance*distance)/(2*distance);
             Vector3 elbow=root+direction*along+bend*Mathf.Sqrt(Mathf.Max(0,a*a-along*along));
             Quaternion upper=Quaternion.FromToRotation(leftForearm.position-root,elbow-root);float angle=Quaternion.Angle(Quaternion.identity,upper);
-            Quaternion palm=Quaternion.AngleAxis(60,weaponMount.forward)*leftHand.rotation;
-            leftUpper.rotation=Quaternion.Slerp(Quaternion.identity,upper,angle>30f?30f/angle:1f)*leftUpper.rotation;
+            Quaternion palm=leftHand.rotation;
+            if(leftMiddle && leftIndex && leftPinky)
+            {
+                Vector3 alongHand=(leftMiddle.position-leftHand.position).normalized;
+                Vector3 across=leftIndex.position-leftPinky.position;
+                Vector3 palmNormal=Vector3.Cross(across,alongHand).normalized;
+                if(palmNormal.sqrMagnitude>.5f)
+                    palm=Quaternion.LookRotation((weaponMount.right+weaponMount.forward*.25f).normalized,weaponMount.up)*Quaternion.Inverse(Quaternion.LookRotation(alongHand,palmNormal))*leftHand.rotation;
+            }
+            leftUpper.rotation=Quaternion.Slerp(Quaternion.identity,upper,angle>10f?10f/angle:1f)*leftUpper.rotation;
             leftForearm.rotation=Quaternion.FromToRotation(leftHand.position-leftForearm.position,root+direction*distance-leftForearm.position)*leftForearm.rotation;
             leftHand.rotation=palm;
         }
@@ -379,6 +393,7 @@ namespace Fpp
             CompleteReload(Time.time+reloadDuration+.01f);
             if(Reloading || rounds!=magazine)throw new System.Exception("Reload did not refill the active weapon");
         }
+        public void ReviewSmokeBurst(){InitializePose();EnsureEffects();effects.ReviewBurst(view.position+view.forward*35);}
         public void ReviewShotEffects()
         {InitializePose();EnsureEffects();effects.Review(view.position+view.forward*35);}
         // Drives the same loadout, pose and IK code for deterministic editor review images.

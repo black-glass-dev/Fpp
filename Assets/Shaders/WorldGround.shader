@@ -18,13 +18,17 @@ Shader "FPP/Layered Ground" {
   void surf(Input IN,inout SurfaceOutputStandard o){
    float2 p=IN.worldPos.xz;float2 uv=p*_DetailScale;
    half macro=noise(p*.18)*.65+noise(p*.57)*.35;
-   half soil=lerp(smoothstep(.38,.72,macro)*.78,1,_Road);
+   half lane=1-smoothstep(4.1,5.0,abs(p.x));
+   half yard=(1-smoothstep(15.8,17.5,abs(p.x)))*(1-smoothstep(4.6,6,abs(p.y)));
+   half road=_Road*max(lane,yard);
+   half soil=lerp(smoothstep(.38,.72,macro)*.78,1,road);
    fixed3 grass=tex2D(_MainTex,uv).rgb;
    fixed3 dirt=tex2D(_SoilTex,uv*1.13+float2(.32,.71)).rgb;
-   half ruts=pow(saturate(1-abs(abs(p.x)-2.05)*2.6),3)*_Road;
+   half ruts=pow(saturate(1-abs(abs(p.x)-2.05)*2.6),3)*road;
    half variation=lerp(.78,1.16,noise(p*.075+17));
    o.Albedo=lerp(grass,dirt,soil)*variation*(1-ruts*.17);
    o.Normal=normalize(lerp(UnpackNormal(tex2D(_BumpMap,uv)),UnpackNormal(tex2D(_SoilNormal,uv*1.13+float2(.32,.71))),soil));
+   o.Normal.xy*=.65;o.Normal=normalize(o.Normal);
    o.Metallic=0;o.Smoothness=lerp(.08,.16,ruts);o.Occlusion=.93;
   }
   ENDCG
