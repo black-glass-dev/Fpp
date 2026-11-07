@@ -6,9 +6,9 @@ Baseline: প্রকাশিত build51, source18dcf74; branch checkpointf5ce
 
 | সমস্যা | আসল কারণ | পরিবর্তন / অবস্থা |
 |---|---|---|
-| AK নিলে default pistol হারায়; SWAP-এ আসে না | ApplyWeapon আগের gun auto-drop করত; SWAP owned inventory নয়, nearby pickup খুঁজত | চারটি persistent owned slot; distance-independent SWAP; প্রতি gun-এর mag/reserve; source repaired, fresh native verification pending |
+| AK নিলে default pistol হারায়; SWAP-এ আসে না | ApplyWeapon আগের gun auto-drop করত; SWAP owned inventory নয়, nearby pickup খুঁজত | চারটি persistent owned slot; distance-independent SWAP; প্রতি gun-এর mag/reserve; build52: actual native collection→100m-away→4-way SWAP/ammo case PASS; device/user play validation separate |
 | আগের Glock/Field/AK-ও হারায় | একই auto-drop আচরণ, pickup button ও swap-এর অর্থ গুলিয়ে গিয়েছিল | Pickup সংগ্রহ করে; SWAP শুধু owned gun cycle করে; DROP আলাদা SETTINGS action |
-| Draw চলাকালে SWAP tap উপেক্ষিত | equipping হলে নিঃশব্দ return | একটি queued SWAP; source repaired |
+| Draw চলাকালে SWAP tap উপেক্ষিত | equipping হলে নিঃশব্দ return | একটি queued SWAP; source repaired; build52 native suite17/17 PASS |
 | Crouch থেকে sprint কাজ করে না | crouched state sprint-এর আগে branch নিত | headroom থাকলে sprint uncrouch করে |
 | Sprint-slide দেরি/অস্বাভাবিক | crouch hold timer প্রয়োজন ছিল | single press slide / tactical press dive; entry-frame self-cancel বন্ধ |
 | দেয়ালে ঠেকেও running speed/footsteps | desired momentum-কে Speed বলা হতো | actual controller displacement থেকে Speed |
@@ -24,7 +24,7 @@ Baseline: প্রকাশিত build51, source18dcf74; branch checkpointf5ce
 |---|---|---|
 | P1-01 | Unified touch/keyboard, joystick, right-look | আছে; বাস্তব multitouch/cancel/notched-device UX ব্যবহারকারীর যাচাই প্রয়োজন |
 | P1-02 | Gyro / sensitivity / editable layout | আছে; gyro axis/calibration/device sampling অযাচাইকৃত |
-| P1-03 | Movement FSM | আছে কিন্তু উপরোক্ত বাস্তব bugs ছিল; নতুন repair-এর regression বাকি |
+| P1-03 | Movement FSM | আছে কিন্তু উপরোক্ত বাস্তব bugs ছিল; build52 নতুন physical regression PASS; arbitrary map/device behaviour এখনও পূর্ণ প্রমাণ নয় |
 | P1-04 | Terrain/slope/step/low-ceiling/landing transitions | সীমিত coverage; সব collision geometry-তে স্থিতি প্রতিষ্ঠিত নয় |
 | P1-05 | Slide/dive/mantle/mount timing | নির্দিষ্ট primitive scene-এ আগের pass; arbitrary map edges, spam inputs ও cancellation পূর্ণ যাচাই হয়নি |
 | P1-06 | Sprint-এর10 hip-shot capture | sprint-out blocking-এর সঙ্গে মূল acceptance-এর conflict; decision আছে, literal capture সম্পন্ন নয় |
@@ -51,10 +51,10 @@ Baseline: প্রকাশিত build51, source18dcf74; branch checkpointf5ce
 
 | ID | বিষয় | বর্তমান অবস্থা / বাকি কাজ |
 |---|---|---|
-| P2-01 | Unity LTS + URP / Forward+ / MobileRenderer / PCRenderer | Unity2022.3 আছে, কিন্তু renderer এখনো Built-in; URP migration **হয়নি** |
+| P2-01 | Unity LTS + URP / Forward+ / MobileRenderer / PCRenderer | coordinated URP14 source port যোগ হয়েছে: Forward/Forward+ renderer, shader/depth/shadow ports; **fresh native compile/render verification pending**, complete নয় |
 | P2-02 | Low/Medium/High/PC-Ultra complete tiers | **নেই**; per-feature fallbacks/budget mapping বাকি |
-| P2-03 | DRS .70–1.00 /2-frame hysteresis / MSAA4 / PC TAA+CAS | existing adaptive resolution .60 min/60-frame sampling, MSAA0; specification-এর সঙ্গে মেলে না |
-| P2-04 | FPV camera stack | two Built-in cameras আছে; URP stack/capture adapter নেই |
+| P2-03 | DRS .70–1.00 /2-frame hysteresis / MSAA4 / PC TAA+CAS | source .70–1.00/two-frame hysteresis/4×mobile MSAA যোগ হয়েছে; native pending. URP14 camera-stack TAA unsupported: PC SMAA fallback; literal TAA+CAS gate এখনও red |
+| P2-04 | FPV camera stack | URP Base+layer8 Overlay/StandardRequest source adapter যোগ হয়েছে; single final post grade; native stack render gate pending |
 | P2-05 | SSAO/decal/volumetric renderer features | **নেই** |
 | P2-06 | Sun shadow80/200m,2/4 cascades,5500K | আগের warm sun আছে; short-range hard shadows, requested configuration/quality proof নেই |
 | P2-07 | Baked GI64/128, light probes, zone reflection probes | **নেই** |
@@ -106,3 +106,6 @@ Baseline: প্রকাশিত build51, source18dcf74; branch checkpointf5ce
 5. renderer/audio/actual-device evidence। ব্যবহারকারীর হাতে পরীক্ষা হলেও compile/crash/regression sanity developer-এর দায়িত্ব।
 
 বাকি সফটওয়্যার কাজকে শুধু “device নেই” বলে লুকানো হয়নি। উপরের missing items এখনো missing, যতক্ষণ না source implementation ও উপযুক্ত evidence আসে।
+
+## ২০২৬-১১-০৭ — যাচাইকৃত repair checkpoint
+Build52/run42384788788 actual Unity PlayMode17/17 PASS, including real pickup→100m-away inventory roundtrip and physical movement regression. APK48,767,351B, SHA256c680ba3da9a46b90801ffd78893560882b069078fa2b76120e0cd4604b8102a0. এটি graphics/audio/device acceptance নয়। নতুন URP source checkpoint এখনো native-pending; build52-এ URP নেই।

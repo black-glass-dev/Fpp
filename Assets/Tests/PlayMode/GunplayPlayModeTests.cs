@@ -260,6 +260,26 @@ namespace Fpp.Tests
             Assert.LessOrEqual(audio.ActiveVoices,32);
             File.WriteAllText(Output+"/audio-pool-playmode.txt","Four synthesized shot layers are non-silent; clip peaks bounded; 1000 UI events retain <=32 allocated voice slots. Not mixed-output LUFS/true-peak or device audibility acceptance.");
         }
+        [UnityTest] public IEnumerator UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var presentation=PresentationRenderer.Active;Assert.NotNull(presentation);
+            var world=weapons.view.GetComponent<Camera>();var overlay=weapons.weaponCamera;
+            var worldData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(world);
+            var overlayData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(overlay);
+            Assert.AreEqual(UnityEngine.Rendering.Universal.CameraRenderType.Base,worldData.renderType);Assert.AreEqual(UnityEngine.Rendering.Universal.CameraRenderType.Overlay,overlayData.renderType);
+            Assert.Contains(overlay,worldData.cameraStack);Assert.False(worldData.renderPostProcessing,"do not tone-map the world twice");Assert.True(overlayData.renderPostProcessing);Assert.AreEqual(.01f,overlay.nearClipPlane,.0001f);Assert.AreEqual(1<<8,overlay.cullingMask);Assert.AreEqual(0,world.cullingMask&(1<<8));
+            foreach(PresentationTier tier in Enum.GetValues(typeof(PresentationTier)))
+            {
+                presentation.SetTier(tier);yield return null;
+                var pipeline=UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;Assert.NotNull(pipeline);
+                Assert.AreEqual(tier==PresentationTier.PCUltra?1:4,pipeline.msaaSampleCount);Assert.AreEqual(tier==PresentationTier.PCUltra?200:80,pipeline.shadowDistance);Assert.AreEqual(tier==PresentationTier.PCUltra?4:2,pipeline.shadowCascadeCount);
+            }
+            presentation.SetTier(PresentationTier.High);yield return null;GunplayVisualTests.Save(Output+"/urp-stack-high.png",weapons);
+            foreach(var renderer in UnityEngine.Object.FindObjectsOfType<Renderer>())foreach(var material in renderer.sharedMaterials)
+            {Assert.NotNull(material);Assert.True(material.shader.isSupported,material.shader.name);Assert.False(UnityEditor.ShaderUtil.ShaderHasError(material.shader),material.shader.name);Assert.AreNotEqual("Standard",material.shader.name,"scene materials must be converted, not rendered pink");}
+            File.WriteAllText(Output+"/urp-presentation-playmode.txt","Actual URP camera stack render, independent layer8 FPV near.01, single final post grade, 4 serialized tier assets with 4x mobile MSAA/80m2cascades and PC200m4cascades, supported scene shaders/no compiler errors. Forward+ capability fallback; PC SMAA because URP14 TAA cannot camera-stack. Not device performance or complete PBR/GI proof.");
+        }
         [UnityTest] public IEnumerator CollectedWeaponsCycleAwayFromPickupsWithoutLosingAmmo()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;

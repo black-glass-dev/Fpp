@@ -99,7 +99,7 @@ namespace Fpp.Tests
             try
             {
                 canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=overlay;canvas.planeDistance=.08f;Canvas.ForceUpdateCanvases();
-                world.targetTexture=rt;world.Render();overlay.targetTexture=rt;overlay.Render();RenderTexture.active=rt;
+                RenderEvidence.Into(world,overlay,rt);RenderTexture.active=rt;
                 var image=new Texture2D(1280,720,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();File.WriteAllBytes(path,image.EncodeToPNG());UnityEngine.Object.Destroy(image);
             }
             finally

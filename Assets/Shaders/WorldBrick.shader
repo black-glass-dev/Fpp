@@ -1,6 +1,53 @@
 Shader "FPP/World Brick" {
  Properties {_MainTex("Brick",2D)="white"{} _Color("Tint",Color)=(1,1,1,1)}
  SubShader {
+  Tags {"RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry"}
+  Cull Back
+  HLSLINCLUDE
+  #define FPP_BRICK 1
+  #include "FppUrpWorld.hlsl"
+  ENDHLSL
+  Pass {
+   Name "UniversalForward" Tags {"LightMode"="UniversalForward"}
+   HLSLPROGRAM
+   #pragma target 3.5
+   #pragma target 4.5 _FORWARD_PLUS
+   #pragma vertex FppVert
+   #pragma fragment FppFragment
+   #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+   #pragma multi_compile _ _ADDITIONAL_LIGHTS
+   #pragma multi_compile _ _FORWARD_PLUS
+   #pragma multi_compile_fragment _ _SHADOWS_SOFT
+   #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+   #pragma multi_compile_fog
+   ENDHLSL
+  }
+  Pass {
+   Name "ShadowCaster" Tags {"LightMode"="ShadowCaster"} ZWrite On ColorMask 0
+   HLSLPROGRAM
+   #pragma target 3.5
+   #pragma vertex FppShadowVert
+   #pragma fragment FppDepth
+   ENDHLSL
+  }
+  Pass {
+   Name "DepthOnly" Tags {"LightMode"="DepthOnly"} ZWrite On ColorMask 0
+   HLSLPROGRAM
+   #pragma target 3.5
+   #pragma vertex FppVert
+   #pragma fragment FppDepth
+   ENDHLSL
+  }
+  Pass {
+   Name "DepthNormals" Tags {"LightMode"="DepthNormals"} ZWrite On
+   HLSLPROGRAM
+   #pragma target 3.5
+   #pragma vertex FppVert
+   #pragma fragment FppNormals
+   ENDHLSL
+  }
+ }
+ SubShader {
   Tags {"RenderType"="Opaque"}
   Pass {
    Tags {"LightMode"="ForwardBase"}

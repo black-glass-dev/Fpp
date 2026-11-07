@@ -1,1 +1,10 @@
-{"name":"Fpp.Gameplay","rootNamespace":"Fpp","references":["Unity.ugui"],"autoReferenced":true}
+{
+  "name": "Fpp.Gameplay",
+  "rootNamespace": "Fpp",
+  "references": [
+    "Unity.ugui",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "autoReferenced": true
+}

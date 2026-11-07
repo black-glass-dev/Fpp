@@ -9,6 +9,7 @@ namespace Fpp
         private void Awake()
         {
             if(GetComponent<PresentationAudio>()==null)gameObject.AddComponent<PresentationAudio>();
+            if(GetComponent<PresentationRenderer>()==null)gameObject.AddComponent<PresentationRenderer>();
             var c=GunplayConfig.Current;Application.targetFrameRate=c.targetFPS;
             QualitySettings.vSyncCount=0;QualitySettings.antiAliasing=0;
             QualitySettings.shadows=ShadowQuality.HardOnly;QualitySettings.shadowDistance=28;QualitySettings.shadowCascades=0;QualitySettings.shadowResolution=ShadowResolution.Medium;
@@ -18,7 +19,7 @@ namespace Fpp
         }
         private void Update()
         {
-            var c=GunplayConfig.Current;if(!Application.isMobilePlatform||!c.dynamicResolution)return;
+            var c=GunplayConfig.Current;if(UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline!=null||!Application.isMobilePlatform||!c.dynamicResolution)return;
             elapsed+=Time.unscaledDeltaTime;if(++frames<c.resolutionSampleFrames)return;
             float target=1f/c.targetFPS,average=elapsed/frames;elapsed=0;frames=0;
             float next=scale;

@@ -73,7 +73,7 @@ namespace Fpp.Editor
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
-            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
             EditorUserBuildSettings.buildAppBundle = false;
             var output = Environment.GetEnvironmentVariable("APK_OUTPUT") ?? "build/Android/Fpp.apk";
             Directory.CreateDirectory(Path.GetDirectoryName(output));
