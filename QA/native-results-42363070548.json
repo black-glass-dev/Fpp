@@ -1,0 +1,81 @@
+{
+  "run": "42363070548",
+  "evidenceKind": "actual Unity Play Mode XML; device budgets and visual acceptance are separate",
+  "suites": [
+    {
+      "file": "QA/test-results/playmode-results.xml",
+      "result": "Passed",
+      "total": "10",
+      "passed": "10",
+      "failed": "0",
+      "cases": [
+        {
+          "name": "CadenceHasNoBankedShotsAndStaysFrameRateIndependent",
+          "result": "Passed",
+          "duration": "0.031731"
+        },
+        {
+          "name": "ConfigsAreSerializedAndReferenceValuesMatch",
+          "result": "Passed",
+          "duration": "0.012652"
+        },
+        {
+          "name": "DamageMarkersAndHealthAreSynchronous",
+          "result": "Passed",
+          "duration": "0.982614"
+        },
+        {
+          "name": "FiveMinuteCombatSoak500Shots50Reloads",
+          "result": "Passed",
+          "duration": "300.192425"
+        },
+        {
+          "name": "MovementSlideDiveAndMantleOnRealController",
+          "result": "Passed",
+          "duration": "4.122878"
+        },
+        {
+          "name": "RecoilNoiseBoundHipAsymmetryAndMountReduction",
+          "result": "Passed",
+          "duration": "0.008968"
+        },
+        {
+          "name": "ReloadCancellationConservationAndDroppedAmmo",
+          "result": "Passed",
+          "duration": "5.592723"
+        },
+        {
+          "name": "SameFrameSemiFireAndActualADSTimingAllWeapons",
+          "result": "Passed",
+          "duration": "2.751979"
+        },
+        {
+          "name": "ActualADS30RoundWallPatternAt15m",
+          "result": "Passed",
+          "duration": "3.945919"
+        },
+        {
+          "name": "CapturePoseAndReloadEvidence_NotFingerContactAcceptance",
+          "result": "Passed",
+          "duration": "33.869659"
+        }
+      ]
+    }
+  ],
+  "measurements": {
+    "recoil-wall-result.txt": "Actual Play Mode hitscan on a fixed 15m wall; noiseless authored-pattern plus recovery/spring oracle; RMS=0.05064458 degrees; maximum acceptance 0.5 degrees. Fixed transform, no touch input.",
+    "ammo-playmode.txt": "PASS: tactical/empty conservation, cancel no transfer, secondary drop/pickup restores 7+73. Visual magazine/finger acceptance not asserted.",
+    "ads-actual-playmode.csv": "weapon,targetSec,measuredSec,frameToleranceSec\nmark23,0.16,0.1666565,0.01673677\nglock17,0.16,0.1666565,0.01676872\nfield,0.16,0.1666565,0.01684017\nak47,0.28,0.2833252,0.01672545\n",
+    "recoil-model-ak47.csv": "kind,shot,targetPitch,targetYaw,actualPitch,actualYaw,mountedPitch,mountedYaw\nmath_impulse,0,0.75,-0.08,0.761416,-0.08121771,0.09136992,-0.009746125\nmath_impulse,1,0.8,0.05,0.7815716,0.04884822,0.09378859,0.005861787\nmath_impulse,2,0.85,-0.12,0.799508,-0.1128717,0.09594095,-0.0135446\nmath_impulse,3,0.9,0.12,0.9290668,0.1238756,0.111488,0.01486507\nmath_impulse,4,0.85,0.15,0.8128281,0.1434403,0.09753937,0.01721283\nmath_impulse,5,0.8,0.2,0.820442,0.2051105,0.09845304,0.02461326\nmath_impulse,6,0.55,0.22,0.5755437,0.2302175,0.06906524,0.0276261\nmath_impulse,7,0.5,0.25,0.4676345,0.2338172,0.05611613,0.02805807\nmath_impulse,8,0.45,0.2,0.4478584,0.1990482,0.053743,0.02388578\nmath_impulse,9,0.4,0.24,0.4123233,0.247394,0.0494788,0.02968728\nmath_impulse,10,0.35,0.18,0.3638342,0.1871147,0.0436601,0.02245377\nmath_impulse,11,0.4,0.22,0.3717871,0.2044829,0.04461445,0.02453795\nmath_impulse,12,0.45,0.16,0.467548,0.1662393,0.05610576,0.01994872\nmath_impulse,13,0.4,0.2,0.3934786,0.1967393,0.04721743,0.02360872\nmath_impulse,14,0.4,0.24,0.4177019,0.2506211,0.05012423,0.03007454\nmath_impulse,15,0.75,0.08,0.792505,0.08453387,0.0951006,0.01014406\nmath_impulse,16,0.8,-0.05,0.8061379,-0.05038362,0.09673654,-0.006046034\nmath_impulse,17,0.85,0.12,0.8641521,0.1219979,0.1036982,0.01463975\nmath_impulse,18,0.9,-0.12,0.9374145,-0.1249886,0.1124897,-0.01499863\nmath_impulse,19,0.85,-0.15,0.8866451,-0.1564668,0.1063974,-0.01877601\nmath_impulse,20,0.8,-0.2,0.7783726,-0.1945931,0.09340471,-0.02335118\nmath_impulse,21,0.55,-0.22,0.5841981,-0.2336792,0.07010377,-0.02804151\nmath_impulse,22,0.5,-0.25,0.5384949,-0.2692475,0.06461939,-0.0323097\nmath_impulse,23,0.45,-0.2,0.4352795,-0.1934576,0.05223354,-0.02321491\nmath_impulse,24,0.4,-0.24,0.4053348,-0.2432009,0.04864018,-0.0291841\nmath_impulse,25,0.35,-0.18,0.3624058,-0.1863801,0.04348869,-0.02236561\nmath_impulse,26,0.4,-0.22,0.3795102,-0.2087306,0.04554122,-0.02504767\nmath_impulse,27,0.45,-0.16,0.4153095,-0.1476656,0.04983714,-0.01771987\nmath_impulse,28,0.4,-0.2,0.4035132,-0.2017566,0.04842158,-0.02421079\nmath_impulse,29,0.4,-0.24,0.4274018,-0.2564411,0.05128822,-0.03077293\n",
+    "cadence-model.csv": "kind,weapon,fps,shots,seconds\nmath_scheduler,mark23,15,80,10\nmath_scheduler,mark23,30,80,10\nmath_scheduler,mark23,60,80,10\nmath_scheduler,mark23,120,80,10\nmath_scheduler,glock17,15,90,10\nmath_scheduler,glock17,30,90,10\nmath_scheduler,glock17,60,90,10\nmath_scheduler,glock17,120,90,10\nmath_scheduler,field,15,75,10\nmath_scheduler,field,30,75,10\nmath_scheduler,field,60,75,10\nmath_scheduler,field,120,75,10\nmath_scheduler,ak47,15,100,10\nmath_scheduler,ak47,30,100,10\nmath_scheduler,ak47,60,100,10\nmath_scheduler,ak47,120,100,10\n",
+    "visual-review-status.txt": "Captured actual Play Mode idle/ADS/fire/reload/sprint and four-frame tactical/empty sequences for all four weapons. Images require human review. Approximate secondary fingers/sockets are NOT declared zero-floaters by this capture test.",
+    "soak-editor.txt": "Actual Unity Play Mode: seconds=300.0105, shots=500, reloads=50, switches=50, editor max total frame GC bytes=322, editor movement+weapons marker max nanoseconds=76543. Editor total-frame allocation/CPU is NOT target Android combat-loop acceptance; no device profiler capture supplied.",
+    "recoil_ak47.csv": "shot,worldX,worldY,worldZ,expectedPitch,expectedYaw,actualPitch,actualYaw,errorDeg\n0,999.9963,1.694747,1014.95,0,0,0.01819479,-0.01426892,0.02312255\n1,999.9858,1.839068,1014.95,0.602285,-0.06424373,0.5712816,-0.05450257,0.03249772\n2,1000.011,1.974095,1014.95,1.093635,0.01505897,1.088661,0.04187107,0.02726966\n3,999.9732,2.05093,1014.95,1.436562,-0.1063178,1.382991,-0.1026893,0.05369361\n4,1000.008,2.20657,1014.95,2.071377,0.05793591,1.978964,0.03111091,0.09622797\n5,1000.046,2.349067,1014.95,2.578507,0.1977117,2.524221,0.1745013,0.05903931\n6,1000.099,2.4644,1014.95,3.027387,0.3729276,2.965166,0.3812785,0.06277873\n7,1000.149,2.503578,1014.95,3.176869,0.5453209,3.114803,0.5695683,0.06663436\n8,1000.187,2.532741,1014.95,3.324802,0.7338978,3.226131,0.7164494,0.1002018\n9,1000.213,2.55935,1014.95,3.429956,0.8432229,3.32769,0.8151445,0.1060507\n10,1000.268,2.586276,1014.95,3.488296,1.001326,3.430312,1.026317,0.06313919\n11,1000.273,2.59248,1014.95,3.498681,1.069563,3.45398,1.046193,0.05044078\n12,1000.311,2.620322,1014.95,3.587013,1.193,3.560092,1.190932,0.02700059\n13,1000.316,2.650448,1014.95,3.72826,1.23249,3.675038,1.210806,0.05747033\n14,1000.351,2.679677,1014.95,3.795203,1.329792,3.78636,1.345943,0.01841259\n15,1000.379,2.700536,1014.95,3.87534,1.462703,3.865748,1.453948,0.01298685\n16,1000.366,2.85174,1014.95,4.390827,1.397302,4.442101,1.402752,0.05156213\n17,1000.321,2.991728,1014.95,4.883908,1.223261,4.975173,1.228576,0.09141937\n18,1000.343,3.110176,1014.95,5.417626,1.301981,5.425109,1.313212,0.0134959\n19,1000.278,3.248832,1014.95,5.997705,1.061983,5.951676,1.066069,0.04621008\n20,1000.218,3.386863,1014.95,6.499742,0.8505149,6.474816,0.8361927,0.02874747\n21,1000.161,3.508815,1014.95,6.947264,0.6037878,6.936105,0.6168144,0.01715294\n22,1000.098,3.555609,1014.95,7.093204,0.3570488,7.113007,0.3761326,0.02750218\n23,1000.021,3.58531,1014.95,7.233977,0.09124953,7.225206,0.08187078,0.01284097\n24,999.9703,3.617485,1014.95,7.329958,-0.09503482,7.346525,-0.1139173,0.02512011\n25,999.9138,3.630593,1014.95,7.376059,-0.3315158,7.39583,-0.3302867,0.0198088\n26,999.8781,3.624662,1014.95,7.372701,-0.4774092,7.373353,-0.4673551,0.01007522\n27,999.8141,3.645902,1014.95,7.445674,-0.677617,7.453073,-0.7122396,0.03540414\n28,999.7956,3.677199,1014.95,7.57189,-0.7896324,7.570836,-0.7833381,0.006381916\n29,999.7532,3.686323,1014.95,7.62238,-0.9576103,7.604872,-0.9456392,0.0212098\n",
+    "movement-playmode.txt": "PASS: real CharacterController slide entry=9.315001, sprint=6.9; dive lands prone; 1.5m mantle height=1.58"
+  },
+  "reviewImages": [
+    "QA/Previews/recoil-wall-ak47.png",
+    "QA/Previews/ak47-ads.png"
+  ],
+  "playModeResultsPresent": true
+}
