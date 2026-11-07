@@ -8,6 +8,7 @@ namespace Fpp
         private float elapsed,scale=1;
         private void Awake()
         {
+            if(GetComponent<PresentationAudio>()==null)gameObject.AddComponent<PresentationAudio>();
             var c=GunplayConfig.Current;Application.targetFrameRate=c.targetFPS;
             QualitySettings.vSyncCount=0;QualitySettings.antiAliasing=0;
             QualitySettings.shadows=ShadowQuality.HardOnly;QualitySettings.shadowDistance=28;QualitySettings.shadowCascades=0;QualitySettings.shadowResolution=ShadowResolution.Medium;

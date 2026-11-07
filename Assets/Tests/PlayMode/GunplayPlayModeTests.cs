@@ -216,6 +216,24 @@ namespace Fpp.Tests
             weapons.Reload();yield return new WaitForSeconds(weapons.ActiveWeapon.reloadTacticalSec+.1f);Assert.AreEqual(12,weapons.Ammo);Assert.AreEqual(58,weapons.Reserve);
             File.WriteAllText(Output+"/primary-drop-playmode.txt","Actual Mark23 gun-only textured world pickup preserves 5+65; pickup restores original animated default slot; tactical reload conserves total as 12+58.");
         }
+        [UnityTest] public IEnumerator PresentationAudioLayersAreAudibleAndPoolIsBounded()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            var audio=PresentationAudio.Active;Assert.NotNull(audio);Assert.AreEqual(32,audio.VoiceCapacity);
+            int before=audio.ShotLayersPlayed;
+            GunplayEvents.Emit(new GunplayEvent{Kind=GunplayEventKind.ShotFired,Position=audio.transform.position,Weapon=Weapon("mark23")});
+            Assert.AreEqual(before+4,audio.ShotLayersPlayed);
+            foreach(var source in audio.GetComponentsInChildren<AudioSource>())
+            {
+                if(source.clip==null || !source.clip.name.StartsWith("SYNTH_PLACEHOLDER"))continue;
+                var samples=new float[source.clip.samples];Assert.True(source.clip.GetData(samples,0));
+                float energy=0;foreach(float value in samples){energy+=value*value;Assert.LessOrEqual(Mathf.Abs(value),.701f);}
+                Assert.Greater(energy/samples.Length,.000001f,"placeholder must not be silent");
+            }
+            for(int i=0;i<1000;i++)GunplayEvents.Send(GunplayEventKind.UI,audio.transform.position);
+            Assert.LessOrEqual(audio.ActiveVoices,32);
+            File.WriteAllText(Output+"/audio-pool-playmode.txt","Four synthesized shot layers are non-silent; clip peaks bounded; 1000 UI events retain <=32 allocated voice slots. Not mixed-output LUFS/true-peak or device audibility acceptance.");
+        }
         [UnityTest] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;

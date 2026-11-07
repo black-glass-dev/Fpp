@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5db79809e5a5b35a52ccde1e0b42d65, type: 3}
+  m_Name: Audio
+  m_EditorClassIdentifier:
+  maxVoices: 32
+  sampleRate: 24000
+  variants: 4
+  master: 0.65
+  weapons: 0.7
+  foley: 0.12
+  ambience: 0.035
+  layerSeconds: [0.08, 0.24, 0.065, 0.18, 0.65, 0.055, 2]
+  frequencies: [2400, 135, 900, 55, 180, 2000, 70]
+  decay: [75, 18, 90, 24, 7, 95, 0]
+  noiseMix: [0.85, 0.7, 0.7, 0.15, 0.9, 0.1, 1]
+  layerGain: [0.27, 0.32, 0.12, 0.2]
+  attackHz: 2400
+  clipHeadroom: 0.7
+  noiseSmoothing: 0.7
+  windSmoothing: 0.015
+  variantFrequency: 0.017
+  pitchVariation: 0.03
+  volumeVariationDB: 1.5
+  minDistance: 1
+  maxDistance: 200
+  occlusionHz: 3500
+  occlusionDB: -8
+  duckDB: -4
+  duckSeconds: 0.12
+  reflectionDistance: 85
+  soundSpeed: 343
+  maxReflectionDelay: 0.25
+  tailGain: 0.14
+  reflectionGain: 0.065
+  hitGain: 0.16
+  impactGain: 0.12

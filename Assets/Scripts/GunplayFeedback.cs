@@ -39,7 +39,7 @@ namespace Fpp
             {
                 int i=impactIndex++%impacts.Length;var p=impacts[i];p.transform.position=e.Position+e.Normal*c.nearClip;p.transform.rotation=Quaternion.LookRotation(-e.Normal);p.transform.gameObject.SetActive(true);p.until=Time.time+c.impactLife;impacts[i]=p;
             }
-            if(e.Kind==GunplayEventKind.DryFire||e.Kind==GunplayEventKind.ReloadFoley||e.Kind==GunplayEventKind.UI||e.Kind==GunplayEventKind.Pickup||e.Kind==GunplayEventKind.Mount)click.PlayOneShot(clickClip);
+            if(e.Kind==GunplayEventKind.DryFire||e.Kind==GunplayEventKind.ReloadFoley||e.Kind==GunplayEventKind.UI||e.Kind==GunplayEventKind.Pickup||e.Kind==GunplayEventKind.Mount)if(PresentationAudio.Active==null)click.PlayOneShot(clickClip);
         }
         private void Update()
         {

@@ -425,7 +425,7 @@ namespace Fpp
             Vector3 end=Ballistics.Fire(view.position,direction,ActiveWeapon,ref hits);
             Vector2 impulse=model.Shot(Time.time,ActiveWeapon,GunplayConfig.Current,model.AdsT>=1,motor!=null&&motor.Mounted);
             EnsureEffects();effects.Play(end,model.ShotIndex%ActiveWeapon.tracerEveryN==0);
-            if(sound!=null)sound.PlayOneShot(shotSound);
+            if(PresentationAudio.Active==null && sound!=null)sound.PlayOneShot(shotSound);
             GunplayEvents.Emit(new GunplayEvent{Kind=GunplayEventKind.ShotFired,Address=ActiveWeapon.shotEvent,Weapon=ActiveWeapon,Position=muzzle.position,ADS=model.AdsT>=1,Context=Physics.Raycast(view.position,Vector3.up,GunplayConfig.Current.roomProbe,~(1<<8))?"indoor":"outdoor",Index=model.ShotIndex-1,Pattern=impulse,Spread=SpreadDegrees});
             GunplayEvents.Send(GunplayEventKind.ShotTailRequest,muzzle.position,ActiveWeapon,Physics.Raycast(view.position,Vector3.up,GunplayConfig.Current.roomProbe,~(1<<8))?"indoor":"outdoor");
             GunplayEvents.Send(GunplayEventKind.MechanicalClick,muzzle.position,ActiveWeapon,"cycle");

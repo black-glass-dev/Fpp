@@ -16,3 +16,11 @@
 
 ## ADS sight-space correction (2026-11-07)
 Native46 showed that scalar ADS timing and field-of-view success do not prove sight alignment. An authored rotated root makes mount-local XY subtraction invalid. Lateral ADS placement now projects the actual serialized sight into the overlay camera's coordinate space after neutral posing; interpolate its XY correction with adsT, preserving depth. Apply procedural kick/sway afterward instead of cancelling their motion. Runtime and Editor reviews use the same helper. Keep strict screen-space assertions for every weapon; do not loosen the test to match the bug.
+
+## Prompt 2 presentation baseline / AUD-1 foundation
+- Prompt 1 has13 green automated cases, not green anatomical contacts or physical-device performance. Preserve that distinction; do not assume the new prompt removes these blockers.
+- MWII2022 is an art-direction reference only; no affiliation, proprietary assets or parity claim.
+- Current renderer is Built-in, not URP. Migration must also port the custom ground/brick/smoke shaders and manual Camera.Render QA captures, otherwise a package-only switch produces pink materials or blank evidence. Do not call the existing two Built-in cameras a URP stack.
+- Start event-audio independently while the renderer migration is staged. Original synthesized clips are named SYNTH_PLACEHOLDER, not represented as authentic weapon recordings. Four shot layers, four variants, positional tails/reflection delays, occlusion low-pass, foley and ducked ambience use one bounded32-source pool (ambience reserves one slot). Clip generation is startup-only.
+- No ffmpeg executable is installed locally; no rendered-output loudnorm report is fabricated. Individual clip energy/peak tests are not LUFS, true-peak, mixer-limiter, or recorded Android output acceptance.
+- Full final report remains blocked until every requested acceptance has actual evidence.
