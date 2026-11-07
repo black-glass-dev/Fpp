@@ -1,0 +1,9 @@
+{
+  "run": "42361446701",
+  "kind": "filtered completed-job diagnostic; not proof of acceptance",
+  "messages": [
+    "build\tPlay Mode gameplay tests (real Unity player loop)\t2026-11-07T09:57:10.5594269Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/7f4a6a42-626c-4b2a-9723-761ad520f9ee -f /home/runner/work/_temp/d8a7071d-02d9-4b1f-9fca-3ca26f617448",
+    "build\tPlay Mode gameplay tests (real Unity player loop)\t2026-11-07T09:57:14.4743836Z [WARN] Unknown argument: noCoverageEnabled",
+    "build\tPlay Mode gameplay tests (real Unity player loop)\t2026-11-07T09:57:14.4835735Z ##[error]Test run failed with exit code 1"
+  ]
+}
