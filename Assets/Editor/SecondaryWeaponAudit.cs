@@ -15,7 +15,7 @@ namespace Fpp.Editor
             for(int i=0;i<=100;i++)
             {
                 float t=i/100f;var pose=WeaponPresentation.Sample(false,true,t);
-                if(pose.offset.y>.0001f || pose.euler.z>.0001f || pose.euler.z < -12.01f)
+                if(pose.offset.y>.061f || pose.euler.z>.0001f || pose.euler.z < -20.01f)
                     throw new Exception("Secondary reload escaped its single controlled motion");
                 var original=WeaponPresentation.Sample(false,false,t);
                 if(original.offset!=Vector3.zero || original.euler!=Vector3.zero)

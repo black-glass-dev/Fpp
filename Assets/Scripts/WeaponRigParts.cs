@@ -24,7 +24,7 @@ namespace Fpp
             if(magazine!=null)
             {
                 magazine.localPosition=magHome;
-                magazine.position+=space.TransformVector(new Vector3(-.045f,-(rifle?.17f:.135f),-.025f)*remove);
+                magazine.position+=space.TransformVector(new Vector3(-.045f,-(rifle?.14f:.11f),-.025f)*remove);
                 magazine.localRotation=magRotation;
                 magazine.rotation=Quaternion.AngleAxis(-12*remove,space.forward)*magazine.rotation;
             }
