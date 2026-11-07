@@ -29,12 +29,12 @@ jobs:
           selected=[]
           for line in lines:
               if re.search(r'password|email|serial|token|credential|https?://|signature',line,re.I):continue
-              if not re.search(r'error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
+              if not re.search(r'error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Fpp\.| at .*Assets|ignored|pathspec|hint:|Process completed|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
               line=re.sub(r'[^\s@]+@[^\s@]+','[EMAIL]',line)
               selected.append(line[-700:])
           root=pathlib.Path('QA');root.mkdir(exist_ok=True)
           path=root/('native-diagnostic-'+os.environ['RUN']+'.json')
-          path.write_text(json.dumps({'run':os.environ['RUN'],'kind':'filtered completed-job diagnostic; not proof of acceptance','messages':selected[-80:]},indent=2))
+          path.write_text(json.dumps({'run':os.environ['RUN'],'kind':'filtered completed-job diagnostic; not proof of acceptance','messages':selected[-180:]},indent=2))
           print('Filtered diagnostic lines:',len(selected))
           PY
           gh run download "$RUN" --pattern 'gameplay-qa-*' --dir /tmp/previous-qa || true
