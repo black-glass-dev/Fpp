@@ -236,6 +236,8 @@ namespace Fpp.Tests
             foreach(var control in controls)if(control.gameObject.activeInHierarchy){data.position=RectTransformUtility.WorldToScreenPoint(null,control.transform.position);control.OnPointerDown(data);}
             GunplayVisualTests.Save(Output+"/touch-pressed.png",UnityEngine.Object.FindObjectOfType<WeaponController>());
             foreach(var control in controls)control.ResetInput();
+            var readout=GameObject.Find("Weapon status").GetComponent<RectTransform>();var readoutCorners=new Vector3[4];readout.GetWorldCorners(readoutCorners);
+            foreach(var corner in readoutCorners){var point=RectTransformUtility.WorldToScreenPoint(null,corner);Assert.That(point.y,Is.InRange(Screen.safeArea.yMin-2,Screen.safeArea.yMax+2),"range counter must not clip at top");}
             hud.SetEditing(true);float old=move.placement.x;data.position=RectTransformUtility.WorldToScreenPoint(null,move.transform.position);move.OnPointerDown(data);data.position+=Vector2.right*80;move.OnDrag(data);move.OnPointerUp(data);Assert.Greater(move.placement.x,old);
             move.placement.x=old;move.Apply();hud.SetEditing(false);
             File.WriteAllText(Output+"/touch-presentation-playmode.txt","11 atlas icon controls; active pointer-down/up alpha.70/.38; LAYOUT actual drag increases normalized x; default profile bounds within Screen.safeArea. Not a physical notched Android device proof.");

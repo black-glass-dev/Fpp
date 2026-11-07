@@ -53,8 +53,9 @@ namespace Fpp
             var scaler = go.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1280,720); scaler.matchWidthOrHeight = .5f;
             safeRoot = Panel("Safe area", go.transform, Color.clear); safeRoot.GetComponent<Image>().raycastTarget = false;
-            status = Label("Weapon status", safeRoot, "MARK 23  •  READY", 22, TextAnchor.UpperLeft);
-            Rect(status.rectTransform, new Vector2(0,1), new Vector2(0,1), new Vector2(270,-50), new Vector2(500,70));
+            status = Label("Weapon status", safeRoot, "RANGE  //  000 HITS", 20, TextAnchor.UpperCenter);
+            Rect(status.rectTransform, new Vector2(.5f,1), new Vector2(.5f,1), new Vector2(0,-18), new Vector2(500,40));
+            status.rectTransform.pivot=new Vector2(.5f,1);
             // Aim uses the camera viewport, not the asymmetric notch-safe control area.
             var reticle=Panel("Reticle",go.transform,Color.clear);reticle.GetComponent<Image>().raycastTarget=false;
             Rect(reticle,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(20,20));
@@ -95,8 +96,6 @@ namespace Fpp
             var motor=weapons!=null?weapons.GetComponent<TestPlayer>():null;
             foreach(var control in controls)if(control.placement.id=="mount")control.gameObject.SetActive(Editing||motor!=null&&(motor.MountAvailable||motor.Mounted));
             // Objective is top-center; user control placements are never reset by styling.
-            status.rectTransform.anchorMin=status.rectTransform.anchorMax=new Vector2(.5f,1);
-            status.rectTransform.anchoredPosition=new Vector2(0,-30);status.alignment=TextAnchor.UpperCenter;
             if (weapons != null)
             {
                 if(cachedAmmo!=weapons.Ammo||cachedHits!=weapons.Hits||cachedName!=weapons.DisplayName||cachedReload!=weapons.Reloading)
@@ -127,6 +126,7 @@ namespace Fpp
             {
                 var icon=Panel("Icon",root,new Color(.91f,.9f,.88f,.95f));icon.GetComponent<Image>().sprite=glyph;icon.GetComponent<Image>().raycastTarget=false;
                 Rect(icon,Vector2.one*.26f,Vector2.one*.74f,Vector2.zero,Vector2.zero);label.gameObject.SetActive(false);
+                var iconEdge=icon.gameObject.AddComponent<Outline>();iconEdge.effectColor=new Color(0,0,0,.85f);iconEdge.effectDistance=Vector2.one;
             }
             if(id=="move")
             {
@@ -277,6 +277,7 @@ namespace Fpp
         {
             var go=new GameObject(name,typeof(RectTransform),typeof(Text));go.transform.SetParent(parent,false);
             var t=go.GetComponent<Text>();t.font=font;t.text=content;t.fontSize=size;t.color=new Color(.93f,.94f,.89f);t.alignment=align;t.raycastTarget=false;
+            var shadow=go.AddComponent<Outline>();shadow.effectColor=new Color(0,0,0,.85f);shadow.effectDistance=new Vector2(1,-1);
             return t;
         }
         private static RectTransform Panel(string name,Transform parent,Color color)
