@@ -33,7 +33,8 @@ namespace Fpp
         private bool equipping;
         private Vector3 basePosition;
         private Quaternion baseRotation;
-        private Transform leftUpper, leftForearm, leftHand, gunBone, sourceMagazine;
+        private Transform leftUpper, leftForearm, leftHand, gunBone, sourceMagazine, rightForearm, rightHand;
+        private Vector3 rightGripInGun;private Quaternion rightGripRotation;
         private Vector3 sourceMagRest, defaultMuzzleRest, defaultSightRest;
         private Quaternion sourceMagRotation;
         private float secondaryAimSide;
@@ -62,8 +63,11 @@ namespace Fpp
                 if(bone.name=="LeftHand1_00")leftHand=bone;
                 if(bone.name=="main_j_050")gunBone=bone;
                 if(bone.name=="Mag_j_052")sourceMagazine=bone;
+                if(bone.name=="RightForeArm1_028")rightForearm=bone;
+                if(bone.name=="RightHand1_029")rightHand=bone;
             }
             if(gunBone && sourceMagazine){sourceMagRest=gunBone.InverseTransformPoint(sourceMagazine.position);sourceMagRotation=Quaternion.Inverse(gunBone.rotation)*sourceMagazine.rotation;}
+            if(gunBone && rightHand){rightGripInGun=gunBone.InverseTransformPoint(rightHand.position);rightGripRotation=Quaternion.Inverse(gunBone.rotation)*rightHand.rotation;}
             if(muzzle)defaultMuzzleRest=weaponMount.InverseTransformPoint(muzzle.position);
             if(defaultSight)defaultSightRest=weaponMount.InverseTransformPoint(defaultSight.position);
             worldCamera=view.GetComponent<Camera>();
@@ -112,13 +116,25 @@ namespace Fpp
         }
         private void PoseSecondary(float progress)
         {
-            if(heldRig!=null)
+            if(heldRig==null)return;
+            // Snapshot the source motion before IK: gun/mag joints may descend from a hand.
+            Vector3 delta=Vector3.zero;Quaternion spin=Quaternion.identity;
+            if(gunBone && sourceMagazine)
             {
-                heldRig.Pose(progress,muzzle);
-                if(gunBone && sourceMagazine)heldRig.RetargetMagazine(gunBone,sourceMagazine,sourceMagRest,sourceMagRotation);
+                delta=gunBone.TransformVector(gunBone.InverseTransformPoint(sourceMagazine.position)-sourceMagRest);
+                spin=sourceMagazine.rotation*Quaternion.Inverse(gunBone.rotation*sourceMagRotation);
             }
-            if(equipped!=null && supportPoseCached && DisplayName.Contains("AK"))
-                SolveSupportHand(progress>0 && heldRig!=null?heldRig.magazine.position+muzzle.rotation*new Vector3(-.025f,.015f,0):weaponMount.TransformPoint(new Vector3(0,-.035f,.065f)));
+            if(progress>0 && gunBone && rightHand && rightForearm)
+            {
+                Vector3 grip=gunBone.TransformPoint(rightGripInGun);Quaternion rotation=gunBone.rotation*rightGripRotation;
+                RetargetForearm(rightForearm,rightHand,grip,rotation);
+            }
+            heldRig.Pose(progress,muzzle);heldRig.RetargetMagazine(delta,spin);
+            if(supportPoseCached)
+            {
+                if(progress>0)SolveSupportHand(heldRig.magazine.position+muzzle.rotation*new Vector3(-.025f,.015f,0));
+                else if(DisplayName.Contains("AK"))SolveSupportHand(weaponMount.TransformPoint(new Vector3(0,-.035f,.065f)));
+            }
         }
 
         public void EquipNearest()
@@ -179,7 +195,7 @@ namespace Fpp
                     rigAnimation.enabled=true;
                 }
             }
-            if(!sidearm && gunBone)heldVisual.transform.SetParent(gunBone,true);
+            if(!sidearm && rightHand)heldVisual.transform.SetParent(rightHand,true);
             if(sidearm)PositionMuzzle(defaultMuzzleRest);
             rounds=magazine;reloadEnd=0;
         }
@@ -193,16 +209,19 @@ namespace Fpp
         {
             // Keep the authored shoulder/elbow pose. Upper-arm IK exposed the cut-off
             // shoulder mesh in front of the camera; a limited forearm correction cannot.
-            Quaternion palm=leftHand.rotation;
-            Quaternion correction=Quaternion.FromToRotation(leftHand.position-leftForearm.position,target-leftForearm.position);
+            RetargetForearm(leftForearm,leftHand,target,leftHand.rotation);
+        }
+        private static void RetargetForearm(Transform forearm,Transform hand,Vector3 target,Quaternion palm)
+        {
+            Quaternion correction=Quaternion.FromToRotation(hand.position-forearm.position,target-forearm.position);
             float angle=Quaternion.Angle(Quaternion.identity,correction);
-            leftForearm.rotation=Quaternion.Slerp(Quaternion.identity,correction,angle>35f?35f/angle:1f)*leftForearm.rotation;
-            leftHand.rotation=palm;
+            forearm.rotation=Quaternion.Slerp(Quaternion.identity,correction,angle>35f?35f/angle:1f)*forearm.rotation;
+            hand.rotation=palm;
         }
         private void PositionMuzzle(Vector3 point)
         {
             muzzle.SetParent(weaponMount,false);muzzle.localPosition=point;muzzle.localRotation=Quaternion.identity;muzzle.localScale=Vector3.one;
-            if(gunBone)muzzle.SetParent(gunBone,true);
+            if(equipped!=null && rightHand)muzzle.SetParent(rightHand,true);else if(gunBone)muzzle.SetParent(gunBone,true);
         }
         private void SampleReload(float progress)
         {
@@ -304,11 +323,11 @@ namespace Fpp
         {
             ReviewPose(pickup,false,0);
             if(gunBone==null || sourceMagazine==null || heldRig==null)throw new System.Exception("Missing authored retarget bones");
-            Vector3 home=gunBone.InverseTransformPoint(heldRig.magazine.position);float travel=0;
+            Vector3 home=heldVisual.transform.InverseTransformPoint(heldRig.magazine.position);float travel=0;
             foreach(float t in new[]{.2f,.4f,.6f,.8f})
             {
                 ReviewPose(pickup,false,t);
-                travel=Mathf.Max(travel,Vector3.Distance(home,gunBone.InverseTransformPoint(heldRig.magazine.position))*Mathf.Abs(gunBone.lossyScale.x));
+                travel=Mathf.Max(travel,Vector3.Distance(home,heldVisual.transform.InverseTransformPoint(heldRig.magazine.position))*Mathf.Abs(heldVisual.transform.lossyScale.x));
             }
             if(travel<.03f)throw new System.Exception("Authored magazine retarget did not move: "+pickup.displayName+" travel="+travel);
             Debug.Log("FPP authored magazine retarget: "+pickup.displayName+" travel="+travel);

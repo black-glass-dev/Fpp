@@ -20,7 +20,7 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertIn('action.position-=space.forward',code)
         controller=Path('Assets/Scripts/WeaponController.cs').read_text()
         self.assertIn('heldRig.RetargetMagazine',controller)
-        self.assertIn('heldVisual.transform.SetParent(gunBone,true)',controller)
+        self.assertIn('heldVisual.transform.SetParent(rightHand,true)',controller)
         self.assertIn('else PlayClip("reload",reloadDuration)',controller)
         self.assertNotIn('rigAnimation.enabled=false',controller)
         self.assertNotIn('leftUpper.rotation=',controller)
@@ -54,7 +54,8 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertIn('flash.SetActive(true)',code)
         self.assertIn('smoke.Emit(5)',code)
         self.assertIn('if(!smoke.isPlaying)smoke.Play()',code)
-        self.assertIn('Mathf.Min(.8f,Vector3.Distance(world.transform.position,hit)*.6f)',code)
+        self.assertIn('Mathf.Min(.8f,hitDistance*.6f)-nearOffset',code)
+        self.assertIn('if(hitDistance<=nearOffset)',code)
         self.assertIn('[DefaultExecutionOrder(100)]',code)
         self.assertIn('private void LateUpdate()',code)
         self.assertIn('overlay.WorldToViewportPoint(muzzle.position)',code)
@@ -71,7 +72,8 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertIn('-basePosition.x-(equipped!=null?secondaryAimSide:defaultSightRest.x)',controller)
         repair=Path('Assets/Editor/MosqueSurfaceRepair.cs').read_text()
         self.assertIn('innerX=4.2f,innerZ=3.8f',repair)
-        self.assertIn('c.z+3.7f,c.z+4.6f',repair)
+        self.assertIn('walls.w-.3f',repair)
+        self.assertIn('MeasureOuterWalls(scan,c,floor)',repair)
         self.assertNotIn('c.z+6.1f',repair)
 
     def test_tree_collision_excludes_canopy(self):

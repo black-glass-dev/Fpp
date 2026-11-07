@@ -30,13 +30,11 @@ namespace Fpp
             }
             if(action!=null){action.localPosition=actionHome;action.position-=space.forward*(rifle?.045f:.025f)*rack;}
         }
-        public void RetargetMagazine(Transform gunBone,Transform sourceMag,Vector3 sourceRest,Quaternion sourceRotation)
+        public void RetargetMagazine(Vector3 delta,Quaternion spin)
         {
             Bind();magazine.localPosition=magHome;magazine.localRotation=magRotation;
-            Vector3 delta=gunBone.TransformVector(gunBone.InverseTransformPoint(sourceMag.position)-sourceRest);
             magazine.position+=delta*(rifle?1.15f:1f);
-            Quaternion expected=gunBone.rotation*sourceRotation;
-            magazine.rotation=sourceMag.rotation*Quaternion.Inverse(expected)*magazine.rotation;
+            magazine.rotation=spin*magazine.rotation;
         }
     }
 }
