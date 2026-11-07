@@ -20,7 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RUN: ${{ github.event.workflow_run.id || '42361446701' }}
+          RUN: ${{ github.event.workflow_run.id || '42362222722' }}
         run: |
           gh run view "$RUN" --log-failed > /tmp/failed.log || true
           python - <<'PY'
