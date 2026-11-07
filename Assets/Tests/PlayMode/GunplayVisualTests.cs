@@ -70,7 +70,7 @@ namespace Fpp.Tests
             {
                 weapons.QAEquip(choice);input.Value=default(InputFrame);yield return null;yield return null;string id=weapons.ActiveWeapon.id;
                 Save("QA/runtime/"+id+"-idle.png",weapons);
-                input.Value.ADS=true;while(weapons.AdsT<1)yield return null;Save("QA/runtime/"+id+"-ads.png",weapons);
+                input.Value.ADS=true;while(weapons.AdsT<1)yield return null;yield return null;yield return null;Save("QA/runtime/"+id+"-ads.png",weapons);
                 input.Value.Fire=input.Value.FirePressed=true;yield return null;yield return null;input.Value.Fire=false;Save("QA/runtime/"+id+"-fire.png",weapons);
                 input.Value.ADS=false;while(weapons.AdsT>0)yield return null;
                 foreach(bool empty in new[]{false,true})

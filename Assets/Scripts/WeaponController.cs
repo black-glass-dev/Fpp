@@ -23,6 +23,7 @@ namespace Fpp
         public WeaponAsset ActiveWeapon {get;private set;}
         public WeaponState State {get;private set;}=WeaponState.Drawing;
         public float AdsT=>model.AdsT;
+        public Transform ActiveSight=>heldRig!=null?heldRig.sight:defaultSight;
         public float SpreadDegrees {get;private set;}
         public float ReloadProgress=>Reloading?Mathf.Clamp01(1-(reloadEnd-Time.time)/reloadDuration):0;
         public readonly GunplayModel model=new GunplayModel();

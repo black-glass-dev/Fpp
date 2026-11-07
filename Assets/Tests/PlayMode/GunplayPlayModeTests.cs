@@ -62,6 +62,10 @@ namespace Fpp.Tests
                 while(weapons.AdsT<1){tolerance=Mathf.Max(tolerance,Time.deltaTime);yield return null;}
                 float measured=Time.time-begin;Assert.LessOrEqual(Mathf.Abs(measured-weapons.ActiveWeapon.adsTimeSec),Mathf.Max(.02f,tolerance));
                 csv.AppendLine(id+","+weapons.ActiveWeapon.adsTimeSec+","+measured+","+tolerance);
+                yield return null;yield return null;
+                Assert.That(weapons.view.GetComponent<Camera>().fieldOfView,Is.EqualTo(weapons.ActiveWeapon.sightFOV).Within(.01f),"ADS must drive the actual camera, not just a progress scalar");
+                var sight=weapons.weaponCamera.WorldToViewportPoint(weapons.ActiveSight.position);
+                Assert.That(sight.x,Is.EqualTo(.5f).Within(.015f),"sight horizontal alignment");Assert.That(sight.y,Is.EqualTo(.5f).Within(.015f),"sight vertical alignment");
                 input.Value.ADS=false;while(weapons.AdsT>0)yield return null;
             }
             weapons.QAEquip(null);int shots=0;int shotFrame=-1;Action<GunplayEvent> listener=e=>{if(e.Kind==GunplayEventKind.ShotFired){shots++;shotFrame=Time.frameCount;Assert.AreEqual(input.LastPolledFrame,shotFrame);}};
