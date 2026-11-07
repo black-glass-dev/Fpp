@@ -2,9 +2,9 @@
 
 Unity **2022.3.62f1 LTS**, Android 8+ ARM64/OpenGL ES 3, built-in renderer, landscape. Original project using user-supplied assets, not Call of Duty code/branding.
 
-**Status: signed Android test build 38 published for the ten build-27 phone screenshots. Nineteen local regressions, native Unity audits/camera review and independent fresh-APK/signature gates passed. Physical-phone playtesting and profiling remain pending; custom reload hand/finger/wrist polish is not claimed complete.**
+**Status: signed Android test build 40 published for the latest four build-38 phone screenshots. AK magwell support pose, lingering muzzle smoke, 2K layered ground materials, daylight/shadows and upper-left HUD overlap handling are updated. Twenty-two local tests, native Unity audits/camera review and fresh signed APK gates passed. Phone FPS/heat and exact hand contact remain unverified.**
 
-**[Download Fpp.apk — test build 38](https://github.com/black-glass-dev/Fpp/releases/download/test-build-38/Fpp.apk)** (43,832,655 bytes), [release notes and limits](Docs/TEST-BUILD-38.md). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
+**[Download Fpp.apk — test build 40](https://github.com/black-glass-dev/Fpp/releases/download/test-build-40/Fpp.apk)** (48,658,799 bytes), [release notes and limits](Docs/TEST-BUILD-40.md). Android 8+ ARM64. Ground textures are original procedural art, not photographic scans or MWII assets.
 
 ## What is implemented
 - Test-map generator: six cottage instances, roads/courtyard, cover and boundary walls.
