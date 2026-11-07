@@ -60,7 +60,8 @@ namespace Fpp
             Rect(reticle,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(20,20));
             foreach(var offset in new[]{new Vector2(-6,0),new Vector2(6,0),new Vector2(0,-6),new Vector2(0,6),Vector2.zero})
             {
-                var mark=Panel("Reticle mark",reticle,new Color(.93f,.94f,.89f,.95f));mark.GetComponent<Image>().raycastTarget=false;
+                var mark=Panel("Reticle mark",reticle,new Color(.93f,.94f,.89f,.6f));
+                var shadow=mark.gameObject.AddComponent<Outline>();shadow.effectColor=new Color(0,0,0,.85f);shadow.effectDistance=Vector2.one;mark.GetComponent<Image>().raycastTarget=false;
                 var size=offset==Vector2.zero?new Vector2(2,2):(offset.x==0?new Vector2(2,5):new Vector2(5,2));
                 Rect(mark,Vector2.one*.5f,Vector2.one*.5f,offset,size);
             }
@@ -93,15 +94,14 @@ namespace Fpp
             if (lastSafe != Screen.safeArea) ApplySafeArea();
             var motor=weapons!=null?weapons.GetComponent<TestPlayer>():null;
             foreach(var control in controls)if(control.placement.id=="mount")control.gameObject.SetActive(Editing||motor!=null&&(motor.MountAvailable||motor.Mounted));
-            bool occupied=false;foreach(var control in controls)if(control.placement.x<.35f && control.placement.y>.72f)occupied=true;
-            // Preserve the user's left-fire layout; move the readout instead of resetting controls.
-            status.rectTransform.anchorMin=status.rectTransform.anchorMax=new Vector2(occupied?.30f:0,1);
+            // Objective is top-center; user control placements are never reset by styling.
+            status.rectTransform.anchorMin=status.rectTransform.anchorMax=new Vector2(.5f,1);
+            status.rectTransform.anchoredPosition=new Vector2(0,-30);status.alignment=TextAnchor.UpperCenter;
             if (weapons != null)
             {
                 if(cachedAmmo!=weapons.Ammo||cachedHits!=weapons.Hits||cachedName!=weapons.DisplayName||cachedReload!=weapons.Reloading)
                 {cachedAmmo=weapons.Ammo;cachedHits=weapons.Hits;cachedName=weapons.DisplayName;cachedReload=weapons.Reloading;
-                status.text = weapons.DisplayName.ToUpperInvariant() + "   " + weapons.Ammo + " / " + weapons.Capacity +
-                    (weapons.Reloading ? "   RELOADING" : "") + "\nTARGET HITS  " + weapons.Hits;}
+                status.text = "RANGE  //  " + weapons.Hits.ToString("000") + " HITS";}
                 if(cachedNearby!=weapons.NearbyName){cachedNearby=weapons.NearbyName;pickupLabel.text=weapons.NearbyName.Length>0?"TAKE  •  "+weapons.NearbyName:"";}
             }
         }
@@ -115,13 +115,19 @@ namespace Fpp
         }
         private HudControl AddControl(string id,string text,float x,float y,float size)
         {
-            var root = Panel(id,safeRoot,new Color(.07f,.1f,.12f,.65f));
+            var root = Panel(id,safeRoot,new Color(.07f,.1f,.12f,.38f));
             var image = root.GetComponent<Image>(); image.sprite = circle;
             var outline=root.gameObject.AddComponent<Outline>(); outline.effectColor=new Color(.8f,.87f,.84f,.8f);outline.effectDistance=Vector2.one*2;
             var control=root.gameObject.AddComponent<HudControl>();
             control.owner=this;control.placement=new ControlPlacement { id=id,x=x,y=y,scale=1 };control.defaultPosition=new Vector2(x,y);control.baseSize=size;
             var label=Label(id+" label",root,text,id=="fire"?24:17,TextAnchor.MiddleCenter);label.raycastTarget=false;
             label.rectTransform.anchorMin=Vector2.zero;label.rectTransform.anchorMax=Vector2.one;label.rectTransform.offsetMin=label.rectTransform.offsetMax=Vector2.zero;
+            var glyph=TouchIconAtlas.Get(id);
+            if(glyph!=null)
+            {
+                var icon=Panel("Icon",root,new Color(.91f,.9f,.88f,.95f));icon.GetComponent<Image>().sprite=glyph;icon.GetComponent<Image>().raycastTarget=false;
+                Rect(icon,Vector2.one*.26f,Vector2.one*.74f,Vector2.zero,Vector2.zero);label.gameObject.SetActive(false);
+            }
             if(id=="move")
             {
                 var knob=Panel("Joystick thumb",root,new Color(.78f,.85f,.8f,.6f));knob.GetComponent<Image>().sprite=circle;knob.GetComponent<Image>().raycastTarget=false;

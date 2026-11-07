@@ -21,6 +21,6 @@ class SurfaceFeedbackTests(unittest.TestCase):
         scene=Path('Assets/Editor/CottageMap.cs').read_text()
         for term in ('AmbientMode.Trilight','Skybox/Procedural','LightShadows.Hard','shadowCascades=0'):
             self.assertIn(term,scene)
-        hud=Path('Assets/Scripts/MobileHud.cs').read_text();self.assertIn('control.placement.y>.72f',hud)
+        hud=Path('Assets/Scripts/MobileHud.cs').read_text();self.assertIn('new Vector2(.5f,1)',hud);self.assertIn('RANGE  //',hud)
         self.assertNotIn('PlayerPrefs.DeleteKey',hud.split('private void Update()')[1].split('private void ApplySafeArea')[0])
 if __name__=='__main__':unittest.main()

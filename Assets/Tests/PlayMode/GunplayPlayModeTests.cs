@@ -216,6 +216,30 @@ namespace Fpp.Tests
             weapons.Reload();yield return new WaitForSeconds(weapons.ActiveWeapon.reloadTacticalSec+.1f);Assert.AreEqual(12,weapons.Ammo);Assert.AreEqual(58,weapons.Reserve);
             File.WriteAllText(Output+"/primary-drop-playmode.txt","Actual Mark23 gun-only textured world pickup preserves 5+65; pickup restores original animated default slot; tactical reload conserves total as 12+58.");
         }
+        [UnityTest] public IEnumerator TouchIconsPressedStatesAndLayoutDragPreserveSafeBounds()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;Canvas.ForceUpdateCanvases();
+            var hud=MobileHud.Instance;var controls=UnityEngine.Object.FindObjectsOfType<HudControl>(true);Assert.AreEqual(11,controls.Length);
+            var data=new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current){pointerId=72};
+            HudControl move=null;
+            foreach(var control in controls)
+            {
+                Assert.NotNull(control.transform.Find("Icon"),control.placement.id);
+                if(control.placement.id=="move")move=control;
+                if(!control.gameObject.activeInHierarchy)continue;
+                data.position=RectTransformUtility.WorldToScreenPoint(null,control.transform.position);
+                control.OnPointerDown(data);Assert.That(control.GetComponent<UnityEngine.UI.Image>().color.a,Is.EqualTo(.70f).Within(.001f));
+                control.OnPointerUp(data);Assert.That(control.GetComponent<UnityEngine.UI.Image>().color.a,Is.EqualTo(.38f).Within(.001f));
+                Vector3[] corners=new Vector3[4];((RectTransform)control.transform).GetWorldCorners(corners);
+                foreach(var corner in corners){var point=RectTransformUtility.WorldToScreenPoint(null,corner);Assert.That(point.x,Is.InRange(Screen.safeArea.xMin-2,Screen.safeArea.xMax+2));Assert.That(point.y,Is.InRange(Screen.safeArea.yMin-2,Screen.safeArea.yMax+2));}
+            }
+            foreach(var control in controls)if(control.gameObject.activeInHierarchy){data.position=RectTransformUtility.WorldToScreenPoint(null,control.transform.position);control.OnPointerDown(data);}
+            GunplayVisualTests.Save(Output+"/touch-pressed.png",UnityEngine.Object.FindObjectOfType<WeaponController>());
+            foreach(var control in controls)control.ResetInput();
+            hud.SetEditing(true);float old=move.placement.x;data.position=RectTransformUtility.WorldToScreenPoint(null,move.transform.position);move.OnPointerDown(data);data.position+=Vector2.right*80;move.OnDrag(data);move.OnPointerUp(data);Assert.Greater(move.placement.x,old);
+            move.placement.x=old;move.Apply();hud.SetEditing(false);
+            File.WriteAllText(Output+"/touch-presentation-playmode.txt","11 atlas icon controls; active pointer-down/up alpha.70/.38; LAYOUT actual drag increases normalized x; default profile bounds within Screen.safeArea. Not a physical notched Android device proof.");
+        }
         [UnityTest] public IEnumerator PresentationAudioLayersAreAudibleAndPoolIsBounded()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;

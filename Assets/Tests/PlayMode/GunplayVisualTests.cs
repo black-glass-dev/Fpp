@@ -87,7 +87,7 @@ namespace Fpp.Tests
             }
             File.WriteAllText("QA/runtime/visual-review-status.txt","Captured actual Play Mode idle/ADS/fire/reload/sprint and four-frame tactical/empty sequences for all four weapons. Images require human review. Approximate secondary fingers/sockets are NOT declared zero-floaters by this capture test.");
         }
-        private static void Save(string path,WeaponController weapons)
+        public static void Save(string path,WeaponController weapons)
         {
             Directory.CreateDirectory("QA/runtime");
             if(SystemInfo.graphicsDeviceType==UnityEngine.Rendering.GraphicsDeviceType.Null)Assert.Inconclusive("Graphics device unavailable: visual acceptance cannot be claimed");

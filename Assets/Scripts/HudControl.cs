@@ -33,6 +33,7 @@ namespace Fpp
         public void OnPointerDown(PointerEventData data)
         {
             if(finger!=int.MinValue)return;finger=data.pointerId;
+            SetPressed(true);
             if(owner.Editing)
             {
                 owner.Select(this);
@@ -62,7 +63,12 @@ namespace Fpp
             if(knob!=null)knob.anchoredPosition=value*rect.rect.width*.28f;
         }
         public void OnPointerUp(PointerEventData data) { if(data.pointerId==finger)ResetInput(); }
-        public void ResetInput() { finger=int.MinValue;owner.Release(placement.id);if(knob!=null){knob.anchoredPosition=Vector2.zero;if(rect!=null)rect.anchoredPosition=Vector2.zero;} }
+        public void ResetInput() { SetPressed(false);finger=int.MinValue;owner.Release(placement.id);if(knob!=null){knob.anchoredPosition=Vector2.zero;if(rect!=null)rect.anchoredPosition=Vector2.zero;} }
+        private void SetPressed(bool pressed)
+        {
+            var image=GetComponent<Image>();if(image!=null)image.color=new Color(.07f,.1f,.12f,pressed?.70f:.38f);
+            var ring=GetComponent<Outline>();if(ring!=null)ring.effectColor=pressed?new Color(.91f,.9f,.88f,1):new Color(.8f,.87f,.84f,.45f);
+        }
         private void OnDisable() { if(owner!=null)ResetInput(); }
     }
 }
