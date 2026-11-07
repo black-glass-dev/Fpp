@@ -23,13 +23,27 @@ jobs:
           RUN: ${{ github.event.workflow_run.id || '42362222722' }}
         run: |
           gh run view "$RUN" --log > /tmp/failed.log || true
+          gh api "repos/$GH_REPO/actions/runs/$RUN/logs" > /tmp/run-logs.zip || true
+          python - <<'PYPUBLISH'
+          import zipfile,pathlib,re
+          try:
+              with zipfile.ZipFile('/tmp/run-logs.zip') as z:
+                  for name in z.namelist():
+                      if 'Publish small' not in name:continue
+                      safe=[]
+                      for line in z.read(name).decode(errors='replace').splitlines():
+                          if re.search(r'password|email|serial|token|credential|https?://',line,re.I):continue
+                          safe.append('PUBLISH_DIAGNOSTIC '+line[:700])
+                      with open('/tmp/failed.log','a') as f:f.write('\n'+'\n'.join(safe))
+          except zipfile.BadZipFile:pass
+          PYPUBLISH
           python - <<'PY'
           import re,json,os,pathlib
           lines=pathlib.Path('/tmp/failed.log').read_text(errors='replace').splitlines()
           selected=[]
           for line in lines:
               if re.search(r'password|email|serial|token|credential|https?://|signature',line,re.I):continue
-              if not re.search(r'error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Fpp\.| at .*Assets|ignored|pathspec|hint:|Process completed|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
+              if not re.search(r'PUBLISH_DIAGNOSTIC|error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Fpp\.| at .*Assets|ignored|pathspec|hint:|Process completed|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
               line=re.sub(r'[^\s@]+@[^\s@]+','[EMAIL]',line)
               selected.append(line[-700:])
           root=pathlib.Path('QA');root.mkdir(exist_ok=True)
