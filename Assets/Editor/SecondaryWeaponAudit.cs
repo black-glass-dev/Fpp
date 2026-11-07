@@ -6,12 +6,6 @@ namespace Fpp.Editor
     {
         public static void Validate(WeaponController weapons,WeaponPickup[] pickups)
         {
-            var rest=new Vector3(.03f,-.01f,-.10f);
-            if(Vector3.Distance(WeaponPresentation.SupportTarget(0,rest,false),rest)>.0001f ||
-               Vector3.Distance(WeaponPresentation.SupportTarget(1,rest,false),rest)>.0001f)
-                throw new Exception("Reload hand must start and finish on the grip");
-            if(Vector3.Distance(WeaponPresentation.SupportTarget(.42f,rest,false),rest)<.1f)
-                throw new Exception("Reload must move the support hand through magazine handling");
             for(int i=0;i<=100;i++)
             {
                 float t=i/100f;var pose=WeaponPresentation.Sample(false,true,t);
@@ -33,6 +27,7 @@ namespace Fpp.Editor
                 rig.Pose(.36f,pickup.transform);if(Vector3.Distance(home,rig.magazine.position)<.1f)throw new Exception("Magazine must actually leave its well");
                 rig.Pose(.8f,pickup.transform);if(Vector3.Distance(actionHome,rig.action.position)<.02f)throw new Exception("Action must actually rack");
                 rig.Pose(1,pickup.transform);if(Vector3.Distance(home,rig.magazine.position)>.0001f || Vector3.Distance(actionHome,rig.action.position)>.0001f)throw new Exception("Weapon parts must return home");
+                weapons.ReviewRetargetAudit(pickup);
                 weapons.ReviewAmmoAudit(pickup);
             }
             weapons.ReviewAmmoAudit(null);weapons.ReviewPose(null,false,0);

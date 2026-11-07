@@ -1,10 +1,10 @@
 using UnityEngine;
 namespace Fpp
 {
-    // Real mesh parts separated in the editor; no downloaded animation is implied.
+    // Separated mesh parts; magazine motion can follow the supplied authored skeleton.
     public sealed class WeaponRigParts : MonoBehaviour
     {
-        public Transform magazine, action;
+        public Transform magazine, action, sight;
         public bool rifle;
         private Vector3 magHome, actionHome;
         private Quaternion magRotation;
@@ -24,23 +24,19 @@ namespace Fpp
             if(magazine!=null)
             {
                 magazine.localPosition=magHome;
-                magazine.position+=space.TransformVector(new Vector3(-.045f,-(rifle?.14f:.11f),-.025f)*remove);
+                magazine.position+=(space.rotation*(new Vector3(-.045f,-(rifle?.14f:.11f),-.025f)*remove));
                 magazine.localRotation=magRotation;
                 magazine.rotation=Quaternion.AngleAxis(-12*remove,space.forward)*magazine.rotation;
             }
             if(action!=null){action.localPosition=actionHome;action.position-=space.forward*(rifle?.045f:.025f)*rack;}
         }
-        public Vector3 HandTarget(float t,Transform space,Vector3 rest)
+        public void RetargetMagazine(Transform gunBone,Transform sourceMag,Vector3 sourceRest,Quaternion sourceRotation)
         {
-            Vector3 home=space.TransformPoint(rest);
-            if(magazine==null)return home;
-            Vector3 grip=magazine.position+space.TransformVector(new Vector3(-.018f,rifle?.025f:.015f,0));
-            if(t<.16f)return Vector3.Lerp(home,grip,Ease(t/.16f));
-            if(t<.70f)return grip;
-            Vector3 handle=action!=null?action.position+space.right*.018f:space.TransformPoint(new Vector3(0,.06f,-.06f));
-            if(t<.77f)return Vector3.Lerp(grip,handle,Ease((t-.7f)/.07f));
-            if(t<.9f)return handle;
-            return Vector3.Lerp(handle,home,Ease((t-.9f)/.1f));
+            Bind();magazine.localPosition=magHome;magazine.localRotation=magRotation;
+            Vector3 delta=gunBone.TransformVector(gunBone.InverseTransformPoint(sourceMag.position)-sourceRest);
+            magazine.position+=delta*(rifle?1.15f:1f);
+            Quaternion expected=gunBone.rotation*sourceRotation;
+            magazine.rotation=sourceMag.rotation*Quaternion.Inverse(expected)*magazine.rotation;
         }
     }
 }

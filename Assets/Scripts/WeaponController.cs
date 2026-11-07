@@ -8,7 +8,7 @@ namespace Fpp
     {
         public Transform view;
         public GameObject defaultViewmodel;
-        public Transform weaponMount, muzzle;
+        public Transform weaponMount, muzzle, defaultSight;
         public Renderer[] pistolRenderers;
         public Material flashMaterial,smokeMaterial,tracerMaterial;
         public Camera weaponCamera;
@@ -33,11 +33,13 @@ namespace Fpp
         private bool equipping;
         private Vector3 basePosition;
         private Quaternion baseRotation;
-        private Transform leftUpper, leftForearm, leftHand;
+        private Transform leftUpper, leftForearm, leftHand, gunBone, sourceMagazine;
+        private Vector3 sourceMagRest, defaultMuzzleRest, defaultSightRest;
+        private Quaternion sourceMagRotation;
+        private float secondaryAimSide;
         private Quaternion upperRest, foreRest, handRest;
         private bool supportPoseCached, poseInitialized;
         private float reloadDuration=1.6f, secondaryAimLift=.08f;
-        private Vector3 supportRest;
 
         private void Start()
         {
@@ -58,7 +60,12 @@ namespace Fpp
                 if(bone.name=="LeftArm1_04")leftUpper=bone;
                 if(bone.name=="LeftForeArm1_05")leftForearm=bone;
                 if(bone.name=="LeftHand1_00")leftHand=bone;
+                if(bone.name=="main_j_050")gunBone=bone;
+                if(bone.name=="Mag_j_052")sourceMagazine=bone;
             }
+            if(gunBone && sourceMagazine){sourceMagRest=gunBone.InverseTransformPoint(sourceMagazine.position);sourceMagRotation=Quaternion.Inverse(gunBone.rotation)*sourceMagazine.rotation;}
+            if(muzzle)defaultMuzzleRest=weaponMount.InverseTransformPoint(muzzle.position);
+            if(defaultSight)defaultSightRest=weaponMount.InverseTransformPoint(defaultSight.position);
             worldCamera=view.GetComponent<Camera>();
             basePosition=defaultViewmodel.transform.localPosition;baseRotation=defaultViewmodel.transform.localRotation;
         }
@@ -85,7 +92,8 @@ namespace Fpp
             recoil=Mathf.MoveTowards(recoil,0,Time.deltaTime*7);
             bool aiming=!MenuOpen && (MobileHud.Instance!=null && MobileHud.Instance.AimHeld || Input.touchCount==0 && Input.GetMouseButton(1));
             float progress=Reloading?Mathf.Clamp01(1-(reloadEnd-Time.time)/reloadDuration):0;
-            var pose=WeaponPresentation.Sample(aiming && !Reloading,equipped!=null,progress,secondaryAimLift);
+            if(equipped!=null && !Reloading)HoldDrawPose();
+            var pose=Presentation(aiming && !Reloading,progress);
             Vector3 position=basePosition+pose.offset;
             position+=new Vector3(0,-equipBlend*.28f,-recoil*.028f);
             float walk=MobileHud.Instance!=null?MobileHud.Instance.Move.magnitude:Mathf.Clamp01(Mathf.Abs(Input.GetAxisRaw("Vertical"))+Mathf.Abs(Input.GetAxisRaw("Horizontal")));
@@ -94,14 +102,25 @@ namespace Fpp
             defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler+new Vector3(-recoil*3+equipBlend*25,equipBlend*-12,0));
             if(worldCamera!=null)worldCamera.fieldOfView=Mathf.Lerp(worldCamera.fieldOfView,aiming?50:68,Time.deltaTime*12);
             if(weaponCamera!=null)weaponCamera.fieldOfView=Mathf.Lerp(weaponCamera.fieldOfView,aiming?45:60,Time.deltaTime*12);
-            if(heldRig!=null)heldRig.Pose(progress,weaponMount);
-            if(equipped!=null && supportPoseCached)
-            {
-                if(Reloading)SolveSupportHand(heldRig!=null?heldRig.HandTarget(progress,weaponMount,supportRest):weaponMount.TransformPoint(WeaponPresentation.SupportTarget(progress,supportRest,DisplayName.Contains("AK"))));
-                else if(DisplayName.Contains("AK"))SolveSupportHand(weaponMount.TransformPoint(new Vector3(0,-.035f,.065f)));
-                else RestoreHandRotations();
-            }
+            PoseSecondary(progress);
         }
+        private WeaponPresentation.Pose Presentation(bool aim,float progress)
+        {
+            var pose=WeaponPresentation.Sample(aim,equipped!=null,progress,secondaryAimLift);
+            if(aim){pose.offset.x=-basePosition.x-(equipped!=null?secondaryAimSide:defaultSightRest.x);pose.offset.y=equipped!=null?secondaryAimLift:-basePosition.y-defaultSightRest.y;}
+            return pose;
+        }
+        private void PoseSecondary(float progress)
+        {
+            if(heldRig!=null)
+            {
+                heldRig.Pose(progress,muzzle);
+                if(gunBone && sourceMagazine)heldRig.RetargetMagazine(gunBone,sourceMagazine,sourceMagRest,sourceMagRotation);
+            }
+            if(equipped!=null && supportPoseCached && DisplayName.Contains("AK"))
+                SolveSupportHand(progress>0 && heldRig!=null?heldRig.magazine.position+muzzle.rotation*new Vector3(-.025f,.015f,0):weaponMount.TransformPoint(new Vector3(0,-.035f,.065f)));
+        }
+
         public void EquipNearest()
         {
             if(nearest!=null && !equipping && !Reloading)StartCoroutine(Equip(nearest));
@@ -121,7 +140,7 @@ namespace Fpp
         }
         private void ApplyWeapon(WeaponPickup next)
         {
-            RestoreSupportPose();
+            RestoreSupportPose();HoldDrawPose();
             if(equipped!=null)equipped.gameObject.SetActive(true);
             if(heldVisual!=null)Remove(heldVisual);
             equipped=next;heldRig=null;
@@ -145,19 +164,23 @@ namespace Fpp
                 heldVisual.transform.localScale=Vector3.one*scale;
                 heldVisual.transform.localPosition=-(heldVisual.transform.localRotation*(bound.center*scale));
                 var posedBounds=BoundsInSpace(heldVisual.transform,weaponMount);
-                muzzle.localPosition=new Vector3(posedBounds.center.x,posedBounds.max.y-posedBounds.size.y*(DisplayName.Contains("AK")?.22f:.12f),posedBounds.max.z+.012f);
-                secondaryAimLift=Mathf.Clamp(.16f-posedBounds.max.y+.004f,-.05f,.18f);
-                heldRig=heldVisual.GetComponent<WeaponRigParts>();if(heldRig!=null)heldRig.Bind();
+                PositionMuzzle(new Vector3(posedBounds.center.x,posedBounds.max.y-posedBounds.size.y*(DisplayName.Contains("AK")?.22f:.12f),posedBounds.max.z+.012f));
+                heldRig=heldVisual.GetComponent<WeaponRigParts>();
+                if(heldRig==null || heldRig.sight==null)throw new System.Exception("Missing precomputed gun sight");
+                Vector3 sight=weaponMount.InverseTransformPoint(heldRig.sight.position);
+                secondaryAimLift=-basePosition.y-sight.y;secondaryAimSide=sight.x;
+                heldRig.Bind();
                 next.gameObject.SetActive(false);
                 HoldDrawPose();
                 if(leftUpper!=null && leftForearm!=null && leftHand!=null)
                 {
                     upperRest=leftUpper.localRotation;foreRest=leftForearm.localRotation;handRest=leftHand.localRotation;
-                    supportPoseCached=true;supportRest=weaponMount.InverseTransformPoint(leftHand.position);
-                    rigAnimation.enabled=false;
+                    supportPoseCached=true;
+                    rigAnimation.enabled=true;
                 }
             }
-            if(sidearm)muzzle.localPosition=new Vector3(0,.05f,.16f);
+            if(!sidearm && gunBone)heldVisual.transform.SetParent(gunBone,true);
+            if(sidearm)PositionMuzzle(defaultMuzzleRest);
             rounds=magazine;reloadEnd=0;
         }
         private void RestoreSupportPose()
@@ -166,23 +189,25 @@ namespace Fpp
             leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
             supportPoseCached=false;
         }
-        private void RestoreHandRotations()
-        {
-            leftUpper.localRotation=upperRest;leftForearm.localRotation=foreRest;leftHand.localRotation=handRest;
-        }
         private void SolveSupportHand(Vector3 target)
         {
-            RestoreHandRotations();Quaternion palm=leftHand.rotation;
-            Vector3 root=leftUpper.position;float upper=Vector3.Distance(root,leftForearm.position),fore=Vector3.Distance(leftForearm.position,leftHand.position);
-            Vector3 delta=target-root;float distance=Mathf.Clamp(delta.magnitude,Mathf.Abs(upper-fore)+.001f,(upper+fore)*.985f);
-            Vector3 direction=delta.normalized;
-            Vector3 hint=weaponMount.TransformPoint(new Vector3(-.25f,-.35f,-.12f))-root;
-            Vector3 bend=(hint-direction*Vector3.Dot(hint,direction)).normalized;
-            float along=(upper*upper-fore*fore+distance*distance)/(2*distance);
-            Vector3 elbow=root+direction*along+bend*Mathf.Sqrt(Mathf.Max(0,upper*upper-along*along));
-            leftUpper.rotation=Quaternion.FromToRotation(leftForearm.position-root,elbow-root)*leftUpper.rotation;
-            leftForearm.rotation=Quaternion.FromToRotation(leftHand.position-leftForearm.position,root+direction*distance-leftForearm.position)*leftForearm.rotation;
+            // Keep the authored shoulder/elbow pose. Upper-arm IK exposed the cut-off
+            // shoulder mesh in front of the camera; a limited forearm correction cannot.
+            Quaternion palm=leftHand.rotation;
+            Quaternion correction=Quaternion.FromToRotation(leftHand.position-leftForearm.position,target-leftForearm.position);
+            float angle=Quaternion.Angle(Quaternion.identity,correction);
+            leftForearm.rotation=Quaternion.Slerp(Quaternion.identity,correction,angle>35f?35f/angle:1f)*leftForearm.rotation;
             leftHand.rotation=palm;
+        }
+        private void PositionMuzzle(Vector3 point)
+        {
+            muzzle.SetParent(weaponMount,false);muzzle.localPosition=point;muzzle.localRotation=Quaternion.identity;muzzle.localScale=Vector3.one;
+            if(gunBone)muzzle.SetParent(gunBone,true);
+        }
+        private void SampleReload(float progress)
+        {
+            if(rigAnimation==null)return;
+            foreach(AnimationState state in rigAnimation)if(state.name.ToLowerInvariant().Contains("reload")){rigAnimation.enabled=true;rigAnimation.Play(state.name);state.speed=0;state.time=state.length*progress;rigAnimation.Sample();return;}
         }
         private void CompleteReload(float now)
         { if(reloadEnd>0 && now>=reloadEnd){rounds=magazine;reloadEnd=0;} }
@@ -190,7 +215,7 @@ namespace Fpp
         {
             if(rounds>=magazine || Reloading || equipping || MenuOpen)return;
             reloadDuration=equipped==null?1.6f:DisplayName.Contains("AK")?2.2f:2f;
-            reloadEnd=Time.time+reloadDuration;if(equipped==null)PlayClip("reload",1.6f);
+            reloadEnd=Time.time+reloadDuration;if(equipped==null)PlayClip("reload",1.6f);else PlayClip("reload",reloadDuration);
         }
         private void Fire()
         {
@@ -208,6 +233,7 @@ namespace Fpp
         private void HoldDrawPose()
         {
             if(rigAnimation==null)return;
+            rigAnimation.enabled=true;
             foreach(AnimationState state in rigAnimation)
             {
                 if(!state.name.ToLowerInvariant().Contains("draw"))continue;
@@ -240,6 +266,19 @@ namespace Fpp
             }
             return bound;
         }
+        // Called by the editor only: runtime uses the serialized marker, not unreadable mesh data.
+        public static Vector3 CentralFrontSight(System.Collections.Generic.List<Vector3> points)
+        {
+            float front=float.MinValue;foreach(var point in points)front=Mathf.Max(front,point.z);
+            float minX=float.MaxValue,maxX=float.MinValue;
+            foreach(var point in points)if(point.z>front*.45f){minX=Mathf.Min(minX,point.x);maxX=Mathf.Max(maxX,point.x);}
+            float centre=(minX+maxX)*.5f,top=float.MinValue;
+            foreach(var point in points)if(point.z>front*.45f && Mathf.Abs(point.x-centre)<.006f)top=Mathf.Max(top,point.y);
+            var sight=Vector3.zero;int count=0;
+            foreach(var point in points)if(point.z>front*.45f && Mathf.Abs(point.x-centre)<.006f && point.y>top-.001f){sight+=point;count++;}
+            if(count==0)throw new System.Exception("Missing central front sight vertices");
+            return sight/count;
+        }
         private static void Remove(Object value)
         {
             if(value==null)return;
@@ -261,6 +300,19 @@ namespace Fpp
             return result;
         }
 #if UNITY_EDITOR
+        public void ReviewRetargetAudit(WeaponPickup pickup)
+        {
+            ReviewPose(pickup,false,0);
+            if(gunBone==null || sourceMagazine==null || heldRig==null)throw new System.Exception("Missing authored retarget bones");
+            Vector3 home=gunBone.InverseTransformPoint(heldRig.magazine.position);float travel=0;
+            foreach(float t in new[]{.2f,.4f,.6f,.8f})
+            {
+                ReviewPose(pickup,false,t);
+                travel=Mathf.Max(travel,Vector3.Distance(home,gunBone.InverseTransformPoint(heldRig.magazine.position))*Mathf.Abs(gunBone.lossyScale.x));
+            }
+            if(travel<.03f)throw new System.Exception("Authored magazine retarget did not move: "+pickup.displayName+" travel="+travel);
+            Debug.Log("FPP authored magazine retarget: "+pickup.displayName+" travel="+travel);
+        }
         public void ReviewAmmoAudit(WeaponPickup pickup)
         {
             ReviewPose(pickup,false,0);rounds=1;Reload();
@@ -274,17 +326,13 @@ namespace Fpp
         // Drives the same loadout, pose and IK code for deterministic editor review images.
         public void ReviewPose(WeaponPickup pickup,bool aim,float reloadProgress)
         {
-            InitializePose();ApplyWeapon(pickup);HoldDrawPose();rigAnimation.enabled=pickup==null;
+            InitializePose();ApplyWeapon(pickup);HoldDrawPose();rigAnimation.enabled=true;
             if(reloadProgress>0){reloadDuration=2;reloadEnd=Time.time+2*(1-reloadProgress);}
-            var pose=WeaponPresentation.Sample(aim,pickup!=null,reloadProgress,secondaryAimLift);
+            if(reloadProgress>0)SampleReload(reloadProgress);
+            var pose=Presentation(aim,reloadProgress);
             defaultViewmodel.transform.localPosition=basePosition+pose.offset;
             defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler);
-            if(heldRig!=null)heldRig.Pose(reloadProgress,weaponMount);
-            if(pickup!=null && supportPoseCached)
-            {
-                if(reloadProgress>0)SolveSupportHand(heldRig!=null?heldRig.HandTarget(reloadProgress,weaponMount,supportRest):weaponMount.TransformPoint(WeaponPresentation.SupportTarget(reloadProgress,supportRest,DisplayName.Contains("AK"))));
-                else if(DisplayName.Contains("AK"))SolveSupportHand(weaponMount.TransformPoint(new Vector3(0,-.035f,.065f)));
-            }
+            PoseSecondary(reloadProgress);
             worldCamera.fieldOfView=aim?50:68;weaponCamera.fieldOfView=aim?45:60;
         }
 #endif

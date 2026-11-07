@@ -15,11 +15,16 @@ class PhoneFollowupTests(unittest.TestCase):
 
     def test_real_magazine_and_action_transforms_are_animated(self):
         code=Path('Assets/Scripts/WeaponRigParts.cs').read_text()
-        self.assertIn('magazine.position+=space.TransformVector',code)
+        self.assertIn('space.rotation*(new Vector3',code)
+        self.assertIn('magazine.position+=delta',code)
         self.assertIn('action.position-=space.forward',code)
         controller=Path('Assets/Scripts/WeaponController.cs').read_text()
-        self.assertIn('heldRig.Pose(progress,weaponMount)',controller)
-        self.assertIn('rigAnimation.enabled=false',controller)
+        self.assertIn('heldRig.RetargetMagazine',controller)
+        self.assertIn('heldVisual.transform.SetParent(gunBone,true)',controller)
+        self.assertIn('else PlayClip("reload",reloadDuration)',controller)
+        self.assertNotIn('rigAnimation.enabled=false',controller)
+        self.assertNotIn('leftUpper.rotation=',controller)
+        self.assertIn('angle>35f?35f/angle:1f',controller)
         self.assertIn('if(equipped==null)PlayClip("reload",1.6f)',controller)
 
     def test_pistol_partition_is_nonempty_and_preserves_every_original_face(self):
@@ -50,8 +55,24 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertIn('smoke.Emit(5)',code)
         self.assertIn('if(!smoke.isPlaying)smoke.Play()',code)
         self.assertIn('Mathf.Min(.8f,Vector3.Distance(world.transform.position,hit)*.6f)',code)
+        self.assertIn('[DefaultExecutionOrder(100)]',code)
+        self.assertIn('private void LateUpdate()',code)
         self.assertIn('overlay.WorldToViewportPoint(muzzle.position)',code)
         self.assertIn('world.ViewportPointToRay(viewport)',code)
+
+    def test_sights_and_default_muzzle_use_actual_mesh_landmarks(self):
+        anchors=Path('Assets/Editor/ViewmodelAnchors.cs').read_text()
+        self.assertIn('bones[i].localToWorldMatrix*binds[i]',anchors)
+        self.assertIn('muzzle.SetParent(gunBone,true)',anchors)
+        controller=Path('Assets/Scripts/WeaponController.cs').read_text()
+        self.assertIn('weaponMount.InverseTransformPoint(heldRig.sight.position)',controller)
+        builder=Path('Assets/Editor/SecondaryWeaponRigBuilder.cs').read_text()
+        self.assertIn('WeaponController.CentralFrontSight(points)',builder)
+        self.assertIn('-basePosition.x-(equipped!=null?secondaryAimSide:defaultSightRest.x)',controller)
+        repair=Path('Assets/Editor/MosqueSurfaceRepair.cs').read_text()
+        self.assertIn('innerX=4.2f,innerZ=3.8f',repair)
+        self.assertIn('c.z+3.7f,c.z+4.6f',repair)
+        self.assertNotIn('c.z+6.1f',repair)
 
     def test_tree_collision_excludes_canopy(self):
         code=Path('Assets/Editor/PackModelLibrary.cs').read_text()

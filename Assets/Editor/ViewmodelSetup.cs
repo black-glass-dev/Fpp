@@ -71,6 +71,7 @@ namespace Fpp.Editor
             controller.defaultViewmodel=holder;controller.pistolRenderers=gun.ToArray();
             var mount=new GameObject("Replacement weapon grip");mount.transform.SetParent(holder.transform,false);controller.weaponMount=mount.transform;
             var muzzle=new GameObject("Muzzle");muzzle.transform.SetParent(holder.transform,false);muzzle.transform.localPosition=new Vector3(0,.05f,.16f);controller.muzzle=muzzle.transform;
+            ViewmodelAnchors.Build(holder.transform,gun,main,controller,muzzle.transform);
             WeaponController.SetLayer(holder,8);
             string flashPath="Assets/Materials/TestMap/Muzzle.mat";
             var flash=AssetDatabase.LoadAssetAtPath<Material>(flashPath);

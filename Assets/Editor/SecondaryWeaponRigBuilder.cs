@@ -68,6 +68,17 @@ namespace Fpp.Editor
                 extension.GetComponent<Renderer>().sharedMaterial=existing;
             }
             CenterPivot(mag);CenterPivot(action);
+            // Bake a central front-post marker while editor mesh data is available.
+            // Keep AK meshes CPU-unreadable in the Android player.
+            Bounds posed=WeaponController.LocalBounds(root.transform);
+            Vector3 axis=posed.size.x>posed.size.y && posed.size.x>posed.size.z?Vector3.right:(posed.size.y>posed.size.z?Vector3.up:Vector3.forward);
+            Quaternion rotation=Quaternion.FromToRotation(axis,Vector3.forward);
+            float scale=(rig.rifle?.65f:.27f)/Mathf.Max(posed.size.x,posed.size.y,posed.size.z);
+            var points=new List<Vector3>();
+            foreach(var filter in root.GetComponentsInChildren<MeshFilter>())foreach(var vertex in filter.sharedMesh.vertices)
+                points.Add(rotation*((root.transform.InverseTransformPoint(filter.transform.TransformPoint(vertex))-posed.center)*scale));
+            var sight=new GameObject("Calibrated central front sight").transform;sight.SetParent(root.transform,false);
+            sight.localPosition=posed.center+Quaternion.Inverse(rotation)*(WeaponController.CentralFrontSight(points)/scale);rig.sight=sight;
             if(mag.childCount==0 || action.childCount==0)throw new Exception("Weapon rig parts missing: "+name);
         }
         private static Mesh Subset(Mesh source,List<int> indices)

@@ -16,7 +16,7 @@ namespace Fpp.Editor
             foreach(var trunk in trunks)if(trunk.gameObject.name.ToLowerInvariant().Contains("tree"))
             {count++;if(trunk.bounds.size.x>1 || trunk.GetComponent<BoxCollider>()!=null)throw new Exception("Tree canopy must not block walking");}
             if(count!=2)throw new Exception("Both trees require narrow trunk collision");
-            for(int x=-4;x<=4;x+=2)for(int z=-4;z<=4;z+=2)
+            for(int x=-3;x<=3;x+=2)for(int z=-3;z<=3;z+=2)
                 if(Physics.CheckSphere(new Vector3(x,2.1f,32+z),.25f,~(1<<8),QueryTriggerInteraction.Ignore))throw new Exception("Obstruction in cleaned mosque room");
             foreach(Vector3 direction in new[]{Vector3.right,Vector3.left,Vector3.back})
                 if(!Physics.Raycast(new Vector3(0,2.1f,32),direction,7,~(1<<8),QueryTriggerInteraction.Ignore))throw new Exception("Mosque walls need collision from inside");

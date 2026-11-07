@@ -47,7 +47,7 @@ class StaticWeaponRepairTests(unittest.TestCase):
         code=Path('Assets/Scripts/WeaponController.cs').read_text()
         self.assertNotIn('Mathf.Sin((reloadEnd-Time.time)',code)
         self.assertIn('if(equipped==null)PlayClip("reload",1.6f)',code)
-        self.assertIn('WeaponPresentation.SupportTarget',code)
+        self.assertIn('heldRig.RetargetMagazine',code)
         self.assertIn('CompleteReload(Time.time)',code)
         self.assertIn('SecondaryWeaponAudit.Validate',Path('Assets/Editor/BuildPreview.cs').read_text())
 

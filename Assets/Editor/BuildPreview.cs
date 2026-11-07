@@ -32,11 +32,12 @@ namespace Fpp.Editor
                     string id=pickup.displayName.Contains("Glock")?"glock":pickup.displayName.Contains("AK")?"ak":"field";
                     weapons.ReviewPose(pickup,false,0);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
                     Save(main,overlay,"Docs/Previews/unity-"+id+"-held.png");
-                    if(id=="ak"){weapons.ReviewPose(pickup,true,0);Save(main,overlay,"Docs/Previews/unity-ak-ads.png");weapons.ReviewPose(pickup,false,.35f);Save(main,overlay,"Docs/Previews/unity-ak-reload.png");}
+                    if(id=="ak"){weapons.ReviewPose(pickup,true,0);Save(main,overlay,"Docs/Previews/unity-ak-ads.png");weapons.ReviewPose(pickup,false,.55f);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");Save(main,overlay,"Docs/Previews/unity-ak-reload.png");}
+                    if(id=="field"){weapons.ReviewPose(pickup,false,.55f);Save(main,overlay,"Docs/Previews/unity-field-reload.png");}
                     if(id=="glock")
                     {
                         weapons.ReviewPose(pickup,true,0);Save(main,overlay,"Docs/Previews/unity-glock-ads.png");
-                        weapons.ReviewPose(pickup,false,.35f);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
+                        weapons.ReviewPose(pickup,false,.55f);UnityEngine.Object.FindObjectOfType<MobileHud>().SendMessage("Update");
                         Save(main,overlay,"Docs/Previews/unity-glock-reload-out.png");
                         weapons.ReviewPose(pickup,false,.88f);Save(main,overlay,"Docs/Previews/unity-glock-reload-in.png");
                     }

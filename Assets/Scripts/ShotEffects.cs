@@ -1,6 +1,7 @@
 using UnityEngine;
 namespace Fpp
 {
+    [DefaultExecutionOrder(100)]
     public sealed class ShotEffects : MonoBehaviour
     {
         private Transform muzzle;
@@ -13,6 +14,7 @@ namespace Fpp
         private float[] times=new float[6];
         private float flashUntil;
         private int next;
+        private bool pending;private Vector3 pendingHit;
         public void Initialize(Transform source,Camera view,Camera scene,Material material,Material smokeSource,Material tracerSource)
         {
             muzzle=source;overlay=view;world=scene;
@@ -32,7 +34,9 @@ namespace Fpp
             tracerMaterial=new Material(tracerSource);tracerMaterial.color=new Color(1,.79f,.32f,.85f);
             for(int i=0;i<lines.Length;i++){var line=new GameObject("Fast bullet streak").AddComponent<LineRenderer>();if(!Application.isPlaying)line.gameObject.hideFlags=HideFlags.DontSave;line.sharedMaterial=tracerMaterial;line.positionCount=2;line.startWidth=.012f;line.endWidth=.005f;line.useWorldSpace=true;line.enabled=false;lines[i]=line;}
         }
-        public void Play(Vector3 hit)
+        public void Play(Vector3 hit){pendingHit=hit;pending=true;}
+        private void LateUpdate(){if(pending){pending=false;if(!WeaponController.MenuOpen)EmitNow(pendingHit);}}
+        private void EmitNow(Vector3 hit)
         {
             flashUntil=Time.time+.075f;flash.SetActive(true);flash.transform.localRotation=Quaternion.Euler(0,0,Random.Range(0,360));
             if(!smoke.isPlaying)smoke.Play();smoke.Emit(5);
@@ -56,7 +60,7 @@ namespace Fpp
         }
 #if UNITY_EDITOR
         public void Review(Vector3 hit)
-        {Play(hit);smoke.Simulate(.1f,true,false,false);flash.SetActive(true);}
+        {EmitNow(hit);smoke.Simulate(.1f,true,false,false);flash.SetActive(true);}
 #endif
         private void OnDestroy()
         {foreach(var line in lines)if(line!=null)Release(line.gameObject);if(tracerMaterial!=null)Release(tracerMaterial);if(flash!=null)Release(flash);if(smoke!=null)Release(smoke.gameObject);}
