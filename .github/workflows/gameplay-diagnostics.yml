@@ -65,12 +65,27 @@ jobs:
               results.append(result)
           pathlib.Path('QA/recovered-results-'+os.environ['RUN']+'.json').write_text(json.dumps(results,indent=2))
           PYXML
-          if [ -d /tmp/previous-qa/test-results ]; then
-            mkdir -p QA/test-results QA/runtime
-            cp -R /tmp/previous-qa/test-results/. QA/test-results/
-            if [ -d /tmp/previous-qa/runtime ]; then cp -R /tmp/previous-qa/runtime/. QA/runtime/; fi
-            RUN_ID="$RUN" python Tools/summarize_gameplay_qa.py
-          fi
+          python -m pip install --quiet pillow==12.0.0
+          python - <<'PYRECOVER'
+          from pathlib import Path
+          import shutil,os,subprocess,io
+          from PIL import Image
+          for result in Path('/tmp/previous-qa').rglob('test-results'):
+              if not result.is_dir():continue
+              shutil.copytree(result,'QA/test-results',dirs_exist_ok=True)
+              runtime=result.parent/'runtime'
+              if runtime.exists():shutil.copytree(runtime,'QA/runtime',dirs_exist_ok=True)
+              env=dict(os.environ,RUN_ID=os.environ['RUN'])
+              subprocess.run(['python','Tools/summarize_gameplay_qa.py'],env=env,check=True)
+              review=Path('QA/Review-'+os.environ['RUN']);review.mkdir(exist_ok=True);budget=400000
+              for name in ('ak47-idle','ak47-ads','ak47-fire','ak47-tactical-0.40','ak47-sprint'):
+                  source=runtime/(name+'.png')
+                  if not source.exists():continue
+                  image=Image.open(source).convert('RGB');image.thumbnail((960,540))
+                  data=io.BytesIO();image.save(data,format='JPEG',quality=72,optimize=True)
+                  if len(data.getvalue())<=budget:(review/(name+'.jpg')).write_bytes(data.getvalue());budget-=len(data.getvalue())
+              break
+          PYRECOVER
           git add QA
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
