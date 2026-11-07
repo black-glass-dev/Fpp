@@ -188,19 +188,22 @@ namespace Fpp
             if(Physics.CapsuleCast(view.position+view.up*config.gunProbeHalf,view.position-view.up*config.gunProbeHalf,config.nearClip,view.forward,out _,config.collisionDistance,~(1<<8),QueryTriggerInteraction.Ignore))pose.euler+=new Vector3(config.collisionTilt,0,-config.collisionTilt);
             var look=GameplayInput.Instance!=null?GameplayInput.Instance.Frame.Look:Vector2.zero;
             sway+=look*Time.deltaTime;sway=GunplayModel.Spring(sway,ref swayVelocity,config.swayOmega,config.viewDamping,Time.deltaTime);
-            pose.euler+=new Vector3(sway.y,-sway.x,0);
+            var proceduralEuler=new Vector3(sway.y,-sway.x,0);
             pose.offset.x-=Mathf.Clamp(look.x,-1,1)*config.movementLag;
-            pose.euler.x-=model.GunKick.x;pose.euler.y+=model.GunKick.y;
+            proceduralEuler.x-=model.GunKick.x;proceduralEuler.y+=model.GunKick.y;
             Vector3 position=basePosition+pose.offset;
             position+=new Vector3(0,-equipBlend*config.holsterLower,-recoil*config.recoilPosition);
             float walk=GameplayInput.Instance!=null?GameplayInput.Instance.Frame.Move.magnitude:0;
             position+=new Vector3(Mathf.Sin(Time.time*config.viewmodelBobFrequency)*config.viewmodelBob,Mathf.Cos(Time.time*config.viewmodelBobFrequency*2)*config.viewmodelBob,0)*walk;
             defaultViewmodel.transform.localPosition=position;
-            defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler+new Vector3(-recoil*config.recoilGunDegrees+equipBlend*config.holsterPitch,equipBlend*config.holsterYaw,0));
+            defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler);
             if(worldCamera!=null){worldCamera.fieldOfView=Mathf.Lerp(Mathf.Clamp(GameplayInput.Instance!=null?GameplayInput.Instance.Settings.worldFOV:config.worldFOV,config.minFOV,config.maxFOV),ActiveWeapon.sightFOV,Mathf.SmoothStep(0,1,model.AdsT));worldCamera.nearClipPlane=config.nearClip;}
             if(motor!=null){float breath=Mathf.PerlinNoise(Time.time*config.breathHz,0)*2-1;view.localRotation=Quaternion.Euler(motor.LookEuler+CameraAngles+new Vector3(breath*config.breathDegrees+(motor!=null?motor.LandingPenalty*config.landingPitch:0)-flinch.x,flinch.y,0));}
             if(weaponCamera!=null)weaponCamera.fieldOfView=config.viewmodelFOV;
             PoseSecondary(progress);
+            AlignSight(!Reloading?Mathf.SmoothStep(0,1,model.AdsT):0);
+            // Apply kick/sway AFTER neutral sight calibration, so these impulses remain visible.
+            defaultViewmodel.transform.localRotation*=Quaternion.Euler(proceduralEuler+new Vector3(-recoil*config.recoilGunDegrees+equipBlend*config.holsterPitch,equipBlend*config.holsterYaw,0));
             bool locked=rounds==0&&(!Reloading||progress<config.boltMarker);
             if(heldRig!=null)heldRig.LockEmpty(locked,muzzle,config,Reloading&&!emptyReload);
             else if(defaultAction!=null && !Reloading){if(locked||wasDefaultLocked)defaultAction.localPosition=defaultActionHome;if(locked)defaultAction.position-=muzzle.forward*config.emptyPistolActionTravel;wasDefaultLocked=locked;}
@@ -208,9 +211,18 @@ namespace Fpp
         private WeaponPresentation.Pose Presentation(bool aim,float progress)
         {
             var pose=WeaponPresentation.Sample(aim,equipped!=null,progress,secondaryAimLift);
-            if(aim){pose.offset.x=-basePosition.x-(equipped!=null?secondaryAimSide:defaultSightRest.x);pose.offset.y=equipped!=null?secondaryAimLift:-basePosition.y-defaultSightRest.y;}
+            // Mount-local coordinates are not camera-local when the authored root is rotated.
+            // Resolve lateral ADS translation against the actual camera-space sight after posing.
+            if(aim){pose.offset.x=0;pose.offset.y=0;}
             if(aim && ActiveWeapon!=null){pose.offset+=ActiveWeapon.aimPoseOffset;pose.euler+=ActiveWeapon.aimPoseEuler;}
             return pose;
+        }
+        private void AlignSight(float weight)
+        {
+            if(weight<=0 || weaponCamera==null || ActiveSight==null)return;
+            Vector3 point=weaponCamera.transform.InverseTransformPoint(ActiveSight.position);
+            Vector3 correction=weaponCamera.transform.TransformVector(new Vector3(-point.x,-point.y,0));
+            defaultViewmodel.transform.position+=correction*weight;
         }
         private void PoseSecondary(float progress)
         {
@@ -519,6 +531,7 @@ namespace Fpp
             defaultViewmodel.transform.localPosition=basePosition+pose.offset;
             defaultViewmodel.transform.localRotation=baseRotation*Quaternion.Euler(pose.euler);
             PoseSecondary(reloadProgress);
+            AlignSight(aim&&reloadProgress<=0?1:0);
             worldCamera.fieldOfView=aim?ActiveWeapon.sightFOV:GunplayConfig.Current.worldFOV;weaponCamera.fieldOfView=GunplayConfig.Current.viewmodelFOV;
         }
 #endif
