@@ -1,0 +1,72 @@
+[
+  {
+    "root": {
+      "id": "2",
+      "testcasecount": "10",
+      "result": "Passed",
+      "total": "10",
+      "passed": "10",
+      "failed": "0",
+      "inconclusive": "0",
+      "skipped": "0",
+      "asserts": "0",
+      "engine-version": "3.5.0.0",
+      "clr-version": "4.0.30319.42000",
+      "start-time": "2026-11-07 10:20:39Z",
+      "end-time": "2026-11-07 10:26:30Z",
+      "duration": "351.550156"
+    },
+    "cases": [
+      {
+        "name": "CadenceHasNoBankedShotsAndStaysFrameRateIndependent",
+        "result": "Passed",
+        "duration": "0.031731"
+      },
+      {
+        "name": "ConfigsAreSerializedAndReferenceValuesMatch",
+        "result": "Passed",
+        "duration": "0.012652"
+      },
+      {
+        "name": "DamageMarkersAndHealthAreSynchronous",
+        "result": "Passed",
+        "duration": "0.982614"
+      },
+      {
+        "name": "FiveMinuteCombatSoak500Shots50Reloads",
+        "result": "Passed",
+        "duration": "300.192425"
+      },
+      {
+        "name": "MovementSlideDiveAndMantleOnRealController",
+        "result": "Passed",
+        "duration": "4.122878"
+      },
+      {
+        "name": "RecoilNoiseBoundHipAsymmetryAndMountReduction",
+        "result": "Passed",
+        "duration": "0.008968"
+      },
+      {
+        "name": "ReloadCancellationConservationAndDroppedAmmo",
+        "result": "Passed",
+        "duration": "5.592723"
+      },
+      {
+        "name": "SameFrameSemiFireAndActualADSTimingAllWeapons",
+        "result": "Passed",
+        "duration": "2.751979"
+      },
+      {
+        "name": "ActualADS30RoundWallPatternAt15m",
+        "result": "Passed",
+        "duration": "3.945919"
+      },
+      {
+        "name": "CapturePoseAndReloadEvidence_NotFingerContactAcceptance",
+        "result": "Passed",
+        "duration": "33.869659"
+      }
+    ]
+  }
+]
