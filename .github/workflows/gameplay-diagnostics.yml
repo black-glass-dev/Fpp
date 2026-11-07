@@ -22,14 +22,14 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RUN: ${{ github.event.workflow_run.id || '42362222722' }}
         run: |
-          gh run view "$RUN" --log-failed > /tmp/failed.log || true
+          gh run view "$RUN" --log > /tmp/failed.log || true
           python - <<'PY'
           import re,json,os,pathlib
           lines=pathlib.Path('/tmp/failed.log').read_text(errors='replace').splitlines()
           selected=[]
           for line in lines:
               if re.search(r'password|email|serial|token|credential|https?://|signature',line,re.I):continue
-              if not re.search(r'error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Assertion|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
+              if not re.search(r'error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
               line=re.sub(r'[^\s@]+@[^\s@]+','[EMAIL]',line)
               selected.append(line[-700:])
           root=pathlib.Path('QA');root.mkdir(exist_ok=True)
@@ -37,7 +37,21 @@ jobs:
           path.write_text(json.dumps({'run':os.environ['RUN'],'kind':'filtered completed-job diagnostic; not proof of acceptance','messages':selected[-80:]},indent=2))
           print('Filtered diagnostic lines:',len(selected))
           PY
-          git add QA/native-diagnostic-*.json
+          gh run download "$RUN" --pattern 'gameplay-qa-*' --dir /tmp/previous-qa || true
+          python - <<'PYXML'
+          import pathlib,json,xml.etree.ElementTree as E,os
+          results=[]
+          for p in pathlib.Path('/tmp/previous-qa').rglob('*results.xml'):
+              root=E.parse(p).getroot();result={'root':root.attrib,'cases':[]}
+              for t in root.iter('test-case'):
+                  case={k:t.get(k) for k in ('name','result','duration')}
+                  failure=t.find('failure/message')
+                  if failure is not None:case['failure']=(failure.text or '')[:1800]
+                  result['cases'].append(case)
+              results.append(result)
+          pathlib.Path('QA/recovered-results-'+os.environ['RUN']+'.json').write_text(json.dumps(results,indent=2))
+          PYXML
+          git add QA/native-diagnostic-*.json QA/recovered-results-*.json
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
