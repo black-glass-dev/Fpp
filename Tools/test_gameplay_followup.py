@@ -48,6 +48,8 @@ class PhoneFollowupTests(unittest.TestCase):
         self.assertGreater(duration,2/30)
         self.assertIn('flash.SetActive(true)',code)
         self.assertIn('smoke.Emit(5)',code)
+        self.assertIn('if(!smoke.isPlaying)smoke.Play()',code)
+        self.assertIn('Mathf.Min(.8f,Vector3.Distance(world.transform.position,hit)*.6f)',code)
         self.assertIn('overlay.WorldToViewportPoint(muzzle.position)',code)
         self.assertIn('world.ViewportPointToRay(viewport)',code)
 

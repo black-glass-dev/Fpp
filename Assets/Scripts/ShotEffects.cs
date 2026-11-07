@@ -40,7 +40,7 @@ namespace Fpp
             // Overlay FOV differs from the world camera: project the real barrel onto
             // the scene ray instead of drawing a world tracer behind the gun.
             Vector3 viewport=overlay.WorldToViewportPoint(muzzle.position);
-            starts[id]=world.ViewportPointToRay(viewport).GetPoint(.8f);ends[id]=hit;times[id]=Time.time;
+            starts[id]=world.ViewportPointToRay(viewport).GetPoint(Mathf.Min(.8f,Vector3.Distance(world.transform.position,hit)*.6f));ends[id]=hit;times[id]=Time.time;
             RenderTrace(id,0);
         }
         private void RenderTrace(int id,float age)

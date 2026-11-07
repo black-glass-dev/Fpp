@@ -11,4 +11,6 @@ for path in Path('Docs/Previews').glob('unity-*.png'):
     encoded=data.getvalue()
     if len(encoded)<path.stat().st_size:
         assert Image.open(BytesIO(encoded)).tobytes()==image.tobytes()
-        path.write_bytes(encoded)
+        temporary=path.with_suffix(".tmp.png")
+        temporary.write_bytes(encoded)
+        temporary.replace(path) # new captures may be owned by the builder container
