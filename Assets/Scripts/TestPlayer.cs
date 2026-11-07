@@ -17,9 +17,9 @@ namespace Fpp
         public bool Mounted=>State==MovementState.Mount;
         public Vector3 LookEuler=>new Vector3(pitch,0,0);
         private CharacterController controller;private WeaponController weapons;
-        private float pitch,falling,sprintTime,crouchSince,jumpAt=-100,stateAt,slideEntry,fallPeak,stepPhase;
+        private float pitch,falling,sprintTime,jumpAt=-100,stateAt,slideEntry,fallPeak,stepPhase;
         private Vector3 momentum,mantleStart,mantleEnd,eyeHome;
-        private bool crouchWasHeld;
+        private readonly Collider[] standOverlaps=new Collider[16];
         private bool crouched,prone,tacticalRequested,wasGrounded;
         private void Awake(){controller=GetComponent<CharacterController>();weapons=GetComponent<WeaponController>();eyeHome=view!=null?view.localPosition:Vector3.zero;}
         public void CancelSprint(){if(IsSprinting){SprintExitedAt=Time.time;SetState(MovementState.Walk);}sprintTime=0;tacticalRequested=false;}
@@ -38,7 +38,7 @@ namespace Fpp
         private void TickGameplay()
         {
             var c=GunplayConfig.Current;var hub=GameplayInput.Instance;if(hub==null||view==null)return;
-            if(WeaponController.MenuOpen){momentum=Vector3.zero;return;}
+            if(WeaponController.MenuOpen){momentum=Vector3.zero;Speed=0;CancelSprint();return;}
             var input=hub.Frame;float dt=Time.deltaTime,now=Time.time;
             var look=hub.Look(weapons!=null?weapons.AdsT:0,weapons!=null?weapons.ActiveWeapon.sightFOV:c.worldFOV);
             if(State!=MovementState.Dead){transform.Rotate(0,look.x,0);pitch=Mathf.Clamp(pitch-look.y,-c.pitchLimit,c.pitchLimit);}
@@ -62,25 +62,26 @@ namespace Fpp
             bool sprintRequest=(input.Sprint||input.Tactical||tacticalRequested)&&input.Move.y>0 && !input.ADS && !input.Fire && !prone;
             if(input.Tactical)tacticalRequested=true;
             if(input.ADS&&IsSprinting)CancelSprint();
-            bool crouchReleased=crouchWasHeld&&!input.CrouchHeld;crouchWasHeld=input.CrouchHeld;
-            if(crouchReleased&&now-crouchSince<c.crouchHold&&IsSprinting){crouched=true;prone=false;CancelSprint();}
-            if(input.CrouchPressed){crouchSince=now;if(!IsSprinting){crouched=!crouched;prone=false;}}
-            if(input.Prone){prone=!prone;crouched=false;}
-            if(input.CrouchHeld && IsSprinting && now-crouchSince>=c.crouchHold)
+            if(input.CrouchPressed)
             {
-                slideEntry=Speed*c.slideMultiplier;
-                bool dive=State==MovementState.TacticalSprint;
-                momentum=transform.forward*(dive?c.diveImpulse:slideEntry);
-                if(dive)falling=c.jumpVelocity*.5f;
-                SetState(dive?MovementState.Dive:MovementState.Slide);
+                if(IsSprinting)
+                {
+                    slideEntry=Speed*c.slideMultiplier;bool dive=State==MovementState.TacticalSprint;
+                    momentum=transform.forward*(dive?c.diveImpulse:slideEntry);
+                    if(dive)falling=c.jumpVelocity*.5f;
+                    SetState(dive?MovementState.Dive:MovementState.Slide);
+                }
+                else if(State!=MovementState.Slide&&State!=MovementState.Dive){crouched=!crouched;prone=false;}
             }
+            if(input.Prone){prone=!prone;crouched=false;CancelSprint();}
+            if(sprintRequest&&!input.CrouchHeld&&crouched&&CanStand(c))crouched=false;
             bool special=State==MovementState.Slide||State==MovementState.Dive;
             if(State==MovementState.Slide)
             {
                 float t=Mathf.Clamp01((now-stateAt)/c.slideDuration);
                 float speed=Mathf.Lerp(slideEntry,c.crouch, (1-Mathf.Exp(-c.slideDecay*t))/(1-Mathf.Exp(-c.slideDecay)));
                 momentum=momentum.normalized*speed;
-                if(t>=1||input.Jump||input.CrouchPressed){crouched=true;SetState(MovementState.Crouch);special=false;}
+                if(t>=1||input.Jump||(input.CrouchPressed&&now>stateAt)){crouched=true;SetState(MovementState.Crouch);special=false;}
             }
             if(!special)
             {
@@ -94,13 +95,13 @@ namespace Fpp
                 else {if(IsSprinting)CancelSprint();sprintTime=0;tacticalRequested=false;SetState(input.Move.sqrMagnitude>0?MovementState.Walk:MovementState.Idle);}
                 if(input.ADS&&weapons!=null)targetSpeed=Mathf.Min(targetSpeed,weapons.ActiveWeapon.aimWalkSpeed);
                 var target=(transform.right*input.Move.x+transform.forward*input.Move.y)*targetSpeed;
-                momentum=Vector3.MoveTowards(momentum,target,c.tacticalSprint/c.movementBlend*dt);
+                if(grounded||input.Move.sqrMagnitude>0)momentum=Vector3.MoveTowards(momentum,target,c.tacticalSprint/c.movementBlend*dt*(grounded?1:c.airControl));
             }
             if(grounded && input.Jump && now-jumpAt>=c.jumpCooldown && CanStand(c))
             {jumpAt=now;falling=c.jumpVelocity;prone=crouched=false;SetState(MovementState.Airborne);}
-            if(input.Move.y>0 && grounded && !prone && TryMantle(c)){return;}
+            if(input.Jump && input.Move.y>0 && grounded && !prone && TryMantle(c)){return;}
             falling=grounded&&falling<=0?c.groundedVelocity:falling-c.gravity*dt;
-            controller.Move((momentum+Vector3.up*falling)*dt);Speed=new Vector2(momentum.x,momentum.z).magnitude;
+            Vector3 beforeMove=transform.position;controller.Move((momentum+Vector3.up*falling)*dt);var moved=transform.position-beforeMove;Speed=new Vector2(moved.x,moved.z).magnitude/Mathf.Max(dt,.0001f);
             if(grounded&&Speed>c.prone)
             {
                 stepPhase+=dt*(IsSprinting?c.sprintCadence:c.walkCadence);
@@ -108,15 +109,28 @@ namespace Fpp
             }
             UpdateEye(c,dt);
         }
-        private bool CanStand(GunplayConfig c)
+        private bool CanStand(GunplayConfig c)=>CanFitHeight(c.standingHeight);
+        private bool CanFitHeight(float height)
         {
-            return !Physics.SphereCast(transform.position+Vector3.up*(controller.height-controller.radius),controller.radius*.95f,Vector3.up,out _,Mathf.Max(0,c.standingHeight-controller.height),~(1<<8),QueryTriggerInteraction.Ignore);
+            if(controller.height>=height)return true;
+            float radius=controller.radius*.95f;
+            Vector3 bottom=transform.position+Vector3.up*Mathf.Max(controller.height-controller.radius,controller.radius+controller.skinWidth);
+            Vector3 top=transform.position+Vector3.up*(height-controller.radius);
+            int count=Physics.OverlapCapsuleNonAlloc(bottom,top,radius,standOverlaps,~(1<<8),QueryTriggerInteraction.Ignore);
+            if(count==standOverlaps.Length)return false;
+            for(int i=0;i<count;i++)if(!standOverlaps[i].transform.IsChildOf(transform))return false;
+            return true;
         }
         private void UpdateEye(GunplayConfig c,float dt)
         {
             float height=State==MovementState.Prone||State==MovementState.Dive?c.proneHeight:State==MovementState.Crouch||State==MovementState.Slide?c.crouchHeight:c.standingHeight;
+            height=Mathf.Max(height,controller.radius*2);
             // Do not expand through a ceiling when leaving slide/prone.
-            if(height>controller.height && !CanStand(c)){height=c.crouchHeight;crouched=true;}
+            if(height>controller.height && !CanFitHeight(height))
+            {
+                height=Mathf.Min(controller.height,c.crouchHeight);prone=height<c.crouchHeight;crouched=!prone;
+                SetState(prone?MovementState.Prone:MovementState.Crouch);
+            }
             controller.height=Mathf.MoveTowards(controller.height,height,c.standingHeight/c.movementBlend*dt);controller.center=Vector3.up*controller.height*.5f;
             eyeHome.y=controller.height-c.eyeInset;
             float phase=stepPhase*Mathf.PI*2,ads=weapons!=null?weapons.AdsT:0;

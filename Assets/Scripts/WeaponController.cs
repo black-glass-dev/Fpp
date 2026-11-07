@@ -20,6 +20,10 @@ namespace Fpp
         public int Ammo => rounds;
         public int Capacity => magazine;
         public int Reserve => reserve;
+        public int InventoryCount=>inventoryCount;
+        public bool CanDrop=>inventoryCount>1&&!equipping;
+        private WeaponPickup[] inventory;private int inventoryCount;private bool queuedSwap;
+        private WeaponPickup ActivePickup=>equipped!=null?equipped:primaryWorld;
         public WeaponAsset ActiveWeapon {get;private set;}
         public WeaponState State {get;private set;}=WeaponState.Drawing;
         public float AdsT=>model.AdsT;
@@ -73,6 +77,7 @@ namespace Fpp
             reserve=ActiveWeapon.reserveMax;rounds=magazine=ActiveWeapon.magSize;
             HoldDrawPose();
             primaryWorld=new GameObject("Mark23 world pickup (gun only)").AddComponent<RuntimePickupMesh>().Build(this,ActiveWeapon);
+            inventory=new WeaponPickup[GunplayConfig.Current.inventoryCapacity];RememberWeapon(primaryWorld);
             var expanded=new WeaponPickup[pickups.Length+1];System.Array.Copy(pickups,expanded,pickups.Length);expanded[pickups.Length]=primaryWorld;pickups=expanded;
             drawReady=Time.time+ActiveWeapon.drawSec;
             PlayClip("draw",ActiveWeapon.drawSec);
@@ -247,17 +252,36 @@ namespace Fpp
             }
         }
 
+        private bool RememberWeapon(WeaponPickup pickup)
+        {
+            if(pickup==null)return false;
+            for(int i=0;i<inventoryCount;i++)if(inventory[i]==pickup)return true;
+            if(inventory==null||inventoryCount>=inventory.Length)return false;
+            inventory[inventoryCount++]=pickup;return true;
+        }
+        public bool OwnsWeapon(string id)
+        {for(int i=0;i<inventoryCount;i++)if(inventory[i].Asset.id==id)return true;return false;}
         public void EquipNearest()
         {
-            if(nearest!=null && !equipping){CancelReload();StartCoroutine(Equip(nearest));}
+            if(nearest!=null&&!equipping&&RememberWeapon(nearest)){CancelReload();StartCoroutine(Equip(nearest));}
         }
+        // Historical API name retained for HUD/keyboard compatibility: this cycles OWNED weapons.
         public void UseSidearm()
         {
-            if(equipping)return;
-            CancelReload();
-            if(primaryWorld!=null && primaryWorld.gameObject.activeSelf && Vector3.Distance(transform.position,primaryWorld.transform.position)<=GunplayConfig.Current.pickupRadius)StartCoroutine(Equip(primaryWorld));
-            else if(nearest!=null)StartCoroutine(Equip(nearest));
-            else if(primaryWorld==null && equipped!=null)StartCoroutine(Equip(null));
+            if(equipping){queuedSwap=true;return;}
+            if(inventoryCount<2)return;
+            int current=0;for(int i=0;i<inventoryCount;i++)if(inventory[i]==ActivePickup){current=i;break;}
+            CancelReload();StartCoroutine(Equip(inventory[(current+1)%inventoryCount]));
+        }
+        public void DropActiveWeapon()
+        {
+            if(!CanDrop)return; // Never leave the player in an unimplemented unarmed state.
+            CancelReload();var dropped=ActivePickup;int index=-1;
+            for(int i=0;i<inventoryCount;i++)if(inventory[i]==dropped){index=i;break;}
+            if(index<0)return;
+            for(int i=index;i<inventoryCount-1;i++)inventory[i]=inventory[i+1];inventory[--inventoryCount]=null;
+            ApplyWeapon(inventory[index%inventoryCount]);State=WeaponState.Drawing;drawReady=Time.time+ActiveWeapon.drawSec;
+            dropped.Drop(transform.position+transform.forward*GunplayConfig.Current.pickupRadius,transform.forward);
         }
         private IEnumerator Equip(WeaponPickup next)
         {
@@ -267,22 +291,17 @@ namespace Fpp
             ApplyWeapon(next);State=WeaponState.Drawing;drawReady=Time.time+ActiveWeapon.switchInSec;
             for(float t=0;t<ActiveWeapon.switchInSec;t+=Time.deltaTime){equipBlend=1-Mathf.SmoothStep(0,1,t/ActiveWeapon.switchInSec);yield return null;}
             equipBlend=0;equipping=false;State=WeaponState.Idle;GunplayEvents.Send(GunplayEventKind.WeaponSwap,view.position,ActiveWeapon,"draw");
+            if(queuedSwap){queuedSwap=false;UseSidearm();}
         }
         private void ApplyWeapon(WeaponPickup next)
         {
             RestoreSupportPose();HoldDrawPose();
             bool sidearm=next==null || next.Asset.id=="mark23";
-            if(equipped!=null)
-            {
-                equipped.Store(rounds,reserve);
-                if(Application.isPlaying)equipped.Drop(transform.position+transform.forward*GunplayConfig.Current.pickupRadius,transform.forward);
-                else equipped.gameObject.SetActive(true);
-            }
+            if(equipped!=null){equipped.Store(rounds,reserve);if(!Application.isPlaying)equipped.gameObject.SetActive(true);}
             else
             {
                 sidearmRounds=rounds;sidearmReserve=reserve;
-                if(Application.isPlaying && primaryWorld!=null && !sidearm)
-                {primaryWorld.Store(rounds,reserve);primaryWorld.transform.rotation=Quaternion.Euler(0,transform.eulerAngles.y,90);primaryWorld.Drop(transform.position+transform.forward*GunplayConfig.Current.pickupRadius,transform.forward);}
+                if(primaryWorld!=null)primaryWorld.Store(rounds,reserve);
             }
             if(sidearm && primaryWorld!=null)
             {
@@ -493,9 +512,9 @@ namespace Fpp
             return result;
         }
 #if UNITY_EDITOR
-        public void QAEquip(WeaponPickup pickup){InitializePose();CancelReload();ApplyWeapon(pickup);drawReady=0;State=WeaponState.Idle;reloadFinished=-100;}
+        public void QAEquip(WeaponPickup pickup){InitializePose();CancelReload();RememberWeapon(pickup!=null?pickup:primaryWorld);ApplyWeapon(pickup);drawReady=0;State=WeaponState.Idle;reloadFinished=-100;}
         public void QAAmmo(int mag,int spare){rounds=Mathf.Clamp(mag,0,magazine);reserve=Mathf.Clamp(spare,0,ActiveWeapon.reserveMax);reloadFinished=-100;}
-        public void QARequestEquip(WeaponPickup pickup){if(!equipping){CancelReload();StartCoroutine(Equip(pickup));}}
+        public void QARequestEquip(WeaponPickup pickup){if(!equipping&&RememberWeapon(pickup!=null?pickup:primaryWorld)){CancelReload();StartCoroutine(Equip(pickup));}}
         public bool QASwitching=>equipping;
         public void ReviewRetargetAudit(WeaponPickup pickup)
         {

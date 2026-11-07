@@ -88,7 +88,7 @@ namespace Fpp.Tests
             weapons.Reload();yield return new WaitForSeconds(weapons.ActiveWeapon.reloadTacticalSec+.1f);Assert.AreEqual(30,weapons.Ammo);Assert.AreEqual(total,weapons.Ammo+weapons.Reserve);
             weapons.QAAmmo(0,73);weapons.Reload();Assert.AreEqual(WeaponState.ReloadEmpty,weapons.State);
             yield return new WaitForSeconds(weapons.ActiveWeapon.reloadEmptySec+.1f);Assert.AreEqual(30,weapons.Ammo);Assert.AreEqual(43,weapons.Reserve);
-            weapons.QAAmmo(7,73);weapons.QAEquip(null);Assert.True(ak.gameObject.activeSelf);Assert.AreEqual(7,ak.Rounds);Assert.AreEqual(73,ak.Reserve);
+            weapons.QAAmmo(7,73);weapons.DropActiveWeapon();Assert.True(ak.gameObject.activeSelf);Assert.AreEqual(7,ak.Rounds);Assert.AreEqual(73,ak.Reserve);
             weapons.QAEquip(ak);Assert.AreEqual(7,weapons.Ammo);Assert.AreEqual(73,weapons.Reserve);
             File.WriteAllText(Output+"/ammo-playmode.txt","PASS: tactical/empty conservation, cancel no transfer, secondary drop/pickup restores 7+73. Visual magazine/finger acceptance not asserted.");
         }
@@ -117,7 +117,7 @@ namespace Fpp.Tests
             cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
             var wall=GameObject.CreatePrimitive(PrimitiveType.Cube);wall.name="QA mantle 1.5m";wall.transform.position=new Vector3(1000,.75f,1001);wall.transform.localScale=new Vector3(2,1.5f,1);
             Physics.SyncTransforms();yield return new WaitForSeconds(.2f);input.Value.Move=Vector2.up;until=Time.time+2;
-            while(motor.State!=MovementState.Mantle&&Time.time<until)yield return null;Assert.AreEqual(MovementState.Mantle,motor.State);
+            while(motor.State!=MovementState.Mantle&&Time.time<until){input.Value.Jump=true;yield return null;}Assert.AreEqual(MovementState.Mantle,motor.State);
             input.Value.Move=Vector2.zero;yield return new WaitForSeconds(GunplayConfig.Current.mantleDuration+.2f);Assert.Greater(motor.transform.position.y,1.45f);
             File.WriteAllText(Output+"/movement-playmode.txt","PASS: real CharacterController slide entry="+peak+", sprint="+entry+"; dive lands prone; 1.5m mantle height="+motor.transform.position.y);
         }
@@ -205,7 +205,7 @@ namespace Fpp.Tests
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();GameplayInput.Instance.OverrideProvider=new ScriptedInputProvider();
             weapons.QAAmmo(5,65);WeaponPickup secondary=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="ak47")secondary=p;
-            weapons.QAEquip(secondary);yield return null;
+            weapons.QAEquip(secondary);weapons.QAEquip(null);weapons.DropActiveWeapon();yield return null;
             WeaponPickup dropped=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="mark23")dropped=p;
             Assert.NotNull(dropped);Assert.AreEqual(5,dropped.Rounds);Assert.AreEqual(65,dropped.Reserve);Assert.AreEqual(WeaponState.Dropped,dropped.State);
             Assert.AreEqual(0,dropped.GetComponentsInChildren<SkinnedMeshRenderer>().Length,"world item must not include a live arms rig");
@@ -259,6 +259,47 @@ namespace Fpp.Tests
             for(int i=0;i<1000;i++)GunplayEvents.Send(GunplayEventKind.UI,audio.transform.position);
             Assert.LessOrEqual(audio.ActiveVoices,32);
             File.WriteAllText(Output+"/audio-pool-playmode.txt","Four synthesized shot layers are non-silent; clip peaks bounded; 1000 UI events retain <=32 allocated voice slots. Not mixed-output LUFS/true-peak or device audibility acceptance.");
+        }
+        [UnityTest] public IEnumerator CollectedWeaponsCycleAwayFromPickupsWithoutLosingAmmo()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
+            weapons.QAAmmo(5,65);var items=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();
+            Assert.AreEqual(1,weapons.InventoryCount);
+            foreach(var item in items)
+            {
+                item.Store(7,73);item.transform.position=weapons.transform.position+weapons.transform.forward*.5f;
+                yield return null;yield return null;input.Value.Pickup=true;yield return new WaitForSeconds(1);
+                Assert.False(item.gameObject.activeSelf,"collected weapon must be holstered, not dropped");
+            }
+            Assert.AreEqual(4,weapons.InventoryCount);
+            var cc=weapons.GetComponent<CharacterController>();cc.enabled=false;weapons.transform.position+=Vector3.right*100;cc.enabled=true;
+            var seen=new System.Collections.Generic.HashSet<string>();
+            for(int i=0;i<4;i++)
+            {
+                input.Value.Swap=true;yield return new WaitForSeconds(1);
+                Assert.True(seen.Add(weapons.ActiveWeapon.id),"SWAP must visit every owned weapon once");
+                Assert.AreEqual(weapons.ActiveWeapon.id=="mark23"?5:7,weapons.Ammo);
+                Assert.AreEqual(weapons.ActiveWeapon.id=="mark23"?65:73,weapons.Reserve);
+            }
+            foreach(var item in items)Assert.False(item.gameObject.activeSelf);
+            Assert.True(weapons.OwnsWeapon("mark23"));
+            File.WriteAllText(Output+"/inventory-player-loop.txt","Four collected weapons survive movement away from pickup locations; actual SWAP input cycles all4 once, preserving Mark23 5+65 and secondary7+73. No automatic drops.");
+        }
+        [UnityTest] public IEnumerator MovementDoesNotRunAgainstWallsOrAutoMantleWithoutJump()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
+            var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
+            cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
+            var wall=GameObject.CreatePrimitive(PrimitiveType.Cube);wall.transform.position=new Vector3(1000,.75f,1001);wall.transform.localScale=new Vector3(4,1.5f,1);Physics.SyncTransforms();
+            input.Value.Move=Vector2.up;input.Value.Sprint=true;yield return new WaitForSeconds(.8f);
+            Assert.AreNotEqual(MovementState.Mantle,motor.State,"walking into cover must not steal movement with auto-mantle");Assert.Less(motor.Speed,.2f,"blocked controller must not report running speed");
+            input.Value=default(InputFrame);wall.SetActive(false);yield return new WaitForSeconds(.2f);
+            input.Value.CrouchPressed=true;yield return null;yield return new WaitForSeconds(.2f);Assert.AreEqual(MovementState.Crouch,motor.State);
+            input.Value.Move=Vector2.up;input.Value.Sprint=true;yield return new WaitForSeconds(.3f);Assert.True(motor.IsSprinting,"sprint should exit crouch when standing clearance exists");
+            input.Value.CrouchPressed=true;yield return null;yield return null;Assert.AreEqual(MovementState.Slide,motor.State,"single crouch press must enter slide without a hold delay");
+            File.WriteAllText(Output+"/movement-regressions.txt","Blocked wall reports actual zero speed, no auto-mantle without jump, sprint exits crouch, one crouch press enters slide.");
         }
         [UnityTest] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {

@@ -8,6 +8,8 @@ namespace Fpp
         public float horizontalSensitivity=1, verticalSensitivity=1, adsSensitivity=1, gyroSensitivity=.5f;
         public float doubleTapWindow=.25f, crouchHold=.25f;
         public float walk=4.2f, sprint=6.9f, tacticalSprint=8.5f, tacticalAfter=1.2f, crouch=2.1f, prone=1.2f;
+        public int inventoryCapacity=4;
+        public float airControl=.25f;
         public float movementBlend=.14f, slideMultiplier=1.35f, slideDuration=.9f, diveImpulse=6.5f;
         public float jumpVelocity=4.6f, gravity=22, jumpCooldown=.2f, groundedVelocity=-2;
         public float standingHeight=1.8f, crouchHeight=1.15f, proneHeight=.55f, eyeInset=.16f;

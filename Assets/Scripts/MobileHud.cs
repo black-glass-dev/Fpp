@@ -190,6 +190,7 @@ namespace Fpp
             SettingSlider(p,"ADS low zoom",.26f,settings.lowZoom,.1f,2,v=>settings.lowZoom=v,settings);
             SettingSlider(p,"ADS high zoom",.12f,settings.highZoom,.1f,2,v=>settings.highZoom=v,settings);
             SettingSlider(p,"World FOV",.005f,settings.worldFOV<0?GunplayConfig.Current.worldFOV:settings.worldFOV,GunplayConfig.Current.minFOV,GunplayConfig.Current.maxFOV,v=>settings.worldFOV=v,settings);
+            SmallButton(p,"DROP WEAPON",new Vector2(.69f,.83f),new Vector2(.96f,.96f),()=>{settingsPanel.SetActive(false);weapons.DropActiveWeapon();});
             SmallButton(p,"GYRO",new Vector2(.69f,.67f),new Vector2(.96f,.80f),()=>{settings.gyro=!settings.gyro;settings.Save();});
             SmallButton(p,"DAMAGE #",new Vector2(.69f,.50f),new Vector2(.96f,.63f),()=>{settings.damageNumbers=!settings.damageNumbers;settings.Save();});
             SmallButton(p,"CURVE",new Vector2(.69f,.33f),new Vector2(.96f,.46f),()=>{settings.curve=(SensitivitySettings.ResponseCurve)(((int)settings.curve+1)%3);settings.Save();});

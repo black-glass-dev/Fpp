@@ -138,3 +138,5 @@ MonoBehaviour:
   emptyRifleActionTravel: .045
   patternResetDelay: .4
   ricochetGrazingCos: .25
+  inventoryCapacity: 4
+  airControl: 0.25

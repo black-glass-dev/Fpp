@@ -53,7 +53,7 @@ namespace Fpp
             }
             return frame;
         }
-        public void Reset(){lookFinger=-1;previousFire=false;forward=false;}
+        public void Reset(){lookFinger=-1;previousFire=false;forward=false;forwardTap=-100;}
     }
     [DefaultExecutionOrder(50)]
     public sealed class GameplayInput : MonoBehaviour
@@ -71,7 +71,7 @@ namespace Fpp
             Frame=(OverrideProvider??(Input.touchSupported&&Application.isMobilePlatform?touch:desktop)).Poll(GunplayConfig.Current);
             if(OverrideProvider==null&&!Application.isMobilePlatform&&MobileHud.Instance!=null)
             {
-                var ui=MobileHud.Instance.ConsumeInput();var f=Frame;f.Move+=ui.Move;f.Fire|=ui.Fire;f.FirePressed|=ui.Fire&&!uiFire;uiFire=ui.Fire;f.ADS|=ui.ADS;f.Reload|=ui.Reload;f.Swap|=ui.Swap;f.Pickup|=ui.Pickup;f.Jump|=ui.Jump;f.CrouchPressed|=ui.CrouchPressed;f.CrouchHeld|=ui.CrouchHeld;f.Sprint|=ui.Sprint;f.Prone|=ui.Prone;f.Mount|=ui.Mount;Frame=f;
+                var ui=MobileHud.Instance.ConsumeInput();var f=Frame;f.Move=Vector2.ClampMagnitude(f.Move+ui.Move,1);f.Fire|=ui.Fire;f.FirePressed|=ui.Fire&&!uiFire;uiFire=ui.Fire;f.ADS|=ui.ADS;f.Reload|=ui.Reload;f.Swap|=ui.Swap;f.Pickup|=ui.Pickup;f.Jump|=ui.Jump;f.CrouchPressed|=ui.CrouchPressed;f.CrouchHeld|=ui.CrouchHeld;f.Sprint|=ui.Sprint;f.Prone|=ui.Prone;f.Mount|=ui.Mount;Frame=f;
             }
             if(SystemInfo.supportsGyroscope && Input.gyro.enabled!=Settings.gyro)Input.gyro.enabled=Settings.gyro;
             if(Settings.gyro&&SystemInfo.supportsGyroscope){var f=Frame;var rate=Input.gyro.rotationRateUnbiased;f.Look+=new Vector2(-rate.y,rate.x)*GunplayConfig.Current.gyroSensitivity*Time.unscaledDeltaTime*Mathf.Rad2Deg;Frame=f;}
