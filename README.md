@@ -2,15 +2,15 @@
 
 Unity **2022.3.62f1 LTS**, Android 8+ ARM64/OpenGL ES 3, built-in renderer, landscape. Original project using user-supplied assets, not Call of Duty code/branding.
 
-**Status: signed Android test build 27 published after repairs based on seven build-18 phone screenshots. Ten local tests, Unity audits, actual close-up editor renders and the fresh signed APK gate passed. This revision still needs phone playtesting and profiling.**
+**Status: signed Android test build 38 published for the ten build-27 phone screenshots. Nineteen local regressions, native Unity audits/camera review and independent fresh-APK/signature gates passed. Physical-phone playtesting and profiling remain pending; custom reload hand/finger/wrist polish is not claimed complete.**
 
-**[Download Fpp.apk — test build 27](https://github.com/black-glass-dev/Fpp/releases/download/test-build-27/Fpp.apk)** (42,662,533 bytes), [release notes](Docs/TEST-BUILD-27.md). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
+**[Download Fpp.apk — test build 38](https://github.com/black-glass-dev/Fpp/releases/download/test-build-38/Fpp.apk)** (43,832,655 bytes), [release notes and limits](Docs/TEST-BUILD-38.md). Android 8+ ARM64. This is a prototype firing range, not a finished campaign.
 
 ## What is implemented
 - Test-map generator: six cottage instances, roads/courtyard, cover and boundary walls.
 - Original skinned Mark 23 arms/pistol default; three scattered floor weapons; two trees, haystack, Chunakhola mosque and the cottage. Kriss arms/gun excluded per the latest request.
 - Mobile walk/look, nearby ground weapon pickup/swap, raycast firing, ammo/reload and five reactive firing-range targets.
-- Editable/saved mobile control layout, ADS, original pistol clips, procedural other-weapon transitions, custom icon, credits and mobile texture/polygon conversion.
+- Editable/saved mobile control layout, ADS, original pistol clips, articulated secondary reload retargeting, barrel flash/smoke/tracers, uneven terrain, a cleaned enterable mosque room, custom icon, credits and mobile texture/polygon conversion.
 
 These implementations compile into the released APK. [Visual/control revision details](Docs/MOBILE-REVISION.md) distinguish editor verification from pending Android playtesting. Gameplay and performance still need phone testing. See [asset inventory and verification](Docs/ASSETS.md) for exact limitations, credits and triangle counts.
 

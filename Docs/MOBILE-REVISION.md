@@ -1,5 +1,7 @@
 # Mobile visual/control revision
 
+Latest: [test build 38](TEST-BUILD-38.md) supersedes the older revision details below. It addresses the ten build-27 phone screenshots with calibrated sights, articulated secondary reload retargets, late-pose muzzle effects, terrain relief, narrow tree collision and an approximate cleaned mosque interior. See its verification limits and phone checklist; hand/finger/wrist polish and physical-device profiling remain pending.
+
 Updated in [test build 27](TEST-BUILD-27.md) after the seven build-18 phone screenshots.
 
 ## Changes
