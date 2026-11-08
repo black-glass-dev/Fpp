@@ -1,0 +1,660 @@
+{
+  "status": "downloaded/inventoried; NOT scene integration or visual acceptance",
+  "textureEdits": false,
+  "packs": [
+    {
+      "name": "Road",
+      "driveId": "1UwMOC-ouTG1iee02v3ZH76mdwOWqkuA_",
+      "bytes": 73435128,
+      "sha256": "498ae1005cb209a459d47a52378ffe57f6475a1f4c99b44d31af02ba633cd76a",
+      "entries": [
+        {
+          "path": "Brick road0(রাস্তা কালা দেখাচ্ছি লাল করতে হবে বাংলাদেশের ইটের রাস্তার মতো).glb",
+          "bytes": 3786496,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 6,
+            "nodeNames": [
+              "Road_A",
+              "Shoulder_L_A",
+              "Shoulder_R_A",
+              "Road_B",
+              "Shoulder_L_B",
+              "Shoulder_R_B"
+            ],
+            "materialCount": 2,
+            "imageCount": 3,
+            "materialsWithoutBaseColorImage": [
+              "Shoulder_Earth"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Road(ready to use).glb",
+          "bytes": 77009408,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "part_1"
+            ],
+            "materialCount": 1,
+            "imageCount": 3,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tree",
+      "driveId": "1l8xdlzdBF5Ngz16wZxKZa4zq8fKkA5y6",
+      "bytes": 14175387,
+      "sha256": "5ed54472656f9bc548cdaea8e4d826a7c55585cfe73201da99a9e94447b47aef",
+      "entries": [
+        {
+          "path": "Bd tree 5.glb",
+          "bytes": 3516512,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 7,
+            "nodeNames": [
+              "Trunk",
+              "TwigNetwork",
+              "TwigsFine",
+              "Foliage",
+              "Thorns",
+              "Fruit",
+              "TrunkCollision"
+            ],
+            "materialCount": 16,
+            "imageCount": 8,
+            "materialsWithoutBaseColorImage": [
+              "M_Bark_Fine",
+              "M_Leaf_Deep",
+              "M_Leaf_Mid",
+              "M_Leaf_Olive",
+              "M_Leaf_Young",
+              "M_Leaf_WarmNew",
+              "M_Leaf_Yellow",
+              "M_Petiole",
+              "M_Thorn",
+              "M_Fruit_Green",
+              "M_Fruit_YellowGreen",
+              "M_Fruit_Mature",
+              "M_Collision"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Mango free (ready to use).glb",
+          "bytes": 4245980,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 6,
+            "nodeNames": [
+              "Trunk_and_Boughs",
+              "Branches",
+              "Twigs",
+              "Foliage",
+              "Fruit_Stems",
+              "Mango_Fruit"
+            ],
+            "materialCount": 4,
+            "imageCount": 4,
+            "materialsWithoutBaseColorImage": [
+              "Pedicels | dry olive"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Mango tree.glb",
+          "bytes": 18746752,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0",
+              "generator": "https://github.com/mikedh/trimesh"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "world",
+              "tmpmspkui56.ply"
+            ],
+            "materialCount": 0,
+            "imageCount": 0,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "House",
+      "driveId": "1rnZjNBUcW_3OGDsxxoMqSB-_oJfrfUCq",
+      "bytes": 94866448,
+      "sha256": "f4b54407e3bc45aaa0d48b368650296dae7d3a2231878545adc39a3735f91ab4",
+      "entries": [
+        {
+          "path": "Bd house 1.glb",
+          "bytes": 32731804,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "part_1"
+            ],
+            "materialCount": 1,
+            "imageCount": 3,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "bd house 2.glb",
+          "bytes": 28778144,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 12,
+            "nodeNames": [
+              "MudBody",
+              "Roof",
+              "RidgeCap",
+              "VerandaPosts",
+              "VerandaBeam",
+              "Door",
+              "DoorFrame",
+              "DoorLatch",
+              "WindowFrames",
+              "WindowBars",
+              "Charpai",
+              "ClayPots"
+            ],
+            "materialCount": 12,
+            "imageCount": 14,
+            "materialsWithoutBaseColorImage": [
+              "Iron"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 3.glb",
+          "bytes": 1180564,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 14,
+            "nodeNames": [
+              "Plinth",
+              "Steps",
+              "Walls",
+              "Gables",
+              "Frame",
+              "Porch",
+              "Door",
+              "Shutters",
+              "Roof",
+              "Ridge",
+              "UCX_House_Main",
+              "UCX_House_Plinth",
+              "House_LOD1",
+              "House_LOD2"
+            ],
+            "materialCount": 10,
+            "imageCount": 3,
+            "materialsWithoutBaseColorImage": [
+              "Brick joints",
+              "Compacted earthen plaster",
+              "Old fired brick",
+              "Recessed joinery shadow",
+              "Iron latch",
+              "Galvanised zinc sheet",
+              "Tin ridge and fasteners"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 4.glb",
+          "bytes": 2171036,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 22,
+            "nodeNames": [
+              "Plinth",
+              "GF_Floor",
+              "Entrance_Steps",
+              "Porch_Columns",
+              "GF_Walls",
+              "Stair",
+              "UF_Floor",
+              "UF_Walls",
+              "Roof_Slab",
+              "Parapet",
+              "Balcony_Slab",
+              "Balcony_Railing",
+              "Door_Main_L",
+              "Door_Main_R",
+              "Door_GF_RoomA",
+              "Door_GF_RoomB",
+              "Door_UF_RoomA",
+              "Door_UF_RoomB",
+              "Door_Balcony",
+              "Windows",
+              "Drain_Pipe",
+              "Accent_Bands"
+            ],
+            "materialCount": 14,
+            "imageCount": 3,
+            "materialsWithoutBaseColorImage": [
+              "Floor_Tile",
+              "Step_Concrete",
+              "Interior_Plaster",
+              "Wood_Dark",
+              "Metal_Steel",
+              "Ceiling_White",
+              "Wood_Walnut",
+              "Glass_Dark",
+              "Metal_Grille",
+              "Pipe_PVC",
+              "MidBand_Grey"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 5.glb",
+          "bytes": 857200,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 37,
+            "nodeNames": [
+              "Plinth_GroundSlab",
+              "Walls_Ext_GF",
+              "Walls_Ext_FF",
+              "Trim_Bands",
+              "Pilasters",
+              "Entrance_Steps",
+              "Downpipe",
+              "Window_Hoods",
+              "Walls_Int_GF",
+              "Walls_Int_FF",
+              "Slab_First",
+              "Slab_Roof",
+              "Parapet",
+              "Stair",
+              "Stair_Guard_FF",
+              "Balcony_Railing",
+              "Window_GF_F_L",
+              "Window_GF_F_R",
+              "Window_GF_W_1",
+              "Window_GF_W_2",
+              "Window_GF_E",
+              "Window_GF_B",
+              "Window_FF_F_L",
+              "Window_FF_F_R",
+              "Window_FF_W_1",
+              "Window_FF_W_2",
+              "Window_FF_E",
+              "Window_FF_B",
+              "Window_FF_R",
+              "Door_Frames",
+              "Door_Main_L",
+              "Door_Main_R",
+              "Door_G1",
+              "Door_G2",
+              "Door_U1",
+              "Door_U2",
+              "Door_Balcony"
+            ],
+            "materialCount": 8,
+            "imageCount": 6,
+            "materialsWithoutBaseColorImage": [
+              "M_Steel_Brushed",
+              "M_Glass_Dark_Opaque"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 6.glb",
+          "bytes": 16617252,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "part_1",
+              "part_2"
+            ],
+            "materialCount": 1,
+            "imageCount": 2,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 7.glb",
+          "bytes": 3748600,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "part_1"
+            ],
+            "materialCount": 1,
+            "imageCount": 3,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 8(need better texture).glb",
+          "bytes": 7115936,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 34,
+            "nodeNames": [
+              "Foundation_and_Porch",
+              "Ground_Floor_and_Walls",
+              "Upper_Floor_and_Walls",
+              "Stair_Ground",
+              "Stair_Upper",
+              "Roof_Deck",
+              "Roof_Parapet",
+              "Roof_Stairhead",
+              "Facade_and_Balcony",
+              "Fixed_Door_Frames",
+              "Door_Main_L",
+              "Door_Main_R",
+              "Door_Room_G_West",
+              "Door_Room_G_East",
+              "Door_Room_U_West",
+              "Door_Room_U_East",
+              "Door_Balcony",
+              "Door_Roof_Access",
+              "Window_G_Front_A",
+              "Window_G_Front_B",
+              "Window_G_Left_A",
+              "Window_G_Left_B",
+              "Window_G_Right_A",
+              "Window_G_Rear_A",
+              "Window_G_Rear_B",
+              "Window_U_Front_A",
+              "Window_U_Front_B",
+              "Window_U_Balcony",
+              "Window_U_Left_A",
+              "Window_U_Left_B",
+              "Window_U_Right_A",
+              "Window_U_Rear_A",
+              "Window_U_Rear_B",
+              "Window_U_Rear_C"
+            ],
+            "materialCount": 9,
+            "imageCount": 10,
+            "materialsWithoutBaseColorImage": [
+              "Teal_Painted_Metal",
+              "Charcoal_Painted_Iron",
+              "Wood_Raised_Panel_Highlight",
+              "Window_Opaque_Interior_Panels"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 9(need better texture).glb",
+          "bytes": 2638252,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 39,
+            "nodeNames": [
+              "Plinth",
+              "Walls_GF",
+              "Walls_FF",
+              "Slab_FF",
+              "Slab_Roof",
+              "Parapet",
+              "StairHead_Walls",
+              "Stairs_GF_FF",
+              "Stairs_FF_Roof",
+              "Stair_Railings",
+              "Porch_Columns",
+              "Facade_Detail",
+              "Sunshades",
+              "Balcony_Railing",
+              "Door_Frames",
+              "Door_Main_L",
+              "Door_Main_R",
+              "Door_G1",
+              "Door_G2",
+              "Door_F1",
+              "Door_F2",
+              "Door_Balcony",
+              "Door_Roof",
+              "Win_GF_Front",
+              "Win_GF_Porch",
+              "Win_GF_West_Hall",
+              "Win_GF_West_Room",
+              "Win_GF_Back_G1",
+              "Win_GF_Back_G2",
+              "Win_GF_East_Hall",
+              "Win_GF_Stair",
+              "Win_FF_Front",
+              "Win_FF_Balcony",
+              "Win_FF_West_Hall",
+              "Win_FF_West_Room",
+              "Win_FF_Back_F1",
+              "Win_FF_Back_F2",
+              "Win_FF_East_Hall",
+              "Win_FF_Stair"
+            ],
+            "materialCount": 7,
+            "imageCount": 7,
+            "materialsWithoutBaseColorImage": [
+              "M_Metal",
+              "M_Glass"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house 10(need some fix and better texture).glb",
+          "bytes": 3234684,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "part_1"
+            ],
+            "materialCount": 1,
+            "imageCount": 3,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house oo (need better texture).glb",
+          "bytes": 759652,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "generator": "Khronos glTF Blender I/O v4.5.51",
+              "version": "2.0"
+            },
+            "meshCount": 27,
+            "nodeNames": [
+              "GroundFloor",
+              "UpperFloor",
+              "ExteriorWalls",
+              "InteriorWalls",
+              "RoofAndParapet",
+              "EntranceAndBalcony",
+              "Staircase",
+              "BalconyRail",
+              "FixedFrames",
+              "Door_Entry_L",
+              "Door_Entry_R",
+              "Door_Ground_A",
+              "Door_Ground_B",
+              "Door_Upper_A",
+              "Door_Upper_B",
+              "Door_Balcony",
+              "Window_Front_G",
+              "Window_Front_U",
+              "Window_Balcony",
+              "Window_Left_G",
+              "Window_Right_G",
+              "Window_Back_A_G",
+              "Window_Back_B_G",
+              "Window_Left_U",
+              "Window_Right_U",
+              "Window_Back_A_U",
+              "Window_Back_B_U"
+            ],
+            "materialCount": 8,
+            "imageCount": 0,
+            "materialsWithoutBaseColorImage": [
+              "Pale warm concrete",
+              "Interior neutral tile",
+              "Warm lime plaster",
+              "Sage grey concrete",
+              "Dark metal grilles",
+              "Walnut painted timber",
+              "Inset wood panels",
+              "Dark opaque window panels"
+            ],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house r.glb",
+          "bytes": 15930044,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "part_1",
+              "part_2"
+            ],
+            "materialCount": 1,
+            "imageCount": 2,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        },
+        {
+          "path": "Bd house11 (shop).glb",
+          "bytes": 16699368,
+          "kind": "model",
+          "integration": "pending inspection; not silently excluded",
+          "gltf": {
+            "asset": {
+              "version": "2.0",
+              "generator": "https://github.com/mikedh/trimesh"
+            },
+            "meshCount": 1,
+            "nodeNames": [
+              "world",
+              "tmplro2_zsg.ply"
+            ],
+            "materialCount": 0,
+            "imageCount": 0,
+            "materialsWithoutBaseColorImage": [],
+            "animations": 0,
+            "skins": 0
+          }
+        }
+      ]
+    }
+  ]
+}
