@@ -59,6 +59,25 @@ namespace Fpp.Editor
                     Save(main,null,"Docs/Previews/unity-mosque-entry.png");
                     main.transform.position=new Vector3(0,2.65f,33);main.transform.LookAt(new Vector3(1.4f,3.2f,28));
                     Save(main,null,"Docs/Previews/unity-mosque-interior.png");
+                    // Review every supplied model close-up, not just the old spawn block.
+                    var district=GameObject.Find("Bangladesh courtyard and pond district (600 x 440m)");
+                    if(!File.Exists("QA/runtime/village-placement.json"))throw new Exception("Missing placement receipt");
+                    var receipt=JsonUtility.FromJson<ReviewReceipt>(File.ReadAllText("QA/runtime/village-placement.json"));
+                    int modelIndex=0;var names=new HashSet<string>();
+                    foreach(Transform child in district.transform)
+                    {
+                        bool supplied=false;
+                        // The receipt records exact names, including localized author comments.
+                        foreach(var entry in receipt.files)if(entry.placement==child.name)supplied=true;
+                        if(!supplied||!names.Add(child.name))continue;
+                        var renderers=child.GetComponentsInChildren<Renderer>();if(renderers.Length==0)throw new Exception("Empty review model");
+                        var bounds=renderers[0].bounds;foreach(var renderer in renderers)if(renderer.enabled)bounds.Encapsulate(renderer.bounds);
+                        float span=Mathf.Max(bounds.size.x,Mathf.Max(bounds.size.y,bounds.size.z));
+                        main.transform.position=bounds.center+new Vector3(.8f,.48f,-1).normalized*span*1.35f;main.transform.LookAt(bounds.center);
+                        Save(main,null,"Docs/Previews/unity-village-"+(modelIndex++).ToString("00")+".png");
+                    }
+                    if(modelIndex!=18)throw new Exception("Expected close-up review of all18 supplied models");
+                    main.transform.position=new Vector3(95,7,5);main.transform.LookAt(new Vector3(115,-.3f,35));Save(main,null,"Docs/Previews/unity-village-pond.png");
                     foreach(var pickup in pickups)if(pickup.displayName.Contains("Glock"))
                     {
                         main.transform.position=pickup.transform.position+new Vector3(.6f,.8f,-.6f);
@@ -73,6 +92,8 @@ namespace Fpp.Editor
             }
             finally {HudAudit.Cleanup();}
         }
+        [Serializable] private class ReviewEntry { public string placement; }
+        [Serializable] private class ReviewReceipt { public ReviewEntry[] files; }
         private static void Save(Camera world,Camera overlay,string path)
         {
             var rt=RenderTexture.GetTemporary(1280,720,24,RenderTextureFormat.ARGB32);

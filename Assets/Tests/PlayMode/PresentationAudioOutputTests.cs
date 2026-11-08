@@ -11,8 +11,8 @@ namespace Fpp.Tests
 {
     public sealed class PresentationAudioOutputTests
     {
-        [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);}
-        [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);}
+        [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/test-progress.txt","START "+TestContext.CurrentContext.Test.FullName+"\n");}
+        [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);File.AppendAllText("QA/runtime/test-progress.txt","END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status+"\n");}
 
         private static void Header(BinaryWriter writer,int frames,int rate)
         {

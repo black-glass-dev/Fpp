@@ -13,8 +13,8 @@ namespace Fpp.Tests
 {
     public sealed class GunplayPlayModeTests
     {
-        [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);}
-        [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);}
+        [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/test-progress.txt","START "+TestContext.CurrentContext.Test.FullName+"\n");}
+        [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);File.AppendAllText("QA/runtime/test-progress.txt","END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status+"\n");}
 
         private static readonly string[] Ids={"mark23","glock17","field","ak47"};
         private static string Output {get {string p="QA/runtime";Directory.CreateDirectory(p);return p;}}

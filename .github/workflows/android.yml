@@ -188,7 +188,8 @@ jobs:
           p.write_text(text.replace('--no-coverageEnabled','--coverageEnabled=false'))
           PYPATCH
       - name: Play Mode gameplay tests (real Unity player loop)
-        timeout-minutes: 15
+        # Expanded original assets are rendered by a software GPU here; no visual or test assertion is reduced.
+        timeout-minutes: 25
         uses: ./.arena/unity-test-runner
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
