@@ -1,0 +1,733 @@
+[
+  {
+    "source": "Bd house 1.glb",
+    "images": [
+      {
+        "material": "material_1",
+        "originalSize": [
+          2048,
+          2048
+        ],
+        "factor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "preview": "b4d0c1437e57c0c7.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 10(need some fix and better texture).glb",
+    "images": [
+      {
+        "material": "material_1",
+        "originalSize": [
+          2048,
+          2048
+        ],
+        "factor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "preview": "7f1692038869a2d6.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 3.glb",
+    "images": [
+      {
+        "material": "Woven split bamboo | packed herringbone",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "a756be09e828af47.jpg"
+      },
+      {
+        "material": "Aged dark sal timber",
+        "originalSize": [
+          128,
+          128
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "65e915d35ea77f91.jpg"
+      },
+      {
+        "material": "Door plank warm brown",
+        "originalSize": [
+          128,
+          128
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "4332736e22bea388.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 4.glb",
+    "images": [
+      {
+        "material": "Plinth_Stone",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "88a6e2b9672c5049.jpg"
+      },
+      {
+        "material": "Accent_Sage",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "887441529d69b13f.jpg"
+      },
+      {
+        "material": "Plaster_Cream",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "0bd50b2c7ffbd772.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 5.glb",
+    "images": [
+      {
+        "material": "M_Concrete_Dark",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "2f0595881be93319.jpg"
+      },
+      {
+        "material": "M_Floor_Tile",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "60bacbfa38e6ca72.jpg"
+      },
+      {
+        "material": "M_Plaster_Cream",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "4eb0dc8fbd4c6c1a.jpg"
+      },
+      {
+        "material": "M_Trim_GreenGrey",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "46fd1164e441f7f3.jpg"
+      },
+      {
+        "material": "M_Concrete_Grey",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "6a90ae97544f8c43.jpg"
+      },
+      {
+        "material": "M_Wood_Teak",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "12d09bf6b0398aec.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 6.glb",
+    "images": [
+      {
+        "material": "material_1",
+        "originalSize": [
+          8192,
+          8192
+        ],
+        "factor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "preview": "95314fc2ea09ab9d.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 7.glb",
+    "images": [
+      {
+        "material": "material_1",
+        "originalSize": [
+          2048,
+          2048
+        ],
+        "factor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "preview": "0d8429e8185540c2.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 8(need better texture).glb",
+    "images": [
+      {
+        "material": "Concrete_SoftGrey_Baked",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "2b5008c72a820cee.jpg"
+      },
+      {
+        "material": "Floor_Pale_Stone_Baked",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "a29335e43b8f5864.jpg"
+      },
+      {
+        "material": "Plaster_Warm_OffWhite_Baked",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "5c225e9d39a5146f.jpg"
+      },
+      {
+        "material": "Plaster_Localized_Weathering_Baked",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "90acb9f2face0514.jpg"
+      },
+      {
+        "material": "Wood_Honey_Timber_Baked",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "0ec145c4a2fef4f2.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house 9(need better texture).glb",
+    "images": [
+      {
+        "material": "M_Plaster",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "ab026a51f8263c4a.jpg"
+      },
+      {
+        "material": "M_Concrete",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "4d60672e6af67518.jpg"
+      },
+      {
+        "material": "M_FloorTerrazzo",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "bd711a4d73ef0d7b.jpg"
+      },
+      {
+        "material": "M_TealPaint",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "a450100e6e2d8d65.jpg"
+      },
+      {
+        "material": "M_Wood",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "acb82a6eec4549b6.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house oo (need better texture).glb",
+    "images": []
+  },
+  {
+    "source": "Bd house r.glb",
+    "images": [
+      {
+        "material": "material_1",
+        "originalSize": [
+          8192,
+          8192
+        ],
+        "factor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "preview": "84887da67654ae08.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd house11 (shop).glb",
+    "images": []
+  },
+  {
+    "source": "bd house 2.glb",
+    "images": [
+      {
+        "material": "MudMat",
+        "originalSize": [
+          2048,
+          2048
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "2aa10d82bbf01f61.jpg"
+      },
+      {
+        "material": "ThatchMat",
+        "originalSize": [
+          2048,
+          2048
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "ea4438ad14b5c14e.jpg"
+      },
+      {
+        "material": "RidgeMat",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "0f97fc3a44f12147.jpg"
+      },
+      {
+        "material": "BambooPosts",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "6e5d0d79921276da.jpg"
+      },
+      {
+        "material": "BambooBeam",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "b5a821fc83c6e44b.jpg"
+      },
+      {
+        "material": "DoorWood",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "2b41f509f9fdb538.jpg"
+      },
+      {
+        "material": "FrameWood",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "191412f6c6140473.jpg"
+      },
+      {
+        "material": "WindowWood",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "92203f306b9a04c3.jpg"
+      },
+      {
+        "material": "BambooBars",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "de19c01451540758.jpg"
+      },
+      {
+        "material": "CharpaiWood",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "9eb4d37fb376527a.jpg"
+      },
+      {
+        "material": "ClayMat",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "95a14e83955e2d00.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Brick road0(রাস্তা কালা দেখাচ্ছি লাল করতে হবে বাংলাদেশের ইটের রাস্তার মতো).glb",
+    "images": [
+      {
+        "material": "HBB_Road_Final",
+        "originalSize": [
+          2048,
+          2048
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "e905e83482be169f.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Road(ready to use).glb",
+    "images": [
+      {
+        "material": "material_1",
+        "originalSize": [
+          4096,
+          4096
+        ],
+        "factor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "preview": "a9936862306cb1d7.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Bd tree 5.glb",
+    "images": [
+      {
+        "material": "M_Bark_Trunk",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "c6a3ca1d317f112c.jpg"
+      },
+      {
+        "material": "M_Bark_Twig",
+        "originalSize": [
+          512,
+          512
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "797bb6094d70d06c.jpg"
+      },
+      {
+        "material": "M_LeafAtlas",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "16d3b76a84782ca6.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Mango free (ready to use).glb",
+    "images": [
+      {
+        "material": "Bark | grey-brown / opaque",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "36830666173c6e8f.jpg"
+      },
+      {
+        "material": "Foliage | mango lanceolate atlas / alpha mask",
+        "originalSize": [
+          1024,
+          1024
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "5a1a39ae97142346.jpg"
+      },
+      {
+        "material": "Fruit | green to muted yellow / opaque",
+        "originalSize": [
+          256,
+          256
+        ],
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "preview": "f40280736f5e97bb.jpg"
+      }
+    ]
+  },
+  {
+    "source": "Mango tree.glb",
+    "images": []
+  }
+]
