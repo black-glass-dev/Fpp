@@ -55,6 +55,14 @@ jobs:
           gh run download "$RUN" --pattern 'gameplay-qa-*' --dir /tmp/previous-qa || true
           python - <<'PYXML'
           import pathlib,json,xml.etree.ElementTree as E,os
+          # Runner logs contain coroutine failures/progress absent from action stdout.
+          safe=[]
+          import re
+          for log in pathlib.Path('/tmp/previous-qa').rglob('*.log'):
+              for line in log.read_text(errors='replace').splitlines():
+                  if re.search(r'password|email|serial|token|credential|https?://|signature',line,re.I):continue
+                  if re.search(r'FPP QA|Pose wait expired|Exception:|error CS\d+|Expected:|But was:|Assertion|FAIL|Timed out',line):safe.append(line[-700:])
+          pathlib.Path('QA/native-test-log-'+os.environ['RUN']+'.json').write_text(json.dumps({'run':os.environ['RUN'],'messages':safe[-160:]},indent=2))
           results=[]
           for p in pathlib.Path('/tmp/previous-qa').rglob('*results.xml'):
               root=E.parse(p).getroot();result={'root':root.attrib,'cases':[]}

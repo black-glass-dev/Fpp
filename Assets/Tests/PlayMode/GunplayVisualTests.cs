@@ -15,6 +15,12 @@ namespace Fpp.Tests
         [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);}
         [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);}
 
+        private static IEnumerator WaitForPose(WeaponController weapons,Func<bool> complete,string phase,float seconds)
+        {
+            var clock=System.Diagnostics.Stopwatch.StartNew();
+            while(!complete() && clock.Elapsed.TotalSeconds<seconds)yield return null;
+            Assert.True(complete(),"Pose wait expired: "+phase+" weapon="+weapons.ActiveWeapon.id+" ads="+weapons.AdsT+" reload="+weapons.Reloading+" modal="+WeaponController.MenuOpen+" enabled="+weapons.enabled+" frameADS="+GameplayInput.Instance.Frame.ADS+" dt="+Time.deltaTime);
+        }
         // No live recoil-model calls in the oracle: integrate the authored noiseless impulses independently.
         private sealed class PatternOracle
         {
@@ -36,7 +42,7 @@ namespace Fpp.Tests
             var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.name="QA flat floor";floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
             cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
             WeaponPickup ak=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="ak47")ak=p;
-            weapons.QAEquip(ak);input.Value.ADS=true;while(weapons.AdsT<1)yield return null;
+            weapons.QAEquip(ak);input.Value.ADS=true;yield return WaitForPose(weapons,()=>weapons.AdsT>=1,"ADS in",3);
             var wall=GameObject.CreatePrimitive(PrimitiveType.Cube);wall.name="QA pattern wall exactly 15m";wall.transform.position=weapons.view.position+Vector3.forward*15.05f;wall.transform.localScale=new Vector3(20,20,.1f);Physics.SyncTransforms();
             var reference=new PatternOracle();var w=weapons.ActiveWeapon;var c=GunplayConfig.Current;bool active=true;int shots=0,impacts=0;float squaredError=0;
             var csv=new StringBuilder("shot,worldX,worldY,worldZ,expectedPitch,expectedYaw,actualPitch,actualYaw,errorDeg\n");
@@ -73,9 +79,9 @@ namespace Fpp.Tests
             {
                 weapons.QAEquip(choice);input.Value=default(InputFrame);yield return null;yield return null;string id=weapons.ActiveWeapon.id;
                 Save("QA/runtime/"+id+"-idle.png",weapons);
-                input.Value.ADS=true;while(weapons.AdsT<1)yield return null;yield return null;yield return null;Save("QA/runtime/"+id+"-ads.png",weapons);
+                input.Value.ADS=true;yield return WaitForPose(weapons,()=>weapons.AdsT>=1,"ADS in",3);yield return null;yield return null;Save("QA/runtime/"+id+"-ads.png",weapons);
                 input.Value.Fire=input.Value.FirePressed=true;yield return null;yield return null;input.Value.Fire=false;Save("QA/runtime/"+id+"-fire.png",weapons);
-                input.Value.ADS=false;while(weapons.AdsT>0)yield return null;
+                input.Value.ADS=false;yield return WaitForPose(weapons,()=>weapons.AdsT<=0,"ADS out",3);
                 foreach(bool empty in new[]{false,true})
                 {
                     weapons.QAAmmo(empty?0:1,weapons.ActiveWeapon.reserveMax);weapons.Reload();float start=Time.time;
@@ -84,7 +90,7 @@ namespace Fpp.Tests
                         float duration=empty?weapons.ActiveWeapon.reloadEmptySec:weapons.ActiveWeapon.reloadTacticalSec;
                         while(Time.time-start<duration*t)yield return null;Save("QA/runtime/"+id+"-"+(empty?"empty":"tactical")+"-"+t.ToString("0.00",System.Globalization.CultureInfo.InvariantCulture)+".png",weapons);
                     }
-                    while(weapons.Reloading)yield return null;
+                    yield return WaitForPose(weapons,()=>!weapons.Reloading,"reload completion",5);
                 }
                 input.Value.Move=Vector2.up;input.Value.Sprint=true;yield return new WaitForSeconds(.4f);Save("QA/runtime/"+id+"-sprint.png",weapons);input.Value=default(InputFrame);
             }
