@@ -463,7 +463,17 @@ namespace Fpp
             state.wrapMode=WrapMode.ClampForever;state.speed=state.length/Mathf.Max(.1f,duration);state.time=0;rigAnimation.Play(state.name);
         }
         public static void SetLayer(GameObject root,int layer)
-        { foreach(var t in root.GetComponentsInChildren<Transform>(true))t.gameObject.layer=layer; }
+        {
+            foreach(var t in root.GetComponentsInChildren<Transform>(true))
+            {
+                t.gameObject.layer=layer;
+                if(layer!=8)continue;
+                var renderer=t.GetComponent<Renderer>();if(renderer==null)continue;
+                renderer.motionVectorGenerationMode=MotionVectorGenerationMode.ForceNoMotion;
+                var skin=renderer as SkinnedMeshRenderer;
+                if(skin!=null){skin.skinnedMotionVectors=false;skin.updateWhenOffscreen=true;skin.forceMatrixRecalculationPerRender=true;}
+            }
+        }
         public static Bounds LocalBounds(Transform root)
         {
             bool first=true;Bounds bound=new Bounds();

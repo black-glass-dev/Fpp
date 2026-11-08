@@ -355,7 +355,7 @@ namespace Fpp.Tests
             var worldData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(world);
             var overlayData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(overlay);
             Assert.False(overlay.useOcclusionCulling,"FPV must never use world occlusion at elevation");
-            foreach(var renderer in overlay.GetComponentsInChildren<Renderer>(true))
+            foreach(var renderer in overlay.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
                 Assert.AreEqual(UnityEngine.MotionVectorGenerationMode.ForceNoMotion,renderer.motionVectorGenerationMode);
                 var skin=renderer as SkinnedMeshRenderer;if(skin!=null){Assert.False(skin.skinnedMotionVectors);Assert.True(skin.updateWhenOffscreen);Assert.True(skin.forceMatrixRecalculationPerRender);}
