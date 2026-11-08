@@ -87,6 +87,21 @@ namespace Fpp.Tests
             }
             File.WriteAllText("QA/runtime/visual-review-status.txt","Captured actual Play Mode idle/ADS/fire/reload/sprint and four-frame tactical/empty sequences for all four weapons. Images require human review. Approximate secondary fingers/sockets are NOT declared zero-floaters by this capture test.");
         }
+        public static void AssertUngradedHud(WeaponController weapons)
+        {
+            var canvas=GameObject.Find("Mobile HUD").GetComponent<Canvas>();
+            var patch=new GameObject("QA-only ungraded magenta patch",typeof(RectTransform),typeof(UnityEngine.UI.Image));patch.transform.SetParent(canvas.transform,false);
+            var rect=patch.GetComponent<RectTransform>();rect.anchorMin=rect.anchorMax=Vector2.one*.5f;rect.anchoredPosition=Vector2.zero;rect.sizeDelta=Vector2.one*64;patch.GetComponent<UnityEngine.UI.Image>().color=Color.magenta;
+            var rt=RenderTexture.GetTemporary(320,180,24,RenderTextureFormat.ARGB32);var old=RenderTexture.active;Texture2D image=null;
+            try
+            {
+                RenderEvidence.Into(weapons.view.GetComponent<Camera>(),weapons.weaponCamera,rt,canvas);RenderTexture.active=rt;
+                image=new Texture2D(320,180,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,320,180),0,0);image.Apply();var pixel=image.GetPixel(160,90);
+                File.WriteAllBytes("QA/runtime/urp-hud-sentinel.png",image.EncodeToPNG());
+                Assert.Greater(pixel.r,.9f,"HUD must be present and not ACES-graded");Assert.Less(pixel.g,.1f,"HUD patch must not be replaced by scene pixels");Assert.Greater(pixel.b,.9f,"HUD must be present and not ACES-graded");
+            }
+            finally{RenderTexture.active=old;RenderTexture.ReleaseTemporary(rt);if(image!=null)UnityEngine.Object.DestroyImmediate(image);UnityEngine.Object.DestroyImmediate(patch);}
+        }
         public static void Save(string path,WeaponController weapons)
         {
             Directory.CreateDirectory("QA/runtime");
@@ -99,7 +114,7 @@ namespace Fpp.Tests
             try
             {
                 canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=overlay;canvas.planeDistance=.08f;Canvas.ForceUpdateCanvases();
-                RenderEvidence.Into(world,overlay,rt);RenderTexture.active=rt;
+                RenderEvidence.Into(world,overlay,rt,canvas);RenderTexture.active=rt;
                 var image=new Texture2D(1280,720,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();File.WriteAllBytes(path,image.EncodeToPNG());UnityEngine.Object.Destroy(image);
             }
             finally

@@ -76,7 +76,7 @@ namespace Fpp.Editor
         private static void Save(Camera world,Camera overlay,string path)
         {
             var rt=RenderTexture.GetTemporary(1280,720,24,RenderTextureFormat.ARGB32);
-            RenderEvidence.Into(world,overlay,rt);
+            RenderEvidence.Into(world,overlay,rt,GameObject.Find("Mobile HUD").GetComponent<Canvas>());
             var old=RenderTexture.active;RenderTexture.active=rt;
             var texture=new Texture2D(1280,720,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1280,720),0,0);texture.Apply();
             File.WriteAllBytes(path,texture.EncodeToPNG());UnityEngine.Object.DestroyImmediate(texture);

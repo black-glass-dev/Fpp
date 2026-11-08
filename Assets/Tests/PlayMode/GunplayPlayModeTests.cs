@@ -275,7 +275,7 @@ namespace Fpp.Tests
                 var pipeline=UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;Assert.NotNull(pipeline);
                 Assert.AreEqual(tier==PresentationTier.PCUltra?1:4,pipeline.msaaSampleCount);Assert.AreEqual(tier==PresentationTier.PCUltra?200:80,pipeline.shadowDistance);Assert.AreEqual(tier==PresentationTier.PCUltra?4:2,pipeline.shadowCascadeCount);
             }
-            presentation.SetTier(PresentationTier.High);yield return null;GunplayVisualTests.Save(Output+"/urp-stack-high.png",weapons);
+            presentation.SetTier(PresentationTier.High);yield return null;GunplayVisualTests.AssertUngradedHud(weapons);GunplayVisualTests.Save(Output+"/urp-stack-high.png",weapons);
             foreach(var renderer in UnityEngine.Object.FindObjectsOfType<Renderer>())foreach(var material in renderer.sharedMaterials)
             {Assert.NotNull(material);Assert.True(material.shader.isSupported,material.shader.name);Assert.False(UnityEditor.ShaderUtil.ShaderHasError(material.shader),material.shader.name);Assert.AreNotEqual("Standard",material.shader.name,"scene materials must be converted, not rendered pink");}
             File.WriteAllText(Output+"/urp-presentation-playmode.txt","Actual URP camera stack render, independent layer8 FPV near.01, single final post grade, 4 serialized tier assets with 4x mobile MSAA/80m2cascades and PC200m4cascades, supported scene shaders/no compiler errors. Forward+ capability fallback; PC SMAA because URP14 TAA cannot camera-stack. Not device performance or complete PBR/GI proof.");
