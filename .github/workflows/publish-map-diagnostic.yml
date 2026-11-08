@@ -42,6 +42,16 @@ jobs:
           test "$source" = 805ddd31798877e0eaf6e268522284c5822171f1 || { echo "::error::Source run SHA mismatch"; exit 1; }
           gh release view diagnostic-map-71 --json tagName >/dev/null
           gh release upload diagnostic-map-71 apk/Fpp.apk apk/SHA256.txt --clobber > /tmp/release-result.txt 2>&1 || { detail=$(tail -c 1800 /tmp/release-result.txt | tr '\n' ' '); echo "::error::Verified APK upload failed: $detail"; exit 1; }
+      - name: Recover only own credential-free native test progress markers
+        continue-on-error: true
+        run: |
+          gh api "repos/$GH_REPO/actions/jobs/128735239328/logs" > /tmp/native-job-log.txt
+          python - <<'PYMARKERS'
+          import re,pathlib
+          text=pathlib.Path('/tmp/native-job-log.txt').read_text(errors='replace')
+          markers=re.findall(r'FPP QA (START|END) (Fpp\.Tests\.[A-Za-z0-9_.]+)(?: (Passed|Failed))?',text)
+          pathlib.Path('QA/native71-test-progress.txt').write_text('Only own test lifecycle markers, no raw editor/activation log.\n'+'\n'.join(' '.join(m).strip() for m in markers)+'\n')
+          PYMARKERS
       - name: Recover bounded genuine render previews and placement receipt
         if: always()
         run: |
@@ -60,6 +70,7 @@ jobs:
           for receipt in Path('evidence').rglob('village-placement.json'):shutil.copyfile(receipt,'QA/village-placement-71.json')
           PY
           git add QA/diagnostic-map-71.json QA/Review-map-71 QA/village-placement-71.json
+          if [ -f QA/native71-test-progress.txt ]; then git add QA/native71-test-progress.txt; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if ! git diff --cached --quiet; then
