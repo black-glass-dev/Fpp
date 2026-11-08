@@ -20,6 +20,22 @@ class VillageAssets(unittest.TestCase):
             with zipfile.ZipFile(memory) as archive:
                 with self.assertRaises(ValueError):safe_entries(archive)
 
+    def test_original_black_brick_replacement_is_deterministic_and_not_black(self):
+        import tempfile
+        import numpy as np
+        from PIL import Image
+        from create_village_brick import create
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder);create(output,size=64)
+            before=(output/'FiredBrick_BaseColor.png').read_bytes();create(output,size=64)
+            self.assertEqual(before,(output/'FiredBrick_BaseColor.png').read_bytes())
+            pixels=np.asarray(Image.open(output/'FiredBrick_BaseColor.png'))
+            self.assertGreater(float(pixels[:,:,0].mean()),float(pixels[:,:,1].mean())*1.5)
+            self.assertGreater(int(pixels.max()),80)
+        setup=Path('Assets/Editor/VillageExpansion.cs').read_text()
+        self.assertIn('HBB_Road_Final',setup)
+        self.assertIn('new Material(materials[i])',setup)
+
     def test_import_preserves_sources_and_has_a_mandatory_scene_gate(self):
         stage=Path('Tools/stage_village_assets.py').read_text()
         self.assertIn('shutil.copyfile(source, target)',stage)

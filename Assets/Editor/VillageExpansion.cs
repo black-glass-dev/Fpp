@@ -64,6 +64,7 @@ namespace Fpp.Editor
                     go.transform.position+=location-new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
                     foreach(var renderer in go.GetComponentsInChildren<Renderer>())
                     {
+                        if(entry.pack=="Road"&&entry.name.StartsWith("Brick road",StringComparison.OrdinalIgnoreCase))RepairBlackBrick(renderer);
                         renderer.shadowCastingMode=ShadowCastingMode.On;
                         renderer.receiveShadows=true;
                         // Explicit source collision helpers must not appear as a duplicate visible trunk.
@@ -101,6 +102,26 @@ namespace Fpp.Editor
             Slab("Expanded west perimeter",new Vector3(-300,1,0),new Vector3(1,2,440),ground,district.transform);
             Slab("Expanded east perimeter",new Vector3(300,1,0),new Vector3(1,2,440),ground,district.transform);
             Directory.CreateDirectory("QA/runtime");File.WriteAllText("QA/runtime/village-placement.json",JsonUtility.ToJson(new Receipt{files=usage.ToArray()},true));
+        }
+        private static void RepairBlackBrick(Renderer renderer)
+        {
+            var materials=renderer.sharedMaterials;
+            for(int i=0;i<materials.Length;i++)
+            {
+                if(materials[i]==null||!materials[i].name.Contains("HBB_Road_Final"))continue;
+                const string path="Assets/Generated/Village/FiredBrickRepair.mat";
+                var material=AssetDatabase.LoadAssetAtPath<Material>(path);
+                if(material==null){material=new Material(materials[i]){name="Fired brick repair (original procedural maps)"};AssetDatabase.CreateAsset(material,path);}
+                var texture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Generated/Village/BrickTextures/FiredBrick_BaseColor.png");
+                var normal=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Generated/Village/BrickTextures/FiredBrick_Normal.png");
+                if(texture==null||normal==null||!material.HasProperty("baseColorTexture"))throw new Exception("Pinned glTF brick repair material contract unavailable");
+                material.SetTexture("baseColorTexture",texture);material.SetVector("baseColorFactor",Vector4.one);
+                if(material.HasProperty("normalTexture"))material.SetTexture("normalTexture",normal);
+                if(material.HasProperty("roughnessFactor"))material.SetFloat("roughnessFactor",.86f);
+                if(material.HasProperty("metallicFactor"))material.SetFloat("metallicFactor",0);
+                EditorUtility.SetDirty(material);materials[i]=material;
+            }
+            renderer.sharedMaterials=materials;
         }
         private static Bounds Bounds(GameObject go)
         {

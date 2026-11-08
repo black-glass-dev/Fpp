@@ -22,6 +22,8 @@ def main():
             models.append({'pack': pack['name'], 'name': Path(entry['path']).stem, 'assetPath': target.as_posix(), 'sourcePath': entry['path']})
     if len(models) != 18:
         raise RuntimeError('Expected all18 supplied models; inventory changed')
+    from create_village_brick import create
+    create(output / 'BrickTextures')
     (output / 'catalog.json').write_text(json.dumps({'models': models}, ensure_ascii=False, indent=2) + '\n')
     print('Staged all18 source GLBs unchanged; no decimation or texture resizing')
 

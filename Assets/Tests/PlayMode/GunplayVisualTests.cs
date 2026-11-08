@@ -88,7 +88,7 @@ namespace Fpp.Tests
                     foreach(float t in new[]{.15f,.4f,.7f,.95f})
                     {
                         float duration=empty?weapons.ActiveWeapon.reloadEmptySec:weapons.ActiveWeapon.reloadTacticalSec;
-                        while(Time.time-start<duration*t)yield return null;Save("QA/runtime/"+id+"-"+(empty?"empty":"tactical")+"-"+t.ToString("0.00",System.Globalization.CultureInfo.InvariantCulture)+".png",weapons);
+                        yield return WaitForPose(weapons,()=>Time.time-start>=duration*t,"reload marker "+t,duration+2);Save("QA/runtime/"+id+"-"+(empty?"empty":"tactical")+"-"+t.ToString("0.00",System.Globalization.CultureInfo.InvariantCulture)+".png",weapons);
                     }
                     yield return WaitForPose(weapons,()=>!weapons.Reloading,"reload completion",5);
                 }
@@ -104,8 +104,14 @@ namespace Fpp.Tests
             var rt=RenderTexture.GetTemporary(320,180,24,RenderTextureFormat.ARGB32);var old=RenderTexture.active;Texture2D image=null;
             try
             {
+                image=new Texture2D(320,180,TextureFormat.RGB24,false);
+                RenderEvidence.Into(weapons.view.GetComponent<Camera>(),weapons.weaponCamera,rt);RenderTexture.active=rt;
+                image.ReadPixels(new Rect(0,0,320,180),0,0);image.Apply();float darkest=1,brightest=0;
+                for(int y=0;y<180;y+=8)for(int x=0;x<320;x+=8){float luminance=image.GetPixel(x,y).grayscale;darkest=Mathf.Min(darkest,luminance);brightest=Mathf.Max(brightest,luminance);}
+                File.WriteAllBytes("QA/runtime/urp-world-stack.png",image.EncodeToPNG());
+                Assert.Greater(brightest-darkest,.01f,"actual world camera must render scene detail, not a black request texture");
                 RenderEvidence.Into(weapons.view.GetComponent<Camera>(),weapons.weaponCamera,rt,canvas);RenderTexture.active=rt;
-                image=new Texture2D(320,180,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,320,180),0,0);image.Apply();var pixel=image.GetPixel(160,90);
+                image.ReadPixels(new Rect(0,0,320,180),0,0);image.Apply();var pixel=image.GetPixel(160,90);
                 File.WriteAllBytes("QA/runtime/urp-hud-sentinel.png",image.EncodeToPNG());
                 Assert.Greater(pixel.r,.9f,"HUD must be present and not ACES-graded");Assert.Less(pixel.g,.1f,"HUD patch must not be replaced by scene pixels");Assert.Greater(pixel.b,.9f,"HUD must be present and not ACES-graded");
             }

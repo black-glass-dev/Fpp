@@ -12,10 +12,11 @@ namespace Fpp.Editor
                 throw new Exception("Ground must have real relief and matching collision");
             if(GroundBuilder.Height(0,-20)!=0 || GroundBuilder.Height(20,26)!=0)
                 throw new Exception("Road and cottage pads must remain level");
+            var district=GameObject.Find("Bangladesh courtyard and pond district (600 x 440m)");
             var trunks=UnityEngine.Object.FindObjectsOfType<CapsuleCollider>();int count=0;
             foreach(var trunk in trunks)if(trunk.gameObject.name.ToLowerInvariant().Contains("tree"))
-            {count++;if(trunk.bounds.size.x>1 || trunk.GetComponent<BoxCollider>()!=null)throw new Exception("Tree canopy must not block walking");}
-            if(count!=2)throw new Exception("Both trees require narrow trunk collision");
+            {if(district==null||!trunk.transform.IsChildOf(district.transform))count++;if(trunk.bounds.size.x>1 || trunk.GetComponent<BoxCollider>()!=null)throw new Exception("Tree canopy must not block walking");}
+            if(count!=2)throw new Exception("Both original trees require narrow trunk collision; expansion trees are additional");
             for(int x=-3;x<=3;x+=2)for(int z=-3;z<=3;z+=2)
                 if(Physics.CheckSphere(new Vector3(x,2.1f,32+z),.25f,~(1<<8),QueryTriggerInteraction.Ignore))throw new Exception("Obstruction in cleaned mosque room");
             foreach(Vector3 direction in new[]{Vector3.right,Vector3.left,Vector3.back})
