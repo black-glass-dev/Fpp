@@ -1,0 +1,43 @@
+name: Recover genuine camera elevation evidence
+on:
+  push:
+    branches: [arena/f3a68c52-fpp]
+    paths: ['.github/workflows/recover-camera-evidence.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  recover:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: arena/f3a68c52-fpp
+      - name: Recover bounded real captures, never declare native or device acceptance
+        run: |
+          gh run download 42481817550 --name gameplay-qa-71 --dir evidence
+          pip install pillow==12.0.0
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          output=Path('QA/Review-camera-71');output.mkdir(exist_ok=True)
+          for elevation in (0,20,200):
+              name='rapid-turn-elevation-'+str(elevation)+'.png'
+              paths=list(Path('evidence').rglob(name))
+              if len(paths)!=1:raise RuntimeError('Expected exactly one genuine capture: '+name)
+              image=Image.open(paths[0]).convert('RGB');image.thumbnail((1280,720))
+              image.save(output/(Path(name).stem+'.jpg'),quality=90,optimize=True)
+          (output/'README.md').write_text('Actual Unity Play Mode captures from native71 at 0/20/200m after scripted rapid yaw inputs. JPEG review copies; full source PNGs remain in gameplay-qa-71 artifact. Native71 timed out without final XML. Still images and stable skin-count/alignment checks do NOT certify Android temporal ghosting, finger contact, or performance.\n')
+          PY
+          git add QA/Review-camera-71
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m 'Preserve genuine elevated rapid-turn camera captures, not device acceptance'
+            git pull --rebase origin arena/f3a68c52-fpp
+            git push origin HEAD:arena/f3a68c52-fpp
+          fi
