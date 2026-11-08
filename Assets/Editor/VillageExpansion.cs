@@ -14,7 +14,7 @@ namespace Fpp.Editor
         [Serializable] private class Catalog { public Entry[] models; }
         [Serializable] private class Entry { public string pack,name,assetPath,sourcePath; }
         [Serializable] private class Usage { public string source,placement,calibration;public Vector3 size,position;public int instances; }
-        [Serializable] private class Placement { public string name;public float x,z,yaw,height,width; }
+        [Serializable] private class Placement { public string name;public float x,z,yaw,height,width;public int[] treeIndices; }
         [Serializable] private class Lane {public string name;public float x,z,width,length;public bool existing;}
         [Serializable] private class Anchor { public float x,z; }
         [Serializable] private class Layout { public string districtName;public int halfWidth,halfDepth;public Placement[] models;public Anchor[] treeAnchors;public Lane[] lanes; }
@@ -56,7 +56,7 @@ namespace Fpp.Editor
             foreach(var pickup in UnityEngine.Object.FindObjectsOfType<WeaponPickup>()){var p=pickup.transform.position;pickup.transform.position-=Vector3.up*GroundBuilder.Height(p.x,p.z);}
             foreach(var lanePlan in layout.lanes)if(!lanePlan.existing)
                 Slab(lanePlan.name,new Vector3(lanePlan.x,.025f,lanePlan.z),new Vector3(lanePlan.width,.05f,lanePlan.length),lane,district.transform);
-            var usage=new List<Usage>();int tree=0;
+            var usage=new List<Usage>();
             foreach(var entry in catalog.models)
             {
                 // Import under the actual generated URP, not the initial missing/default pipeline.
@@ -65,7 +65,7 @@ namespace Fpp.Editor
                 if(prefab==null)throw new Exception("glTF importer did not create model: "+entry.assetPath);
                 Placement plan=null;foreach(var candidate in layout.models)if(candidate.name==entry.name){plan=candidate;break;}
                 if(plan==null)throw new Exception("Unplaced supplied model: "+entry.name);
-                int instances=entry.pack=="Tree"?8:1;GameObject first=null;string calibration="manual height reference; visual validation pending";
+                int instances=entry.pack=="Tree"?plan.treeIndices.Length:1;GameObject first=null;string calibration="manual height reference; visual validation pending";
                 for(int instance=0;instance<instances;instance++)
                 {
                     var go=(GameObject)PrefabUtility.InstantiatePrefab(prefab);go.name=entry.name;go.transform.SetParent(district.transform,false);
@@ -87,7 +87,7 @@ namespace Fpp.Editor
                     }
                     go.transform.localScale*=scale;
                     Vector3 location=new Vector3(plan.x,.02f,plan.z);float yaw=plan.yaw;
-                    if(entry.pack=="Tree") {var anchor=layout.treeAnchors[tree*8+instance];location=new Vector3(anchor.x,0,anchor.z);yaw=instance*47;}
+                    if(entry.pack=="Tree") {var anchor=layout.treeAnchors[plan.treeIndices[instance]];location=new Vector3(anchor.x,0,anchor.z);yaw=instance*47;}
                     go.transform.rotation=Quaternion.Euler(0,yaw,0)*sourceRotation;bounds=Bounds(go);
                     go.transform.position+=location-new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
                     foreach(var renderer in go.GetComponentsInChildren<Renderer>())
@@ -124,7 +124,6 @@ namespace Fpp.Editor
                     foreach(var t in go.GetComponentsInChildren<Transform>(true))GameObjectUtility.SetStaticEditorFlags(t.gameObject,StaticEditorFlags.BatchingStatic|StaticEditorFlags.OccludeeStatic|(entry.pack=="House"?StaticEditorFlags.OccluderStatic:(StaticEditorFlags)0));
                     if(first==null)first=go;
                 }
-                if(entry.pack=="Tree")tree++;
                 var finalBounds=Bounds(first);usage.Add(new Usage{source=entry.pack+"/"+entry.sourcePath,placement=first.name,position=first.transform.position,size=finalBounds.size,instances=instances,calibration=calibration});
             }
             Slab("Compact north perimeter",new Vector3(0,1,60),new Vector3(120,2,1),ground,district.transform);

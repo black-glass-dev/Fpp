@@ -30,6 +30,19 @@ class CompactPara(unittest.TestCase):
         self.assertGreater(24-4.2/2,16+10/2)
         self.assertGreaterEqual(34-13.5/2,24+4.2/2)
 
+    def test_full_quality_tree_mix_is_explicit_and_preserves_density(self):
+        layout=json.loads(Path('Assets/Editor/VillageLayout.json').read_text())
+        indices=[m['treeIndices'] for m in layout['models'] if 'treeIndices' in m]
+        self.assertEqual([1,4,19],sorted(map(len,indices)))
+        self.assertEqual(list(range(24)),sorted(i for group in indices for i in group))
+        heavy=next(m for m in layout['models'] if m['name']=='Mango tree')
+        self.assertEqual([23],heavy['treeIndices'])
+        workload=json.loads(Path('QA/village-source-workload.json').read_text())
+        counts={Path(m['source']).stem:m['fullDetailNodeTriangleInstances'] for m in workload['models']}
+        before=sum(counts[m['name']]*8 for m in layout['models'] if 'treeIndices' in m)
+        after=sum(counts[m['name']]*len(m['treeIndices']) for m in layout['models'] if 'treeIndices' in m)
+        self.assertLess(after,before*.2) # layout allocation, not per-model decimation or FPS certificate
+
     def test_all_paths_form_one_connected_walk_network(self):
         lanes=json.loads(Path('Assets/Editor/VillageLayout.json').read_text())['lanes']
         def touches(a,b):
