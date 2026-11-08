@@ -43,7 +43,7 @@ namespace Fpp.Editor
                     }
                     AssetDatabase.ImportAsset(clipPath,ImportAssetOptions.ForceSynchronousImport);
                 }
-                var importer=(AudioImporter)AssetImporter.GetAtPath(clipPath);var sample=importer.defaultSampleSettings;sample.compressionFormat=AudioCompressionFormat.Vorbis;sample.quality=settings.vorbisQuality;sample.loadType=AudioClipLoadType.DecompressOnLoad;sample.preloadAudioData=true;sample.sampleRateSetting=AudioSampleRateSetting.PreserveSampleRate;importer.defaultSampleSettings=sample;importer.forceToMono=true;importer.SaveAndReimport();
+                var importer=(AudioImporter)AssetImporter.GetAtPath(clipPath);var importSettings=importer.defaultSampleSettings;importSettings.compressionFormat=AudioCompressionFormat.Vorbis;importSettings.quality=settings.vorbisQuality;importSettings.loadType=AudioClipLoadType.DecompressOnLoad;importSettings.preloadAudioData=true;importSettings.sampleRateSetting=AudioSampleRateSetting.PreserveSampleRate;importer.defaultSampleSettings=importSettings;importer.forceToMono=true;importer.SaveAndReimport();
             }
             File.WriteAllText(signaturePath,signature);AssetDatabase.SaveAssets();
         }
