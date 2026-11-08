@@ -17,7 +17,13 @@ namespace Fpp
                 finally{world.targetTexture=previous;if(overlay!=null)overlay.targetTexture=previousOverlay;}
                 return;
             }
-            RenderPipeline.SubmitRenderRequest(world,new RenderPipeline.StandardRequest{destination=destination});
+            bool canvasEnabled=canvas!=null&&canvas.enabled;
+            try
+            {
+                if(canvas!=null)canvas.enabled=false;
+                RenderPipeline.SubmitRenderRequest(world,new RenderPipeline.StandardRequest{destination=destination});
+            }
+            finally { if(canvas!=null)canvas.enabled=canvasEnabled; }
             if(canvas==null)return;
             const int uiLayer=30;var mode=canvas.renderMode;var previousCamera=canvas.worldCamera;float plane=canvas.planeDistance;
             var transforms=canvas.GetComponentsInChildren<Transform>(true);var layers=new int[transforms.Length];
