@@ -40,7 +40,8 @@ jobs:
           "$signer" verify apk/Fpp.apk || { echo "::error::Downloaded APK signature verification failed"; exit 1; }
           source=$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq .head_sha)
           test "$source" = 805ddd31798877e0eaf6e268522284c5822171f1 || { echo "::error::Source run SHA mismatch"; exit 1; }
-          gh release create diagnostic-map-71 apk/Fpp.apk apk/SHA256.txt --target "$source" --prerelease --title 'Map test APK 71 — diagnostic, not full acceptance' --notes 'Requested Android ARM64 map preview. All18 supplied GLB sources staged; expanded courtyard/pond district, brick material repair and vertex-colour material binding. APK contents and signature independently verified. This is NOT a completed/QA-accepted release: native gate, camera/HUD visual review, interiors, remaining texture/model polish and target-device performance are separate and may remain red. Water/fallbacks are labelled placeholders. Do not interpret this preview as all Prompt1/Prompt2 work completed. Signing continuity with older installations is not guaranteed.' > /tmp/release-result.txt 2>&1 || { cat /tmp/release-result.txt; detail=$(tail -c 1800 /tmp/release-result.txt | tr '\n' ' '); echo "::error::Diagnostic release upload/create failed: $detail"; exit 1; }
+          gh release view diagnostic-map-71 --json tagName >/dev/null
+          gh release upload diagnostic-map-71 apk/Fpp.apk apk/SHA256.txt --clobber > /tmp/release-result.txt 2>&1 || { detail=$(tail -c 1800 /tmp/release-result.txt | tr '\n' ' '); echo "::error::Verified APK upload failed: $detail"; exit 1; }
       - name: Recover bounded genuine render previews and placement receipt
         if: always()
         run: |
