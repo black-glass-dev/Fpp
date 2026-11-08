@@ -1,0 +1,66 @@
+name: Publish requested map test APK (not accepted release)
+on:
+  push:
+    branches: [arena/f3a68c52-fpp]
+    paths: ['.github/workflows/publish-map-diagnostic.yml']
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN: '42479348320'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: arena/f3a68c52-fpp
+      - name: Download independently signed diagnostic APK and genuine build images
+        run: |
+          gh run download "$SOURCE_RUN" --pattern 'diagnostic-APK-68-NOT-QA-ACCEPTED' --dir apk
+          gh run download "$SOURCE_RUN" --pattern 'build-scene-evidence-68' --dir evidence
+      - name: Independently verify artifact and publish explicit diagnostic prerelease
+        run: |
+          python - <<'PY'
+          import pathlib,zipfile,hashlib,json
+          p=pathlib.Path('apk/Fpp.apk')
+          with zipfile.ZipFile(p) as z:
+              required={'AndroidManifest.xml','classes.dex','lib/arm64-v8a/libunity.so','lib/arm64-v8a/libil2cpp.so'}
+              assert required.issubset(z.namelist()) and z.testzip() is None
+          digest=hashlib.sha256(p.read_bytes()).hexdigest()
+          pathlib.Path('apk/SHA256.txt').write_text(digest+'  Fpp.apk\n')
+          pathlib.Path('QA/diagnostic-map-68.json').write_text(json.dumps({'run':'42479348320','bytes':p.stat().st_size,'apkSha256':digest,'status':'signed diagnostic APK; native gate and full art/device acceptance are separate'},indent=2)+'\n')
+          PY
+          signer=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
+          test -n "$signer"
+          "$signer" verify apk/Fpp.apk
+          source=$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq .head_sha)
+          test "$source" = e9eaa76f5ba7b2c0972eeb85b5070675a6b82777
+          gh release create diagnostic-map-68 apk/Fpp.apk apk/SHA256.txt --target "$source" --prerelease --title 'Map test APK 68 — diagnostic, not full acceptance' --notes 'Requested Android ARM64 map preview. All18 supplied GLB sources staged; expanded courtyard/pond district, brick material repair and vertex-colour material binding. APK contents and signature independently verified. This is NOT a completed/QA-accepted release: native gate, camera/HUD visual review, interiors, remaining texture/model polish and target-device performance are separate and may remain red. Water/fallbacks are labelled placeholders. Do not interpret this preview as all Prompt1/Prompt2 work completed. Signing continuity with older installations is not guaranteed.'
+      - name: Recover bounded genuine render previews and placement receipt
+        run: |
+          pip install pillow==12.0.0
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          import io,shutil
+          output=Path('QA/Review-map-68');output.mkdir(exist_ok=True);budget=230000
+          for name in ('unity-spawn.png','unity-environment.png','unity-ak-held.png'):
+              candidates=list(Path('evidence').rglob(name))
+              if not candidates:continue
+              image=Image.open(candidates[0]).convert('RGB');image.thumbnail((960,540))
+              data=io.BytesIO();image.save(data,format='JPEG',quality=74,optimize=True)
+              if len(data.getvalue())<=budget:(output/(Path(name).stem+'.jpg')).write_bytes(data.getvalue());budget-=len(data.getvalue())
+          for receipt in Path('evidence').rglob('village-placement.json'):shutil.copyfile(receipt,'QA/village-placement-68.json')
+          PY
+          git add QA/diagnostic-map-68.json QA/Review-map-68 QA/village-placement-68.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git diff --cached --quiet; then
+            git commit -m 'Preserve signed diagnostic-map68 receipt and genuine build screenshots'
+            git pull --rebase origin arena/f3a68c52-fpp
+            git push origin HEAD:arena/f3a68c52-fpp
+          fi
