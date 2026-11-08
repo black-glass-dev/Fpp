@@ -9,19 +9,29 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      SOURCE_RUN: '42481817550'
+      SOURCE_RUN: '42484592146'
     steps:
       - uses: actions/checkout@v4
         with:
           ref: arena/f3a68c52-fpp
+      - name: Wait for exact source build evidence, not gameplay acceptance
+        timeout-minutes: 20
+        run: |
+          for attempt in $(seq 1 120); do
+            if gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN/artifacts" --jq '.artifacts[].name' | grep -qx 'build-scene-evidence-72'; then exit 0; fi
+            state=$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq .status)
+            if [ "$state" = completed ]; then echo '::error::Source build ended without required evidence'; exit 1; fi
+            sleep 10
+          done
+          echo '::error::Source evidence wait expired'; exit 1
       - name: Download independently signed diagnostic APK and genuine build images
         run: |
-          gh run download "$SOURCE_RUN" --name 'diagnostic-APK-71-NOT-QA-ACCEPTED' --dir apk
-          gh run download "$SOURCE_RUN" --name 'build-scene-evidence-71' --dir evidence
+          gh run download "$SOURCE_RUN" --name 'diagnostic-APK-72-NOT-QA-ACCEPTED' --dir apk
+          gh run download "$SOURCE_RUN" --name 'build-scene-evidence-72' --dir evidence
       - name: Independently verify artifact and publish explicit diagnostic prerelease
         run: |
           trap 'echo "::error::Diagnostic publisher failed at shell line $LINENO"' ERR
@@ -33,25 +43,16 @@ jobs:
               assert required.issubset(z.namelist()) and z.testzip() is None
           digest=hashlib.sha256(p.read_bytes()).hexdigest()
           pathlib.Path('apk/SHA256.txt').write_text(digest+'  Fpp.apk\n')
-          pathlib.Path('QA/diagnostic-map-71.json').write_text(json.dumps({'run':'42481817550','bytes':p.stat().st_size,'apkSha256':digest,'status':'signed diagnostic APK; native gate and full art/device acceptance are separate'},indent=2)+'\n')
+          pathlib.Path('QA/diagnostic-map-72.json').write_text(json.dumps({'run':'42484592146','bytes':p.stat().st_size,'apkSha256':digest,'status':'signed diagnostic APK; native gate and full art/device acceptance are separate'},indent=2)+'\n')
           PY
           signer=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
           test -n "$signer" || { echo "::error::Host apksigner not found"; exit 1; }
           "$signer" verify apk/Fpp.apk || { echo "::error::Downloaded APK signature verification failed"; exit 1; }
           source=$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq .head_sha)
-          test "$source" = 805ddd31798877e0eaf6e268522284c5822171f1 || { echo "::error::Source run SHA mismatch"; exit 1; }
-          gh release view diagnostic-map-71 --json tagName >/dev/null
-          gh release upload diagnostic-map-71 apk/Fpp.apk apk/SHA256.txt --clobber > /tmp/release-result.txt 2>&1 || { detail=$(tail -c 1800 /tmp/release-result.txt | tr '\n' ' '); echo "::error::Verified APK upload failed: $detail"; exit 1; }
-      - name: Recover only own credential-free native test progress markers
-        continue-on-error: true
-        run: |
-          gh api "repos/$GH_REPO/actions/jobs/128735239328/logs" > /tmp/native-job-log.txt
-          python - <<'PYMARKERS'
-          import re,pathlib
-          text=pathlib.Path('/tmp/native-job-log.txt').read_text(errors='replace')
-          markers=re.findall(r'FPP QA (START|END) (Fpp\.Tests\.[A-Za-z0-9_.]+)(?: (Passed|Failed))?',text)
-          pathlib.Path('QA/native71-test-progress.txt').write_text('Only own test lifecycle markers, no raw editor/activation log.\n'+'\n'.join(' '.join(m).strip() for m in markers)+'\n')
-          PYMARKERS
+          test "$source" = 8609277cbd8bcb68c6bba6b4226d9ef98a7aebd1 || { echo "::error::Source run SHA mismatch"; exit 1; }
+          gh release view diagnostic-map-72 --json tagName >/dev/null
+          gh release upload diagnostic-map-72 apk/Fpp.apk apk/SHA256.txt --clobber > /tmp/release-result.txt 2>&1 || { detail=$(tail -c 1800 /tmp/release-result.txt | tr '\n' ' '); echo "::error::Verified APK upload failed: $detail"; exit 1; }
+          gh release edit diagnostic-map-72 --draft=false
       - name: Recover bounded genuine render previews and placement receipt
         if: always()
         run: |
@@ -60,17 +61,16 @@ jobs:
           from pathlib import Path
           from PIL import Image
           import io,shutil
-          output=Path('QA/Review-map-71');output.mkdir(exist_ok=True);budget=230000
-          for name in ('unity-spawn.png','unity-environment.png','unity-ak-held.png'):
+          output=Path('QA/Review-map-72');output.mkdir(exist_ok=True);budget=1800000
+          for name in ('unity-spawn.png','unity-environment.png','unity-ak-held.png',*('unity-village-'+str(i).zfill(2)+'.png' for i in range(18)),'unity-village-pond.png'):
               candidates=list(Path('evidence').rglob(name))
               if not candidates:continue
               image=Image.open(candidates[0]).convert('RGB');image.thumbnail((960,540))
               data=io.BytesIO();image.save(data,format='JPEG',quality=74,optimize=True)
               if len(data.getvalue())<=budget:(output/(Path(name).stem+'.jpg')).write_bytes(data.getvalue());budget-=len(data.getvalue())
-          for receipt in Path('evidence').rglob('village-placement.json'):shutil.copyfile(receipt,'QA/village-placement-71.json')
+          for receipt in Path('evidence').rglob('village-placement.json'):shutil.copyfile(receipt,'QA/village-placement-72.json')
           PY
-          git add QA/diagnostic-map-71.json QA/Review-map-71 QA/village-placement-71.json
-          if [ -f QA/native71-test-progress.txt ]; then git add QA/native71-test-progress.txt; fi
+          git add QA/diagnostic-map-72.json QA/Review-map-72 QA/village-placement-72.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if ! git diff --cached --quiet; then
