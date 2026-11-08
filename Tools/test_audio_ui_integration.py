@@ -58,6 +58,11 @@ class AudioUiIntegration(unittest.TestCase):
         helper=Path('Assets/Scripts/RenderEvidence.cs').read_text()
         self.assertIn('data.renderPostProcessing=false',helper)
         self.assertIn('stack.Remove(camera)',helper)
+        self.assertIn('world.targetTexture=originalTarget',helper)
+        self.assertLess(helper.index('world.targetTexture=destination;',helper.index('const int uiLayer')),helper.index('Canvas.ForceUpdateCanvases()'))
+        native=Path('Assets/Tests/PlayMode/GunplayPlayModeTests.cs').read_text()
+        self.assertIn('yield return RapidTurnElevationEvidence(weapons)',native)
+        self.assertIn('CountVisibleArmSkins(camera)',native)
         self.assertIn('AssertUngradedHud(weapons)',Path('Assets/Tests/PlayMode/GunplayPlayModeTests.cs').read_text())
         self.assertIn('image.GetPixel(160,90)',Path('Assets/Tests/PlayMode/GunplayVisualTests.cs').read_text())
 

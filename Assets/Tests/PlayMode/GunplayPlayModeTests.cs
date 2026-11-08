@@ -312,6 +312,41 @@ namespace Fpp.Tests
             }
             Assert.False(hud.Modal);AssertJoystickModes(hud);File.WriteAllText(Output+"/graphics-audio-menu.txt","Actual menu callbacks change mixer master dB, tier, daylight and persisted DRS; modal blocks fire; close restores gameplay. Native touch/haptics/device ergonomics separate.");
         }
+        private static IEnumerator RapidTurnElevationEvidence(WeaponController weapons)
+        {
+            var player=weapons.GetComponent<TestPlayer>();var cc=player.GetComponent<CharacterController>();var hub=GameplayInput.Instance;
+            var previous=hub.OverrideProvider;var input=new ScriptedInputProvider();hub.OverrideProvider=input;
+            var position=player.transform.position;var rotation=player.transform.rotation;
+            var camera=weapons.weaponCamera;int arms=CountVisibleArmSkins(camera);
+            Assert.Greater(arms,0,"authored hand geometry must exist");
+            try
+            {
+                foreach(float elevation in new[]{0f,20f,200f})
+                {
+                    cc.enabled=false;player.transform.position=position+Vector3.up*elevation;cc.enabled=true;
+                    foreach(float yaw in new[]{170f,-170f,90f,-90f,0f})
+                    {
+                        player.transform.rotation=Quaternion.Euler(0,yaw,0);input.Value.Look=new Vector2(yaw,0);yield return null;
+                        Assert.Less(Vector3.Distance(camera.transform.position,weapons.view.position),.0001f,"FPV must follow camera without world-space lag");
+                        Assert.Less(Quaternion.Angle(camera.transform.rotation,weapons.view.rotation),.001f);
+                        Assert.AreEqual(arms,CountVisibleArmSkins(camera),"turn/elevation must not introduce another hand skin");
+                        var local=weapons.defaultViewmodel.transform.localPosition;Assert.False(float.IsNaN(local.sqrMagnitude)||float.IsInfinity(local.sqrMagnitude));
+                    }
+                    GunplayVisualTests.Save(Output+"/rapid-turn-elevation-"+elevation+".png",weapons);
+                }
+            }
+            finally { hub.OverrideProvider=previous;cc.enabled=false;player.transform.SetPositionAndRotation(position,rotation);cc.enabled=true; }
+            File.WriteAllText(Output+"/rapid-turn-elevation.txt","Actual player loop: 0/20/200m offsets, alternating170-degree yaw and scripted look impulses; FPV camera alignment and stable visible arm-skin count. PNGs require review; this is not Android ghosting/performance acceptance.");
+        }
+        private static int CountVisibleArmSkins(Camera camera)
+        {
+            int count=0;foreach(var skin in camera.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                if(!skin.enabled)continue;foreach(var material in skin.sharedMaterials)
+                    if(material!=null&&(material.name.Contains("Hand")||material.name.Contains("Glove"))){count++;break;}
+            }
+            return count;
+        }
         [UnityTest,Timeout(120000)] public IEnumerator UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
@@ -337,6 +372,7 @@ namespace Fpp.Tests
             var pipelineBefore=UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline;
             presentation.ToggleGrain();presentation.ToggleGrain();presentation.ToggleBlur();presentation.ToggleBlur();
             Assert.AreSame(pipelineBefore,UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline,"effect-only toggles must not rebuild pipeline");
+            yield return RapidTurnElevationEvidence(weapons);
             GunplayVisualTests.AssertUngradedHud(weapons);GunplayVisualTests.Save(Output+"/urp-stack-high.png",weapons);
             foreach(var renderer in UnityEngine.Object.FindObjectsOfType<Renderer>())foreach(var material in renderer.sharedMaterials)
             {Assert.NotNull(material);Assert.True(material.shader.isSupported,material.shader.name);Assert.False(UnityEditor.ShaderUtil.ShaderHasError(material.shader),material.shader.name);Assert.AreNotEqual("Standard",material.shader.name,"scene materials must be converted, not rendered pink");}
