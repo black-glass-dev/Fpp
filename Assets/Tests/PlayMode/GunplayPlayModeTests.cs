@@ -48,7 +48,7 @@ namespace Fpp.Tests
             float rms=Mathf.Sqrt(error/30);Assert.LessOrEqual(rms,.5f);Assert.LessOrEqual(Mathf.Sqrt(mount/norm),.2f);Assert.AreEqual(Vector2.zero,hip.AimClimb);
             File.WriteAllText(Output+"/recoil-model-ak47.csv",csv.ToString());Debug.Log("QA model impulse RMS "+rms+" degrees (not wall/hand acceptance)");
         }
-        [UnityTest] public IEnumerator SameFrameSemiFireAndActualADSTimingAllWeapons()
+        [UnityTest,Timeout(120000)] public IEnumerator SameFrameSemiFireAndActualADSTimingAllWeapons()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var hub=GameplayInput.Instance;var input=new ScriptedInputProvider();hub.OverrideProvider=input;
@@ -78,7 +78,7 @@ namespace Fpp.Tests
             finally{GunplayEvents.Raised-=listener;}
             File.WriteAllText(Output+"/ads-actual-playmode.csv",csv.ToString());
         }
-        [UnityTest] public IEnumerator ReloadCancellationConservationAndDroppedAmmo()
+        [UnityTest,Timeout(120000)] public IEnumerator ReloadCancellationConservationAndDroppedAmmo()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
@@ -92,7 +92,7 @@ namespace Fpp.Tests
             weapons.QAEquip(ak);Assert.AreEqual(7,weapons.Ammo);Assert.AreEqual(73,weapons.Reserve);
             File.WriteAllText(Output+"/ammo-playmode.txt","PASS: tactical/empty conservation, cancel no transfer, secondary drop/pickup restores 7+73. Visual magazine/finger acceptance not asserted.");
         }
-        [UnityTest] public IEnumerator MovementSlideDiveAndMantleOnRealController()
+        [UnityTest,Timeout(120000)] public IEnumerator MovementSlideDiveAndMantleOnRealController()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
@@ -156,7 +156,7 @@ namespace Fpp.Tests
             }
             finally{GunplayEvents.Raised-=listener;gc.Dispose();movement.Dispose();weaponCPU.Dispose();viewmodel.Dispose();}
         }
-        [UnityTest] public IEnumerator SprintOutDelayAndADSCancellationUseActualInputLoop()
+        [UnityTest,Timeout(120000)] public IEnumerator SprintOutDelayAndADSCancellationUseActualInputLoop()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
@@ -174,7 +174,7 @@ namespace Fpp.Tests
             }
             finally{GunplayEvents.Raised-=listener;}
         }
-        [UnityTest] public IEnumerator PhysicalMountLocksMovementAndReducesActualShotImpulseRMS()
+        [UnityTest,Timeout(120000)] public IEnumerator PhysicalMountLocksMovementAndReducesActualShotImpulseRMS()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
@@ -200,7 +200,7 @@ namespace Fpp.Tests
             }
             finally{GunplayEvents.Raised-=listener;}
         }
-        [UnityTest] public IEnumerator DefaultPistolDropsAsTexturedGunOnlyAndRestoresAuthoredSlot()
+        [UnityTest,Timeout(120000)] public IEnumerator DefaultPistolDropsAsTexturedGunOnlyAndRestoresAuthoredSlot()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();GameplayInput.Instance.OverrideProvider=new ScriptedInputProvider();
@@ -216,7 +216,7 @@ namespace Fpp.Tests
             weapons.Reload();yield return new WaitForSeconds(weapons.ActiveWeapon.reloadTacticalSec+.1f);Assert.AreEqual(12,weapons.Ammo);Assert.AreEqual(58,weapons.Reserve);
             File.WriteAllText(Output+"/primary-drop-playmode.txt","Actual Mark23 gun-only textured world pickup preserves 5+65; pickup restores original animated default slot; tactical reload conserves total as 12+58.");
         }
-        [UnityTest] public IEnumerator TouchIconsPressedStatesAndLayoutDragPreserveSafeBounds()
+        [UnityTest,Timeout(120000)] public IEnumerator TouchIconsPressedStatesAndLayoutDragPreserveSafeBounds()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;Canvas.ForceUpdateCanvases();
             var hud=MobileHud.Instance;var controls=UnityEngine.Object.FindObjectsOfType<HudControl>(true);Assert.AreEqual(11,controls.Length);
@@ -242,7 +242,7 @@ namespace Fpp.Tests
             move.placement.x=old;move.Apply();hud.SetEditing(false);
             File.WriteAllText(Output+"/touch-presentation-playmode.txt","11 atlas icon controls; active pointer-down/up alpha.70/.38; LAYOUT actual drag increases normalized x; default profile bounds within Screen.safeArea. Not a physical notched Android device proof.");
         }
-        [UnityTest] public IEnumerator PresentationAudioLayersAreAudibleAndPoolIsBounded()
+        [UnityTest,Timeout(120000)] public IEnumerator PresentationAudioLayersAreAudibleAndPoolIsBounded()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
             var audio=PresentationAudio.Active;Assert.NotNull(audio);Assert.AreEqual(32,audio.VoiceCapacity);
@@ -266,7 +266,7 @@ namespace Fpp.Tests
             foreach(var button in buttons)if(button.name==name){button.onClick.Invoke();return;}
             Assert.Fail("Missing menu button: "+name);
         }
-        [UnityTest] public IEnumerator GraphicsAudioMenuChangesRealSettingsAndBlocksGameplay()
+        [UnityTest,Timeout(120000)] public IEnumerator GraphicsAudioMenuChangesRealSettingsAndBlocksGameplay()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
             var hud=MobileHud.Instance;var audio=PresentationAudio.Active;var renderer=PresentationRenderer.Active;float master=audio.BusVolume(0);var tier=renderer.Tier;var day=renderer.Day;bool drs=renderer.DynamicResolution;
@@ -286,7 +286,7 @@ namespace Fpp.Tests
             }
             Assert.False(hud.Modal);File.WriteAllText(Output+"/graphics-audio-menu.txt","Actual menu callbacks change mixer master dB, tier, daylight and persisted DRS; modal blocks fire; close restores gameplay. Native touch/haptics/device ergonomics separate.");
         }
-        [UnityTest] public IEnumerator UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors()
+        [UnityTest,Timeout(120000)] public IEnumerator UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var presentation=PresentationRenderer.Active;Assert.NotNull(presentation);
@@ -306,7 +306,7 @@ namespace Fpp.Tests
             {Assert.NotNull(material);Assert.True(material.shader.isSupported,material.shader.name);Assert.False(UnityEditor.ShaderUtil.ShaderHasError(material.shader),material.shader.name);Assert.AreNotEqual("Standard",material.shader.name,"scene materials must be converted, not rendered pink");}
             File.WriteAllText(Output+"/urp-presentation-playmode.txt","Actual URP camera stack render, independent layer8 FPV near.01, single final post grade, 4 serialized tier assets with 4x mobile MSAA/80m2cascades and PC200m4cascades, supported scene shaders/no compiler errors. Forward+ capability fallback; PC SMAA because URP14 TAA cannot camera-stack. Not device performance or complete PBR/GI proof.");
         }
-        [UnityTest] public IEnumerator CollectedWeaponsCycleAwayFromPickupsWithoutLosingAmmo()
+        [UnityTest,Timeout(120000)] public IEnumerator CollectedWeaponsCycleAwayFromPickupsWithoutLosingAmmo()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
@@ -332,7 +332,7 @@ namespace Fpp.Tests
             Assert.True(weapons.OwnsWeapon("mark23"));
             File.WriteAllText(Output+"/inventory-player-loop.txt","Four collected weapons survive movement away from pickup locations; actual SWAP input cycles all4 once, preserving Mark23 5+65 and secondary7+73. No automatic drops.");
         }
-        [UnityTest] public IEnumerator CeilingImpactCancelsUpwardVelocityWithoutHeadSticking()
+        [UnityTest,Timeout(120000)] public IEnumerator CeilingImpactCancelsUpwardVelocityWithoutHeadSticking()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
             var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
@@ -345,7 +345,7 @@ namespace Fpp.Tests
             yield return new WaitForSeconds(.12f);Assert.Less(motor.transform.position.y,hitHeight-.03f,"head impact must stop ascent immediately rather than stick until gravity catches up");
             File.WriteAllText(Output+"/ceiling-impact.txt","Actual jump under2m roof: CharacterController reports Above; upward velocity cancelled and player descends within120ms. No head-sticking plateau.");
         }
-        [UnityTest] public IEnumerator MovementDoesNotRunAgainstWallsOrAutoMantleWithoutJump()
+        [UnityTest,Timeout(120000)] public IEnumerator MovementDoesNotRunAgainstWallsOrAutoMantleWithoutJump()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
@@ -360,7 +360,7 @@ namespace Fpp.Tests
             input.Value.CrouchPressed=true;yield return null;yield return null;Assert.AreEqual(MovementState.Slide,motor.State,"single crouch press must enter slide without a hold delay");
             File.WriteAllText(Output+"/movement-regressions.txt","Blocked wall reports actual zero speed, no auto-mantle without jump, sprint exits crouch, one crouch press enters slide.");
         }
-        [UnityTest] public IEnumerator DamageMarkersAndHealthAreSynchronous()
+        [UnityTest,Timeout(120000)] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
             var target=UnityEngine.Object.FindObjectOfType<TestTarget>();target.ResetTarget();int markers=0;string kind=null;

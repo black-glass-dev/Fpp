@@ -15,7 +15,7 @@ namespace Fpp.Tests
         {
             writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));writer.Write(36+frames*8);writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));writer.Write(16);writer.Write((short)3);writer.Write((short)2);writer.Write(rate);writer.Write(rate*8);writer.Write((short)8);writer.Write((short)32);writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));writer.Write(frames*8);
         }
-        [UnityTest] public IEnumerator AudioMixerRoutesVorbisClipsAndExportsActualStereoPCM()
+        [UnityTest,Timeout(120000)] public IEnumerator AudioMixerRoutesVorbisClipsAndExportsActualStereoPCM()
         {
             var previous=AudioSettings.GetConfiguration();var configuration=previous;configuration.speakerMode=AudioSpeakerMode.Stereo;configuration.sampleRate=48000;configuration.numRealVoices=32;configuration.numVirtualVoices=32;Assert.True(AudioSettings.Reset(configuration));
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;

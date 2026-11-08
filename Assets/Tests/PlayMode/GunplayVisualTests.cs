@@ -25,7 +25,7 @@ namespace Fpp.Tests
             public void Shot(int index,float now,WeaponAsset w,GunplayConfig c)
             {var p=w.recoilPattern[index%w.recoilPattern.Length];if((index/w.recoilPattern.Length)%2==1)p.y=-p.y;climb+=p*w.adsRecoilMult;residual+=p*w.adsRecoilMult*(1-c.recoveryFraction);kick+=p*w.adsRecoilMult*w.viewKickMult;last=now;}
         }
-        [UnityTest] public IEnumerator ActualADS30RoundWallPatternAt15m()
+        [UnityTest,Timeout(120000)] public IEnumerator ActualADS30RoundWallPatternAt15m()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var cc=motor.GetComponent<CharacterController>();
@@ -61,7 +61,7 @@ namespace Fpp.Tests
             }
             finally{active=false;GunplayEvents.Raised-=listener;input.BeforePoll=null;}
         }
-        [UnityTest] public IEnumerator CapturePoseAndReloadEvidence_NotFingerContactAcceptance()
+        [UnityTest,Timeout(120000)] public IEnumerator CapturePoseAndReloadEvidence_NotFingerContactAcceptance()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
