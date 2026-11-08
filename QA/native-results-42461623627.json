@@ -1,0 +1,151 @@
+{
+  "run": "42461623627",
+  "evidenceKind": "actual Unity Play Mode XML; device budgets and visual acceptance are separate",
+  "suites": [
+    {
+      "file": "QA/test-results/playmode-results.xml",
+      "result": "Failed(Child)",
+      "total": "21",
+      "passed": "19",
+      "failed": "2",
+      "cases": [
+        {
+          "name": "CadenceHasNoBankedShotsAndStaysFrameRateIndependent",
+          "result": "Passed",
+          "duration": "0.036985"
+        },
+        {
+          "name": "CeilingImpactCancelsUpwardVelocityWithoutHeadSticking",
+          "result": "Passed",
+          "duration": "1.734442"
+        },
+        {
+          "name": "CollectedWeaponsCycleAwayFromPickupsWithoutLosingAmmo",
+          "result": "Passed",
+          "duration": "7.567247"
+        },
+        {
+          "name": "ConfigsAreSerializedAndReferenceValuesMatch",
+          "result": "Passed",
+          "duration": "0.010586"
+        },
+        {
+          "name": "DamageMarkersAndHealthAreSynchronous",
+          "result": "Passed",
+          "duration": "0.397067"
+        },
+        {
+          "name": "DefaultPistolDropsAsTexturedGunOnlyAndRestoresAuthoredSlot",
+          "result": "Passed",
+          "duration": "2.167815"
+        },
+        {
+          "name": "FiveMinuteCombatSoak500Shots50Reloads",
+          "result": "Passed",
+          "duration": "300.413869"
+        },
+        {
+          "name": "GraphicsAudioMenuChangesRealSettingsAndBlocksGameplay",
+          "result": "Failed",
+          "duration": "4.746960",
+          "failure": "  Expected: not null\n  But was:  null"
+        },
+        {
+          "name": "MovementDoesNotRunAgainstWallsOrAutoMantleWithoutJump",
+          "result": "Passed",
+          "duration": "1.972155"
+        },
+        {
+          "name": "MovementSlideDiveAndMantleOnRealController",
+          "result": "Passed",
+          "duration": "4.050138"
+        },
+        {
+          "name": "PhysicalMountLocksMovementAndReducesActualShotImpulseRMS",
+          "result": "Passed",
+          "duration": "3.115807"
+        },
+        {
+          "name": "PresentationAudioLayersAreAudibleAndPoolIsBounded",
+          "result": "Passed",
+          "duration": "0.719029"
+        },
+        {
+          "name": "RecoilNoiseBoundHipAsymmetryAndMountReduction",
+          "result": "Passed",
+          "duration": "0.008094"
+        },
+        {
+          "name": "ReloadCancellationConservationAndDroppedAmmo",
+          "result": "Passed",
+          "duration": "5.831138"
+        },
+        {
+          "name": "SameFrameSemiFireAndActualADSTimingAllWeapons",
+          "result": "Passed",
+          "duration": "3.098253"
+        },
+        {
+          "name": "SprintOutDelayAndADSCancellationUseActualInputLoop",
+          "result": "Passed",
+          "duration": "1.581208"
+        },
+        {
+          "name": "TouchIconsPressedStatesAndLayoutDragPreserveSafeBounds",
+          "result": "Passed",
+          "duration": "1.433023"
+        },
+        {
+          "name": "UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors",
+          "result": "Failed",
+          "duration": "0.660327",
+          "failure": "  HUD must be present and not ACES-graded\n  Expected: greater than 0.899999976f\n  But was:  0.501960814f"
+        },
+        {
+          "name": "ActualADS30RoundWallPatternAt15m",
+          "result": "Passed",
+          "duration": "5.009616"
+        },
+        {
+          "name": "CapturePoseAndReloadEvidence_NotFingerContactAcceptance",
+          "result": "Passed",
+          "duration": "84.757598"
+        },
+        {
+          "name": "AudioMixerRoutesVorbisClipsAndExportsActualStereoPCM",
+          "result": "Passed",
+          "duration": "4.460125"
+        }
+      ]
+    }
+  ],
+  "measurements": {
+    "touch-presentation-playmode.txt": "11 atlas icon controls; active pointer-down/up alpha.70/.38; LAYOUT actual drag increases normalized x; default profile bounds within Screen.safeArea. Not a physical notched Android device proof.",
+    "primary-drop-playmode.txt": "Actual Mark23 gun-only textured world pickup preserves 5+65; pickup restores original animated default slot; tactical reload conserves total as 12+58.",
+    "recoil-model-ak47.csv": "kind,shot,targetPitch,targetYaw,actualPitch,actualYaw,mountedPitch,mountedYaw\nmath_impulse,0,0.75,-0.08,0.761416,-0.08121771,0.09136992,-0.009746125\nmath_impulse,1,0.8,0.05,0.7815716,0.04884822,0.09378859,0.005861787\nmath_impulse,2,0.85,-0.12,0.799508,-0.1128717,0.09594095,-0.0135446\nmath_impulse,3,0.9,0.12,0.9290668,0.1238756,0.111488,0.01486507\nmath_impulse,4,0.85,0.15,0.8128281,0.1434403,0.09753937,0.01721283\nmath_impulse,5,0.8,0.2,0.820442,0.2051105,0.09845304,0.02461326\nmath_impulse,6,0.55,0.22,0.5755437,0.2302175,0.06906524,0.0276261\nmath_impulse,7,0.5,0.25,0.4676345,0.2338172,0.05611613,0.02805807\nmath_impulse,8,0.45,0.2,0.4478584,0.1990482,0.053743,0.02388578\nmath_impulse,9,0.4,0.24,0.4123233,0.247394,0.0494788,0.02968728\nmath_impulse,10,0.35,0.18,0.3638342,0.1871147,0.0436601,0.02245377\nmath_impulse,11,0.4,0.22,0.3717871,0.2044829,0.04461445,0.02453795\nmath_impulse,12,0.45,0.16,0.467548,0.1662393,0.05610576,0.01994872\nmath_impulse,13,0.4,0.2,0.3934786,0.1967393,0.04721743,0.02360872\nmath_impulse,14,0.4,0.24,0.4177019,0.2506211,0.05012423,0.03007454\nmath_impulse,15,0.75,0.08,0.792505,0.08453387,0.0951006,0.01014406\nmath_impulse,16,0.8,-0.05,0.8061379,-0.05038362,0.09673654,-0.006046034\nmath_impulse,17,0.85,0.12,0.8641521,0.1219979,0.1036982,0.01463975\nmath_impulse,18,0.9,-0.12,0.9374145,-0.1249886,0.1124897,-0.01499863\nmath_impulse,19,0.85,-0.15,0.8866451,-0.1564668,0.1063974,-0.01877601\nmath_impulse,20,0.8,-0.2,0.7783726,-0.1945931,0.09340471,-0.02335118\nmath_impulse,21,0.55,-0.22,0.5841981,-0.2336792,0.07010377,-0.02804151\nmath_impulse,22,0.5,-0.25,0.5384949,-0.2692475,0.06461939,-0.0323097\nmath_impulse,23,0.45,-0.2,0.4352795,-0.1934576,0.05223354,-0.02321491\nmath_impulse,24,0.4,-0.24,0.4053348,-0.2432009,0.04864018,-0.0291841\nmath_impulse,25,0.35,-0.18,0.3624058,-0.1863801,0.04348869,-0.02236561\nmath_impulse,26,0.4,-0.22,0.3795102,-0.2087306,0.04554122,-0.02504767\nmath_impulse,27,0.45,-0.16,0.4153095,-0.1476656,0.04983714,-0.01771987\nmath_impulse,28,0.4,-0.2,0.4035132,-0.2017566,0.04842158,-0.02421079\nmath_impulse,29,0.4,-0.24,0.4274018,-0.2564411,0.05128822,-0.03077293\n",
+    "soak-editor.txt": "Actual Unity Play Mode: seconds=300.0057, shots=500, reloads=50, switches=50, editor max total frame GC bytes=2280, editor movement+weapons marker max nanoseconds=1697544313. Editor total-frame allocation/CPU is NOT target Android combat-loop acceptance; no device profiler capture supplied.",
+    "recoil_ak47.csv": "shot,worldX,worldY,worldZ,expectedPitch,expectedYaw,actualPitch,actualYaw,errorDeg\n0,999.9963,1.694763,1015,0,0,0.01819471,-0.01422136,0.02309318\n1,999.9874,1.823949,1015,0.5426316,-0.0578807,0.5116321,-0.04825937,0.03245831\n2,1000.009,1.891733,1015,0.7764822,0.01046703,0.7705162,0.03566997,0.02589945\n3,999.9712,2.016053,1015,1.298997,-0.1129961,1.245234,-0.1100406,0.05384409\n4,1000.007,2.142563,1015,1.820499,0.05303023,1.72814,0.02564508,0.09633327\n5,1000.041,2.268083,1015,2.261158,0.1817204,2.207015,0.1576003,0.05927257\n6,1000.091,2.368292,1015,2.651066,0.3395708,2.589073,0.3466707,0.06239812\n7,1000.134,2.392802,1015,2.744184,0.4886326,2.682437,0.511023,0.06568132\n8,1000.164,2.4077,1015,2.837415,0.6474727,2.739159,0.6280463,0.1001581\n9,1000.182,2.420275,1015,2.888806,0.7243555,2.787041,0.6940153,0.1061912\n10,1000.227,2.43399,1015,2.896317,0.8450906,2.83918,0.8669708,0.06118298\n11,1000.222,2.427057,1015,2.85626,0.8738871,2.812781,0.8466924,0.05128345\n12,1000.248,2.442216,1015,2.895818,0.9555226,2.870455,0.9490145,0.02618488\n13,1000.243,2.459258,1015,2.986824,0.9566001,2.935393,0.9299023,0.05794794\n14,1000.268,2.475812,1015,3.005167,1.0146,2.998361,1.025461,0.0128174\n15,1000.285,2.484165,1015,3.037418,1.104316,3.03011,1.090018,0.01605736\n16,1000.266,2.621175,1015,3.498332,1.014223,3.551713,1.01474,0.0533837\n17,1000.219,2.745123,1015,3.930164,0.8352554,4.023219,0.8369028,0.09306983\n18,1000.241,2.847455,1015,4.402701,0.9120246,4.41184,0.9203462,0.01236046\n19,1000.179,2.969636,1015,4.920117,0.6835112,4.875697,0.6846911,0.04443639\n20,1000.125,3.091008,1015,5.359171,0.4926109,5.335792,0.4755888,0.02891926\n21,1000.075,3.196737,1015,5.745646,0.2740513,5.736002,0.2846581,0.01433565\n22,1000.021,3.227361,1015,5.830529,0.06264226,5.851849,0.07973285,0.02732444\n23,999.955,3.241693,1015,5.913221,-0.160953,5.905997,-0.1720547,0.01324495\n24,999.916,3.258726,1015,5.952114,-0.300683,5.970295,-0.3207933,0.02711061\n25,999.8731,3.257312,1015,5.943367,-0.4849566,5.964835,-0.4846805,0.02147041\n26,999.8518,3.237296,1015,5.886681,-0.5755461,5.889119,-0.5660385,0.00981534\n27,999.8033,3.244642,1015,5.907368,-0.7166116,5.916664,-0.7513579,0.03596824\n28,999.8001,3.262327,1015,5.982568,-0.7699875,5.983466,-0.7634789,0.006570165\n29,999.7735,3.258452,1015,5.984235,-0.8772831,5.968679,-0.8651061,0.0197551\n",
+    "sprint-out-playmode.txt": "Actual pistol sprint-out fire delay=0.1000366 sec; target minimum=0.1; ADS cancels sprint.",
+    "cadence-model.csv": "kind,weapon,fps,shots,seconds\nmath_scheduler,mark23,15,80,10\nmath_scheduler,mark23,30,80,10\nmath_scheduler,mark23,60,80,10\nmath_scheduler,mark23,120,80,10\nmath_scheduler,glock17,15,90,10\nmath_scheduler,glock17,30,90,10\nmath_scheduler,glock17,60,90,10\nmath_scheduler,glock17,120,90,10\nmath_scheduler,field,15,75,10\nmath_scheduler,field,30,75,10\nmath_scheduler,field,60,75,10\nmath_scheduler,field,120,75,10\nmath_scheduler,ak47,15,100,10\nmath_scheduler,ak47,30,100,10\nmath_scheduler,ak47,60,100,10\nmath_scheduler,ak47,120,100,10\n",
+    "mount-playmode.txt": "Actual ledge probe/mount + shot-event recoil RMS ratio=0.12; maximum .2. Movement locked while mounted and move exits mount.",
+    "audio-pool-playmode.txt": "Four synthesized shot layers are non-silent; clip peaks bounded; 1000 UI events retain <=32 allocated voice slots. Not mixed-output LUFS/true-peak or device audibility acceptance.",
+    "inventory-player-loop.txt": "Four collected weapons survive movement away from pickup locations; actual SWAP input cycles all4 once, preserving Mark23 5+65 and secondary7+73. No automatic drops.",
+    "ceiling-impact.txt": "Actual jump under2m roof: CharacterController reports Above; upward velocity cancelled and player descends within120ms. No head-sticking plateau.",
+    "ammo-playmode.txt": "PASS: tactical/empty conservation, cancel no transfer, secondary drop/pickup restores 7+73. Visual magazine/finger acceptance not asserted.",
+    "audio-output-metrics.json": "{\n  \"evidence\": \"Actual Unity stereo float PCM, independently analyzed by FFmpeg loudnorm/ebur128. Not device speaker/acoustic proof.\",\n  \"loudnessGatePassed\": false,\n  \"toleranceLU\": 1,\n  \"records\": [\n    {\n      \"file\": \"QA/runtime/audio/combat-mix.wav\",\n      \"integratedLUFS\": -31.52,\n      \"truePeakDBTP\": -18.52,\n      \"maxShortTermLUFS\": -31.4,\n      \"spectrum\": \"QA/runtime/audio/combat-mix-spectrum.png\"\n    },\n    {\n      \"file\": \"QA/runtime/audio/weapons-stem.wav\",\n      \"integratedLUFS\": -24.73,\n      \"truePeakDBTP\": -11.03,\n      \"maxShortTermLUFS\": -24.6,\n      \"spectrum\": \"QA/runtime/audio/weapons-stem-spectrum.png\"\n    },\n    {\n      \"file\": \"QA/runtime/audio/foley-stem.wav\",\n      \"integratedLUFS\": -30.98,\n      \"truePeakDBTP\": -8.66,\n      \"maxShortTermLUFS\": -30.8,\n      \"spectrum\": \"QA/runtime/audio/foley-stem-spectrum.png\"\n    }\n  ]\n}\n",
+    "visual-review-status.txt": "Captured actual Play Mode idle/ADS/fire/reload/sprint and four-frame tactical/empty sequences for all four weapons. Images require human review. Approximate secondary fingers/sockets are NOT declared zero-floaters by this capture test.",
+    "fast-tap-actual-cadence.csv": "weapon,cycle,shot,timeSec,rpmCap\nmark23,1,0,11.76793,480\nmark23,1,1,11.90124,480\nmark23,1,2,12.01794,480\nmark23,1,3,12.15125,480\nmark23,1,4,12.28462,480\nmark23,1,5,12.40125,480\nmark23,1,6,12.51794,480\nmark23,1,7,12.65125,480\nmark23,1,8,12.78459,480\nmark23,1,9,12.90131,480\nak47,2,0,15.35127,600\nak47,2,1,15.45132,600\nak47,2,2,15.55129,600\nak47,2,3,15.66791,600\nak47,2,4,15.76796,600\nak47,2,5,15.85128,600\nak47,2,6,15.9513,600\nak47,2,7,16.05131,600\nak47,2,8,16.16792,600\nak47,2,9,16.25129,600\nglock17,3,0,19.30125,540\nglock17,3,1,19.4179,540\nglock17,3,2,19.53458,540\nglock17,3,3,19.63461,540\nglock17,3,4,19.75128,540\nglock17,3,5,19.86796,540\nglock17,3,6,19.96793,540\nglock17,3,7,20.0846,540\nglock17,3,8,20.20125,540\nglock17,3,9,20.30128,540\nfield,4,0,22.85126,450\nfield,4,1,22.98459,450\nfield,4,2,23.13457,450\nfield,4,3,23.25128,450\nfield,4,4,23.40129,450\nfield,4,5,23.53456,450\nfield,4,6,23.66791,450\nfield,4,7,23.78459,450\nfield,4,8,23.93456,450\nfield,4,9,24.06793,450\nmark23,5,0,26.71792,480\nmark23,5,1,26.85123,480\nmark23,5,2,26.98455,480\nmark23,5,3,27.10123,480\nmark23,5,4,27.21793,480\nmark23,5,5,27.35124,480\nmark23,5,6,27.48458,480\nmark23,5,7,27.60126,480\nmark23,5,8,27.73457,480\nmark23,5,9,27.85122,480\nak47,6,0,30.28462,600\nak47,6,1,30.40127,600\nak47,6,2,30.50129,600\nak47,6,3,30.60123,600\nak47,6,4,30.70125,600\nak47,6,5,30.80127,600\nak47,6,6,30.90123,600\nak47,6,7,31.00124,600\nak47,6,8,31.10125,600\nak47,6,9,31.20128,600\nglock17,7,0,34.25123,540\nglock17,7,1,34.3679,540\nglock17,7,2,34.48458,540\nglock17,7,3,34.58461,540\nglock17,7,4,34.70127,540\nglock17,7,5,34.81791,540\nglock17,7,6,34.91793,540\nglock17,7,7,35.03463,540\nglock17,7,8,35.15123,540\nglock17,7,9,35.25128,540\nfield,8,0,37.8179,450\nfield,8,1,37.95127,450\nfield,8,2,38.08459,450\nfield,8,3,38.21791,450\nfield,8,4,38.35129,450\nfield,8,5,38.4846,450\nfield,8,6,38.61794,450\nfield,8,7,38.75125,450\nfield,8,8,38.90127,450\nfield,8,9,39.03459,450\nmark23,9,0,41.66793,480\nmark23,9,1,41.80125,480\nmark23,9,2,41.91795,480\nmark23,9,3,42.05125,480\nmark23,9,4,42.18462,480\nmark23,9,5,42.30124,480\nmark23,9,6,42.43463,480\nmark23,9,7,42.55124,480\nmark23,9,8,42.66793,480\nmark23,9,9,42.8013,480\nak47,10,0,45.23462,600\nak47,10,1,45.35128,600\nak47,10,2,45.45129,600\nak47,10,3,45.55128,600\nak47,10,4,45.63461,600\nak47,10,5,45.75124,600\nak47,10,6,45.83461,600\nak47,10,7,45.93464,600\nak47,10,8,46.05125,600\nak47,10,9,46.15129,600\nglock17,11,0,49.20128,540\nglock17,11,1,49.31797,540\nglock17,11,2,49.43459,540\nglock17,11,3,49.55126,540\nglock17,11,4,49.65128,540\nglock17,11,5,49.76797,540\nglock17,11,6,49.86795,540\nglock17,11,7,49.98457,540\nglock17,11,8,50.10126,540\nglock17,11,9,50.20129,540\nfield,12,0,52.75125,450\nfield,12,1,52.90123,450\nfield,12,2,53.01799,450\nfield,12,3,53.1513,450\nfield,12,4,53.30128,450\nfield,12,5,53.41796,450\nfield,12,6,53.55129,450\nfield,12,7,53.70127,450\nfield,12,8,53.81793,450\nfield,12,9,53.95127,450\nmark23,13,0,56.56798,480\nmark23,13,1,56.70127,480\nmark23,13,2,56.83459,480\nmark23,13,3,56.95127,480\nmark23,13,4,57.08459,480\nmark23,13,5,57.20124,480\nmark23,13,6,57.33458,480\nmark23,13,7,57.45129,480\nmark23,13,8,57.56799,480\nmark23,13,9,57.70125,480\nak47,14,0,60.13459,600\nak47,14,1,60.2346,600\nak47,14,2,60.33459,600\nak47,14,3,60.43459,600\nak47,14,4,60.5346,600\nak47,14,5,60.63459,600\nak47,14,6,60.75123,600\nak47,14,7,60.83461,600\nak47,14,8,60.93458,600\nak47,14,9,61.03461,600\nglock17,15,0,64.08457,540\nglock17,15,1,64.20128,540\nglock17,15,2,64.31794,540\nglock17,15,3,64.4346,540\nglock17,15,4,64.53459,540\nglock17,15,5,64.65125,540\nglock17,15,6,64.75127,540\nglock17,15,7,64.86791,540\nglock17,15,8,64.98457,540\nglock17,15,9,65.08462,540\nfield,16,0,67.61794,450\nfield,16,1,67.76791,450\nfield,16,2,67.88463,450\nfield,16,3,68.03458,450\nfield,16,4,68.16793,450\nfield,16,5,68.28461,450\nfield,16,6,68.41793,450\nfield,16,7,68.55132,450\nfield,16,8,68.70127,450\nfield,16,9,68.8346,450\nmark23,17,0,71.48456,480\nmark23,17,1,71.61794,480\nmark23,17,2,71.7346,480\nmark23,17,3,71.8679,480\nmark23,17,4,71.98462,480\nmark23,17,5,72.1179,480\nmark23,17,6,72.23463,480\nmark23,17,7,72.36791,480\nmark23,17,8,72.48461,480\nmark23,17,9,72.61792,480\nak47,18,0,75.05126,600\nak47,18,1,75.15128,600\nak47,18,2,75.2513,600\nak47,18,3,75.35129,600\nak47,18,4,75.4679,600\nak47,18,5,75.56796,600\nak47,18,6,75.65128,600\nak47,18,7,75.75126,600\nak47,18,8,75.85126,600\nak47,18,9,75.95126,600\nglock17,19,0,79.00126,540\nglock17,19,1,79.11797,540\nglock17,19,2,79.2346,540\nglock17,19,3,79.33462,540\nglock17,19,4,79.45129,540\nglock17,19,5,79.56794,540\nglock17,19,6,79.66795,540\nglock17,19,7,79.78458,540\nglock17,19,8,79.90129,540\nglock17,19,9,80.01791,540\nfield,20,0,82.53465,450\nfield,20,1,82.68462,450\nfield,20,2,82.81796,450\nfield,20,3,82.95123,450\nfield,20,4,83.08458,450\nfield,20,5,83.21796,450\nfield,20,6,83.35127,450\nfield,20,7,83.48457,450\nfield,20,8,83.6013,450\nfield,20,9,83.73463,450\nmark23,21,0,86.38457,480\nmark23,21,1,86.51796,480\nmark23,21,2,86.63457,480\nmark23,21,3,86.76794,480\nmark23,21,4,86.88462,480\nmark23,21,5,87.01792,480\nmark23,21,6,87.13464,480\nmark23,21,7,87.26793,480\nmark23,21,8,87.38461,480\nmark23,21,9,87.51794,480\nak47,22,0,89.95127,600\nak47,22,1,90.06793,600\nak47,22,2,90.1679,600\nak47,22,3,90.25128,600\nak47,22,4,90.35129,600\nak47,22,5,90.45129,600\nak47,22,6,90.56792,600\nak47,22,7,90.66793,600\nak47,22,8,90.75127,600\nak47,22,9,90.85128,600\nglock17,23,0,93.88459,540\nglock17,23,1,94.00127,540\nglock17,23,2,94.11787,540\nglock17,23,3,94.21793,540\nglock17,23,4,94.33466,540\nglock17,23,5,94.45126,540\nglock17,23,6,94.56792,540\nglock17,23,7,94.6679,540\nglock17,23,8,94.78463,540\nglock17,23,9,94.90129,540\nfield,24,0,97.45129,450\nfield,24,1,97.58462,450\nfield,24,2,97.71796,450\nfield,24,3,97.8513,450\nfield,24,4,98.00127,450\nfield,24,5,98.11796,450\nfield,24,6,98.26793,450\nfield,24,7,98.38463,450\nfield,24,8,98.51794,450\nfield,24,9,98.66795,450\nmark23,25,0,101.3179,480\nmark23,25,1,101.4513,480\nmark23,25,2,101.5846,480\nmark23,25,3,101.7012,480\nmark23,25,4,101.8179,480\nmark23,25,5,101.9513,480\nmark23,25,6,102.0679,480\nmark23,25,7,102.2013,480\nmark23,25,8,102.3179,480\nmark23,25,9,102.4513,480\nak47,26,0,104.8846,600\nak47,26,1,104.9846,600\nak47,26,2,105.0846,600\nak47,26,3,105.1846,600\nak47,26,4,105.2846,600\nak47,26,5,105.3846,600\nak47,26,6,105.4846,600\nak47,26,7,105.5846,600\nak47,26,8,105.6846,600\nak47,26,9,105.7845,600\nglock17,27,0,108.818,540\nglock17,27,1,108.9346,540\nglock17,27,2,109.0513,540\nglock17,27,3,109.1679,540\nglock17,27,4,109.2679,540\nglock17,27,5,109.3846,540\nglock17,27,6,109.5012,540\nglock17,27,7,109.6012,540\nglock17,27,8,109.718,540\nglock17,27,9,109.8346,540\nfield,28,0,112.3846,450\nfield,28,1,112.5179,450\nfield,28,2,112.6513,450\nfield,28,3,112.7846,450\nfield,28,4,112.918,450\nfield,28,5,113.0513,450\nfield,28,6,113.1846,450\nfield,28,7,113.318,450\nfield,28,8,113.4512,450\nfield,28,9,113.5846,450\nmark23,29,0,116.2179,480\nmark23,29,1,116.3513,480\nmark23,29,2,116.4679,480\nmark23,29,3,116.6012,480\nmark23,29,4,116.7346,480\nmark23,29,5,116.8512,480\nmark23,29,6,116.9679,480\nmark23,29,7,117.1012,480\nmark23,29,8,117.218,480\nmark23,29,9,117.3512,480\nak47,30,0,119.7679,600\nak47,30,1,119.8846,600\nak47,30,2,119.968,600\nak47,30,3,120.0846,600\nak47,30,4,120.1679,600\nak47,30,5,120.268,600\nak47,30,6,120.3846,600\nak47,30,7,120.4679,600\nak47,30,8,120.5679,600\nak47,30,9,120.6846,600\nglock17,31,0,123.7179,540\nglock17,31,1,123.8346,540\nglock17,31,2,123.9512,540\nglock17,31,3,124.0513,540\nglock17,31,4,124.1679,540\nglock17,31,5,124.2846,540\nglock17,31,6,124.4013,540\nglock17,31,7,124.5013,540\nglock17,31,8,124.6179,540\nglock17,31,9,124.7346,540\nfield,32,0,127.2679,450\nfield,32,1,127.4013,450\nfield,32,2,127.5513,450\nfield,32,3,127.6679,450\nfield,32,4,127.8013,450\nfield,32,5,127.9346,450\nfield,32,6,128.0679,450\nfield,32,7,128.2013,450\nfield,32,8,128.3346,450\nfield,32,9,128.468,450\nmark23,33,0,131.1346,480\nmark23,33,1,131.2679,480\nmark23,33,2,131.4013,480\nmark23,33,3,131.5179,480\nmark23,33,4,131.6346,480\nmark23,33,5,131.7679,480\nmark23,33,6,131.8846,480\nmark23,33,7,132.0179,480\nmark23,33,8,132.1346,480\nmark23,33,9,132.2679,480\nak47,34,0,134.7346,600\nak47,34,1,134.8346,600\nak47,34,2,134.9346,600\nak47,34,3,135.0346,600\nak47,34,4,135.1346,600\nak47,34,5,135.2346,600\nak47,34,6,135.3512,600\nak47,34,7,135.4512,600\nak47,34,8,135.5513,600\nak47,34,9,135.6513,600\nglock17,35,0,138.7013,540\nglock17,35,1,138.8179,540\nglock17,35,2,138.9346,540\nglock17,35,3,139.0346,540\nglock17,35,4,139.1512,540\nglock17,35,5,139.2679,540\nglock17,35,6,139.3846,540\nglock17,35,7,139.4846,540\nglock17,35,8,139.6013,540\nglock17,35,9,139.7179,540\nfield,36,0,142.2679,450\nfield,36,1,142.418,450\nfield,36,2,142.5513,450\nfield,36,3,142.6846,450\nfield,36,4,142.8013,450\nfield,36,5,142.9346,450\nfield,36,6,143.0679,450\nfield,36,7,143.2013,450\nfield,36,8,143.3346,450\nfield,36,9,143.4846,450\nmark23,37,0,146.1179,480\nmark23,37,1,146.2513,480\nmark23,37,2,146.3679,480\nmark23,37,3,146.5013,480\nmark23,37,4,146.618,480\nmark23,37,5,146.7513,480\nmark23,37,6,146.8679,480\nmark23,37,7,147.0013,480\nmark23,37,8,147.1346,480\nmark23,37,9,147.2513,480\nak47,38,0,149.7179,600\nak47,38,1,149.8346,600\nak47,38,2,149.9346,600\nak47,38,3,150.0346,600\nak47,38,4,150.1346,600\nak47,38,5,150.2346,600\nak47,38,6,150.3346,600\nak47,38,7,150.4346,600\nak47,38,8,150.5346,600\nak47,38,9,150.6346,600\nglock17,39,0,153.6679,540\nglock17,39,1,153.7846,540\nglock17,39,2,153.9013,540\nglock17,39,3,154.0013,540\nglock17,39,4,154.1179,540\nglock17,39,5,154.2346,540\nglock17,39,6,154.3346,540\nglock17,39,7,154.4513,540\nglock17,39,8,154.5679,540\nglock17,39,9,154.6846,540\nfield,40,0,157.218,450\nfield,40,1,157.3679,450\nfield,40,2,157.5012,450\nfield,40,3,157.8346,450\nfield,40,4,157.9842,450\nfield,40,5,158.1175,450\nfield,40,6,158.2509,450\nfield,40,7,158.3842,450\nfield,40,8,158.5175,450\nfield,40,9,158.6508,450\nmark23,41,0,161.3008,480\nmark23,41,1,161.4342,480\nmark23,41,2,161.5509,480\nmark23,41,3,161.6842,480\nmark23,41,4,161.8009,480\nmark23,41,5,161.9342,480\nmark23,41,6,162.0509,480\nmark23,41,7,162.1842,480\nmark23,41,8,162.3009,480\nmark23,41,9,162.4342,480\nak47,42,0,164.8842,600\nak47,42,1,165.0009,600\nak47,42,2,165.0842,600\nak47,42,3,165.1842,600\nak47,42,4,165.3008,600\nak47,42,5,165.4008,600\nak47,42,6,165.5009,600\nak47,42,7,165.6008,600\nak47,42,8,165.7009,600\nak47,42,9,165.8008,600\nglock17,43,0,168.8342,540\nglock17,43,1,168.9508,540\nglock17,43,2,169.0675,540\nglock17,43,3,169.1842,540\nglock17,43,4,169.2841,540\nglock17,43,5,169.4008,540\nglock17,43,6,169.5009,540\nglock17,43,7,169.6175,540\nglock17,43,8,169.7342,540\nglock17,43,9,169.8508,540\nfield,44,0,172.3675,450\nfield,44,1,172.5175,450\nfield,44,2,172.6508,450\nfield,44,3,172.7675,450\nfield,44,4,172.9009,450\nfield,44,5,173.0508,450\nfield,44,6,173.1842,450\nfield,44,7,173.3175,450\nfield,44,8,173.4509,450\nfield,44,9,173.5842,450\nmark23,45,0,176.2509,480\nmark23,45,1,176.3842,480\nmark23,45,2,176.5175,480\nmark23,45,3,176.6342,480\nmark23,45,4,176.7675,480\nmark23,45,5,176.8842,480\nmark23,45,6,177.0009,480\nmark23,45,7,177.1342,480\nmark23,45,8,177.2675,480\nmark23,45,9,177.3842,480\nak47,46,0,179.8342,600\nak47,46,1,179.9342,600\nak47,46,2,180.0509,600\nak47,46,3,180.1508,600\nak47,46,4,180.2509,600\nak47,46,5,180.3509,600\nak47,46,6,180.4342,600\nak47,46,7,180.5509,600\nak47,46,8,180.6509,600\nak47,46,9,180.7509,600\nglock17,47,0,183.7842,540\nglock17,47,1,183.9009,540\nglock17,47,2,184.0175,540\nglock17,47,3,184.1342,540\nglock17,47,4,184.2342,540\nglock17,47,5,184.3509,540\nglock17,47,6,184.4509,540\nglock17,47,7,184.5675,540\nglock17,47,8,184.6842,540\nglock17,47,9,184.8009,540\nfield,48,0,187.3508,450\nfield,48,1,187.4842,450\nfield,48,2,187.6175,450\nfield,48,3,187.7509,450\nfield,48,4,187.8842,450\nfield,48,5,188.0175,450\nfield,48,6,188.1508,450\nfield,48,7,188.2842,450\nfield,48,8,188.4175,450\nfield,48,9,188.5509,450\nmark23,49,0,191.2008,480\nmark23,49,1,191.3342,480\nmark23,49,2,191.4509,480\nmark23,49,3,191.5842,480\nmark23,49,4,191.7009,480\nmark23,49,5,191.8342,480\nmark23,49,6,191.9509,480\nmark23,49,7,192.0842,480\nmark23,49,8,192.2009,480\nmark23,49,9,192.3342,480\nak47,50,0,194.7842,600\nak47,50,1,194.9008,600\nak47,50,2,195.0008,600\nak47,50,3,195.1008,600\nak47,50,4,195.2009,600\nak47,50,5,195.3009,600\nak47,50,6,195.4008,600\nak47,50,7,195.5009,600\nak47,50,8,195.6009,600\nak47,50,9,195.7009,600\n",
+    "movement-regressions.txt": "Blocked wall reports actual zero speed, no auto-mantle without jump, sprint exits crouch, one crouch press enters slide.",
+    "movement-playmode.txt": "PASS: real CharacterController slide entry=9.312589, sprint=6.898451; dive lands prone; 1.5m mantle height=1.58",
+    "recoil-wall-result.txt": "Actual Play Mode hitscan on a fixed 15m wall; noiseless authored-pattern plus recovery/spring oracle; RMS=0.05063844 degrees; maximum acceptance 0.5 degrees. Fixed transform, no touch input.",
+    "ads-actual-playmode.csv": "weapon,targetSec,measuredSec,frameToleranceSec\nmark23,0.16,0.166626,0.01670958\nglock17,0.16,0.1667175,0.01672897\nfield,0.16,0.166626,0.01669907\nak47,0.28,0.2832947,0.01670887\n",
+    "audio/foley-stem-capture.txt": "Actual Unity stereo float PCM: frames=191488; rate=48000; RMS=0.02445925; sample peak=0.3688049. Not a LUFS/true-peak certificate.",
+    "audio/combat-mix-capture.txt": "Actual Unity stereo float PCM: frames=191488; rate=48000; RMS=0.01925175; sample peak=0.1184998. Not a LUFS/true-peak certificate.",
+    "audio/weapons-stem-capture.txt": "Actual Unity stereo float PCM: frames=192512; rate=48000; RMS=0.04175168; sample peak=0.2780762. Not a LUFS/true-peak certificate."
+  },
+  "reviewImages": [
+    "QA/Previews/recoil-wall-ak47.png",
+    "QA/Previews/ak47-ads.png"
+  ],
+  "playModeResultsPresent": true
+}
