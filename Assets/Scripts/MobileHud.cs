@@ -17,6 +17,11 @@ namespace Fpp
     {
         public static MobileHud Instance { get; private set; }
         public bool Editing { get; private set; }
+        public bool FloatingJoystick
+        {
+            get => PlayerPrefs.GetInt("fpp.controls.floating",1)!=0;
+            set { if(joystick!=null)joystick.ResetInput();PlayerPrefs.SetInt("fpp.controls.floating",value?1:0);PlayerPrefs.Save(); }
+        }
         public bool Modal => Editing || settingsPanel!=null && settingsPanel.activeSelf || visualPanel!=null && visualPanel.activeSelf || creditsPanel != null && creditsPanel.activeSelf;
         public Vector2 Move { get; private set; }
         public bool FireHeld { get; private set; }
@@ -202,7 +207,7 @@ namespace Fpp
         private void RefreshVisualTitle()
         {
             var r=PresentationRenderer.Active;if(visualTitle==null||r==null)return;
-            visualTitle.text=r.Tier+"  /  "+r.Day+"\nDRS "+(r.DynamicResolution?"ON":"OFF")+" | GRAIN "+(PlayerPrefs.GetInt("fpp.visual.grain",1)!=0?"ON":"OFF")+" | BLUR "+(PlayerPrefs.GetInt("fpp.visual.blur",0)!=0?"ON":"OFF")+" | HAPTICS "+(UiHaptics.Enabled?"ON":"OFF");
+            visualTitle.text=r.Tier+"  /  "+r.Day+"\nDRS "+(r.DynamicResolution?"ON":"OFF")+" | GRAIN "+(PlayerPrefs.GetInt("fpp.visual.grain",1)!=0?"ON":"OFF")+" | BLUR "+(PlayerPrefs.GetInt("fpp.visual.blur",0)!=0?"ON":"OFF")+" | HAPTICS "+(UiHaptics.Enabled?"ON":"OFF")+" | STICK "+(FloatingJoystick?"FLOAT":"FIXED");
         }
         private void CreateVisualSettings()
         {
@@ -223,6 +228,7 @@ namespace Fpp
                 var handle=Panel("Gain handle",track,new Color(.9f,.76f,.4f));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(20,0));slider.handleRect=handle;slider.targetGraphic=handle.GetComponent<Image>();slider.onValueChanged.AddListener(v=>{if(PresentationAudio.Active!=null)PresentationAudio.Active.SetBusVolume(bus,v);});
             }
             SmallButton(root,"HAPTICS",new Vector2(.02f,.03f),new Vector2(.3f,.12f),()=>{UiHaptics.Enabled=!UiHaptics.Enabled;RefreshVisualTitle();});
+            SmallButton(root,"FLOATING STICK",new Vector2(.32f,.03f),new Vector2(.63f,.12f),()=>{FloatingJoystick=!FloatingJoystick;RefreshVisualTitle();});
             SmallButton(root,"SAVE / CLOSE",new Vector2(.65f,.03f),new Vector2(.97f,.12f),()=>{PlayerPrefs.Save();visualPanel.SetActive(false);});visualPanel.SetActive(false);
         }
         private void SettingSlider(Transform parent,string title,float y,float value,float min,float max,UnityEngine.Events.UnityAction<float> update,SensitivitySettings settings)

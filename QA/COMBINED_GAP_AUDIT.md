@@ -87,8 +87,8 @@ Baseline: প্রকাশিত build51, source18dcf74; branch checkpointf5ce
 | P2-34 | Hit/kill/surface/ricochet audio direction | generic event sounds; complete differentiated mix নেই |
 | P2-35 | −14LUFS /−1dBTP / stems/spectrum proof | actual Unity stereo PCM/stem exporter + independent FFmpeg BS1770/spectrum source added; native output/−14LUFS/−1dBTP compliance এখনও অপ্রমাণিত |
 | P2-36 | Vorbis imports / priority32 voices | 32-source pool; নতুন editor-baked Vorbis placeholder import source/native codec gate pending; production recordings নেই |
-| P2-37 | New HUD / glyphs / safe area / pressed states | foundation আছে; full HUD/fonts/feed/low-ammo pulse/menus polish বাকি |
-| P2-38 | Haptics | **নেই** |
+| P2-37 | New HUD / glyphs / safe area / pressed states | foundation আছে; fixed/floating joystick persisted toggle ও pointer-ownership regression এখন local source-এ; native pending। Full HUD/feed/low-ammo pulse/menus polish বাকি |
+| P2-38 | Haptics | optional cached Android vibrator/effect, permission ও persisted toggle source আছে; native compile এবং real device vibration অযাচাইকৃত |
 | P2-39 | Condensed licensed font / typography / WCAG-lite | licensed Roboto Condensed SemiBold subset/OFL source added; fresh native UI/typography validation pending; WCAG measurement বাকি |
 | P2-40 | New settings toggles / audio sliders / full menu restyle | নতুন quality/day/grain/blur/persisted DRS ও6 mixer slider source/modal native regression added; fresh native pending, পূর্ণ menu polish নয় |
 | P2-41 | UI atlas single batch / no per-frame layout rebuild | icon atlas আছে; text/circle আলাদা batches, exact draw-call/perf proof নেই |
@@ -111,4 +111,7 @@ Baseline: প্রকাশিত build51, source18dcf74; branch checkpointf5ce
 Build52/run42384788788 actual Unity PlayMode17/17 PASS, including real pickup→100m-away inventory roundtrip and physical movement regression. APK48,767,351B, SHA256c680ba3da9a46b90801ffd78893560882b069078fa2b76120e0cd4604b8102a0. এটি graphics/audio/device acceptance নয়। নতুন URP source checkpoint এখনো native-pending; build52-এ URP নেই।
 
 ## ২০২৬-১১-০৮ — সর্বশেষ অবস্থা
-Build54/run42386616140 actual18/18 PASS এবং signed APK প্রকাশিত। কিন্তু নিজের দেখা AK ADS PNG-তে HUD missing; এই red visual finding-কে green test দিয়ে ঢাকিনি। Native55-এ review-only ungraded UI camera ও actual magenta pixel assertion চলছে। নতুন AUD/UI/SYS-11 source—real mixer/Vorbis/PCM/meter/menu/condensed font/ceiling-impact repair—এর পরের fresh native gate21টি case; এখনো accepted বলা হয়নি।
+Build54/run42386616140 actual18/18 PASS এবং signed APK প্রকাশিত। কিন্তু নিজের দেখা AK ADS PNG-তে HUD missing; এই red visual finding-কে green test দিয়ে ঢাকিনি। Native55 cancelled; final XML নেই। উদ্ধার করা sentinel/touch ছবিতে HUD নেই। Native56/57 superseded; native58/run42448601884-এ matching RenderTexture/layer30 capture hypothesis ও strict magenta pixel assertion pending। নতুন AUD/UI/SYS-11 source—real mixer/Vorbis/PCM/meter/menu/condensed font/ceiling-impact repair—এর পরের fresh native gate21টি case; এখনো accepted বলা হয়নি।
+
+## Pending local joystick follow-up (after source7ff835a)
+Fixed/floating mode selection now persists separately from authored placement; switching modes releases movement, fixed background cannot start movement, floating touch origin does not overwrite saved layout. Existing mandatory menu test extended with actual pointer events, second-finger release isolation and mode-change release assertions. 38 local Python guards pass (source checks only); this follow-up is not in native58 and is not accepted yet. Native capture/source acceptance remains red/pending; no FINAL_REPORT.

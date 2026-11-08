@@ -40,7 +40,7 @@ namespace Fpp
                 RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)rect.parent,data.position,data.pressEventCamera,out var point);
                 dragOffset=rect.localPosition-(Vector3)point;
             }
-            else { owner.Press(placement.id,true);if(placement.id=="move"){RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)rect.parent,data.position,data.pressEventCamera,out floatingOrigin);rect.localPosition=floatingOrigin;Move(data);} }
+            else { owner.Press(placement.id,true);if(placement.id=="move"){RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)rect.parent,data.position,data.pressEventCamera,out floatingOrigin);if(owner.FloatingJoystick)rect.localPosition=floatingOrigin;Move(data);} }
         }
         public void OnDrag(PointerEventData data)
         {

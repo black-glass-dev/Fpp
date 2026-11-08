@@ -6,7 +6,7 @@ from pathlib import Path
 class AudioUiIntegration(unittest.TestCase):
     def test_real_mixer_authoring_and_routing_are_connected(self):
         setup=Path('Assets/Editor/PresentationAudioSetup.cs').read_text()
-        for token in ['CreateMixerControllerAtPath','AddChildToParent','exposedParameters','AudioCompressionFormat.Vorbis','sample.preloadAudioData=true']:
+        for token in ['CreateMixerControllerAtPath','AddChildToParent','exposedParameters','AudioCompressionFormat.Vorbis','importSettings.preloadAudioData=true']:
             self.assertIn(token,setup)
         audio=Path('Assets/Scripts/PresentationAudio.cs').read_text()
         for token in ['Instantiate(authored)','source.outputAudioMixerGroup=groups[bus]','mixer.SetFloat','BusVolume','MusicStub']:
@@ -31,6 +31,17 @@ class AudioUiIntegration(unittest.TestCase):
         renderer=Path('Assets/Scripts/PresentationRenderer.cs').read_text()
         self.assertIn('pipeline.renderScale=visual.maxScale',renderer)
         self.assertIn('Application.isMobilePlatform&&DynamicResolution',renderer)
+
+    def test_fixed_floating_toggle_is_persisted_and_does_not_capture_background_in_fixed_mode(self):
+        hud=Path('Assets/Scripts/MobileHud.cs').read_text()
+        self.assertIn('fpp.controls.floating',hud)
+        self.assertIn('joystick.ResetInput()',hud)
+        self.assertIn('FLOATING STICK',hud)
+        zone=Path('Assets/Scripts/FloatingJoystickZone.cs').read_text()
+        self.assertIn('!control.owner.Editing && control.owner.FloatingJoystick',zone)
+        control=Path('Assets/Scripts/HudControl.cs').read_text()
+        self.assertIn('if(owner.FloatingJoystick)rect.localPosition=floatingOrigin',control)
+        self.assertIn('data.pointerId!=finger',control)
 
     def test_hud_capture_has_real_pixel_gate_and_ungraded_final_camera(self):
         helper=Path('Assets/Scripts/RenderEvidence.cs').read_text()

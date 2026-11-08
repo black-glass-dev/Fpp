@@ -269,10 +269,30 @@ namespace Fpp.Tests
             foreach(var button in buttons)if(button.name==name){button.onClick.Invoke();return;}
             Assert.Fail("Missing menu button: "+name);
         }
+        private static void AssertJoystickModes(MobileHud hud)
+        {
+            HudControl move=null;foreach(var control in hud.GetComponentsInChildren<HudControl>())if(control.placement.id=="move")move=control;
+            Assert.NotNull(move);var rect=(RectTransform)move.transform;bool original=hud.FloatingJoystick;
+            var point=RectTransformUtility.WorldToScreenPoint(null,rect.TransformPoint(rect.rect.center))+Vector2.right*Screen.width*.05f;
+            var pointer=new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current){pointerId=1001,position=point};
+            var other=new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current){pointerId=1002,position=point};
+            var zone=hud.GetComponentInChildren<FloatingJoystickZone>();Assert.NotNull(zone);
+            try
+            {
+                hud.FloatingJoystick=false;zone.OnPointerDown(pointer);Assert.AreEqual(Vector2.zero,hud.Move,"fixed stick ignores background down");
+                move.OnPointerDown(pointer);Assert.Greater(hud.Move.x,.1f);Assert.That(rect.anchoredPosition.sqrMagnitude,Is.LessThan(.001f),"fixed base stays authored");
+                move.OnPointerUp(other);Assert.Greater(hud.Move.x,.1f,"another finger must not release movement");
+                move.OnPointerUp(pointer);Assert.AreEqual(Vector2.zero,hud.Move);
+                hud.FloatingJoystick=true;zone.OnPointerDown(pointer);Assert.Greater(rect.anchoredPosition.sqrMagnitude,1,"floating base follows background touch");Assert.That(hud.Move.sqrMagnitude,Is.LessThan(.001f));
+                pointer.position+=Vector2.right*Screen.width*.05f;zone.OnDrag(pointer);Assert.Greater(hud.Move.x,.1f);
+                hud.FloatingJoystick=false;Assert.AreEqual(Vector2.zero,hud.Move,"mode switch releases held movement");Assert.That(rect.anchoredPosition.sqrMagnitude,Is.LessThan(.001f));
+            }
+            finally { move.ResetInput();hud.FloatingJoystick=original; }
+        }
         [UnityTest,Timeout(120000)] public IEnumerator GraphicsAudioMenuChangesRealSettingsAndBlocksGameplay()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
-            var hud=MobileHud.Instance;var audio=PresentationAudio.Active;var renderer=PresentationRenderer.Active;float master=audio.BusVolume(0);var tier=renderer.Tier;var day=renderer.Day;bool drs=renderer.DynamicResolution;bool haptics=UiHaptics.Enabled;
+            var hud=MobileHud.Instance;var audio=PresentationAudio.Active;var renderer=PresentationRenderer.Active;float master=audio.BusVolume(0);var tier=renderer.Tier;var day=renderer.Day;bool drs=renderer.DynamicResolution;bool haptics=UiHaptics.Enabled;bool floating=hud.FloatingJoystick;
             PressMenuButton("SETTINGS");yield return null;PressMenuButton("VISUAL/AUDIO");yield return null;
             var panel=GameObject.Find("Graphics and audio mix");Assert.NotNull(panel);Assert.True(hud.Modal);hud.Press("fire",true);Assert.False(hud.FireHeld);
             try
@@ -282,13 +302,15 @@ namespace Fpp.Tests
                 PressMenuButton("QUALITY",panel.transform);yield return null;Assert.AreNotEqual(tier,renderer.Tier);PressMenuButton("DAYLIGHT",panel.transform);Assert.AreNotEqual(day,renderer.Day);
                 PressMenuButton("DRS",panel.transform);Assert.AreNotEqual(drs,renderer.DynamicResolution);if(!renderer.DynamicResolution)Assert.AreEqual(1,renderer.ResolutionScale);
                 PressMenuButton("HAPTICS",panel.transform);Assert.AreNotEqual(haptics,UiHaptics.Enabled);
+                PressMenuButton("FLOATING STICK",panel.transform);Assert.AreNotEqual(floating,hud.FloatingJoystick);
+                Assert.AreEqual(hud.FloatingJoystick?1:0,PlayerPrefs.GetInt("fpp.controls.floating"));
                 GunplayVisualTests.Save(Output+"/settings-visual-audio.png",UnityEngine.Object.FindObjectOfType<WeaponController>());
             }
             finally
             {
-                UiHaptics.Enabled=haptics;audio.SetBusVolume(0,master);renderer.SetTier(tier);renderer.SetDay(day);if(renderer.DynamicResolution!=drs)renderer.ToggleDynamicResolution();PressMenuButton("SAVE / CLOSE",panel.transform);
+                hud.FloatingJoystick=floating;UiHaptics.Enabled=haptics;audio.SetBusVolume(0,master);renderer.SetTier(tier);renderer.SetDay(day);if(renderer.DynamicResolution!=drs)renderer.ToggleDynamicResolution();PressMenuButton("SAVE / CLOSE",panel.transform);
             }
-            Assert.False(hud.Modal);File.WriteAllText(Output+"/graphics-audio-menu.txt","Actual menu callbacks change mixer master dB, tier, daylight and persisted DRS; modal blocks fire; close restores gameplay. Native touch/haptics/device ergonomics separate.");
+            Assert.False(hud.Modal);AssertJoystickModes(hud);File.WriteAllText(Output+"/graphics-audio-menu.txt","Actual menu callbacks change mixer master dB, tier, daylight and persisted DRS; modal blocks fire; close restores gameplay. Native touch/haptics/device ergonomics separate.");
         }
         [UnityTest,Timeout(120000)] public IEnumerator UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors()
         {
