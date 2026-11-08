@@ -57,6 +57,15 @@ namespace Fpp.Editor
             CottageMap.Create();
             EnvironmentAudit.Validate();
             AppIconSetup.Apply();
+            // The imported Shader Graph has Built-in and URP subshaders. Select the live
+            // URP context before auditing its active RenderPipeline tag.
+            var warmTarget=RenderTexture.GetTemporary(16,9,24);var previousTarget=RenderTexture.active;
+            try
+            {
+                var owner=UnityEngine.Object.FindObjectOfType<WeaponController>();
+                RenderEvidence.Into(owner.view.GetComponent<Camera>(),owner.weaponCamera,warmTarget);
+            }
+            finally { RenderTexture.active=previousTarget;RenderTexture.ReleaseTemporary(warmTarget); }
             RevisionAudit.Validate();
             BuildPreview.Capture();
             PlayerSettings.companyName = "Black Glass Dev";
