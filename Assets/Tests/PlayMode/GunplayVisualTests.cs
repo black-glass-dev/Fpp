@@ -12,6 +12,9 @@ namespace Fpp.Tests
 {
     public sealed class GunplayVisualTests
     {
+        [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);}
+        [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);}
+
         // No live recoil-model calls in the oracle: integrate the authored noiseless impulses independently.
         private sealed class PatternOracle
         {

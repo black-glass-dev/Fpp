@@ -13,6 +13,9 @@ namespace Fpp.Tests
 {
     public sealed class GunplayPlayModeTests
     {
+        [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);}
+        [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);}
+
         private static readonly string[] Ids={"mark23","glock17","field","ak47"};
         private static string Output {get {string p="QA/runtime";Directory.CreateDirectory(p);return p;}}
         private static WeaponAsset Weapon(string id){var w=Resources.Load<WeaponAsset>("Gunplay/"+id);Assert.NotNull(w,id);return w;}

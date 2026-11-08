@@ -18,7 +18,7 @@ namespace Fpp
             }
             if(canvas==null||overlay==null)
             {RenderPipeline.SubmitRenderRequest(world,new RenderPipeline.StandardRequest{destination=destination});return;}
-            const int uiLayer=31;int worldMask=world.cullingMask,overlayMask=overlay.cullingMask;
+            const int uiLayer=30;int worldMask=world.cullingMask,overlayMask=overlay.cullingMask;
             var mode=canvas.renderMode;var previousCamera=canvas.worldCamera;float plane=canvas.planeDistance;
             var transforms=canvas.GetComponentsInChildren<Transform>(true);var layers=new int[transforms.Length];
             var auxiliary=new GameObject("Evidence-only ungraded UI camera"){hideFlags=HideFlags.HideAndDontSave};

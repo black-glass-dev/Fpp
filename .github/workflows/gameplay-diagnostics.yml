@@ -20,7 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RUN: ${{ github.event.workflow_run.id || '42386023714' }}
+          RUN: ${{ github.event.workflow_run.id || '42446260394' }}
         run: |
           gh run view "$RUN" --log > /tmp/failed.log || true
           gh api "repos/$GH_REPO/actions/runs/$RUN/logs" > /tmp/run-logs.zip || true
@@ -43,7 +43,7 @@ jobs:
           selected=[]
           for line in lines:
               if re.search(r'password|email|serial|token|credential|https?://|signature',line,re.I):continue
-              if not re.search(r'PUBLISH_DIAGNOSTIC|error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Fpp\.| at .*Assets|ignored|pathspec|hint:|Process completed|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
+              if not re.search(r'FPP QA|PUBLISH_DIAGNOSTIC|error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Fpp\.| at .*Assets|ignored|pathspec|hint:|Process completed|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
               line=re.sub(r'[^\s@]+@[^\s@]+','[EMAIL]',line)
               selected.append(line[-700:])
           root=pathlib.Path('QA');root.mkdir(exist_ok=True)

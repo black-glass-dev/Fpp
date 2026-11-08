@@ -11,6 +11,9 @@ namespace Fpp.Tests
 {
     public sealed class PresentationAudioOutputTests
     {
+        [SetUp] public void ReportNativeStart(){Debug.Log("FPP QA START "+TestContext.CurrentContext.Test.FullName);}
+        [TearDown] public void ReportNativeFinish(){Debug.Log("FPP QA END "+TestContext.CurrentContext.Test.FullName+" "+TestContext.CurrentContext.Result.Outcome.Status);}
+
         private static void Header(BinaryWriter writer,int frames,int rate)
         {
             writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));writer.Write(36+frames*8);writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));writer.Write(16);writer.Write((short)3);writer.Write((short)2);writer.Write(rate);writer.Write(rate*8);writer.Write((short)8);writer.Write((short)32);writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));writer.Write(frames*8);
