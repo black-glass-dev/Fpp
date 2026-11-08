@@ -1,5 +1,5 @@
 name: Gameplay QA diagnostics
-# Refresh completed native58 logs after cancellation and index recovered images.
+# Refresh completed native64 logs after cancellation and index recovered images.
 on:
   push:
     branches: [arena/f3a68c52-fpp]
@@ -21,7 +21,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RUN: ${{ github.event.workflow_run.id || '42448601884' }}
+          RUN: ${{ github.event.workflow_run.id || '42475487031' }}
         run: |
           gh run view "$RUN" --log > /tmp/failed.log || true
           gh api "repos/$GH_REPO/actions/runs/$RUN/logs" > /tmp/run-logs.zip || true
@@ -88,7 +88,7 @@ jobs:
               subprocess.run(['python','Tools/summarize_gameplay_qa.py'],env=env,check=True)
               review=Path('QA/Review-'+os.environ['RUN']);review.mkdir(exist_ok=True);budget=180000
               (Path('QA')/('runtime-index-'+os.environ['RUN']+'.json')).write_text(__import__('json').dumps({str(p.relative_to(runtime)):p.stat().st_size for p in runtime.rglob('*') if p.is_file()},indent=2))
-              for name in ('urp-hud-sentinel','mark23-idle','mark23-ads','touch-pressed','ak47-fire','ak47-tactical-0.40'):
+              for name in ('village-spawn','rapid-turn-elevation-20','urp-hud-sentinel','mark23-idle','touch-pressed'):
                   source=runtime/(name+'.png')
                   if not source.exists():continue
                   image=Image.open(source).convert('RGB');image.thumbnail((960,540))
