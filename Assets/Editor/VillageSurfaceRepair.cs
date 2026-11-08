@@ -36,13 +36,21 @@ namespace Fpp.Editor
                     var tint=source.HasProperty("baseColorFactor")?(Color)source.GetVector("baseColorFactor"):source.HasProperty("_Color")?source.color:Color.white;
                     if(model.IndexOf("shop",StringComparison.OrdinalIgnoreCase)>=0)tint=new Color(.72f,.62f,.45f);
                     if(kind=="Earth")tint=Color.white;
-                    material.shader=Shader.Find("FPP/Metric Surface Lit");
-                    if(material.shader==null)throw new Exception("Missing metric surface shader");
                     var albedo=AssetDatabase.LoadAssetAtPath<Texture2D>(kind=="Earth"?"Assets/Art/Ground/Dirt.png":"Assets/Generated/Village/SurfaceTextures/"+kind+"_BaseColor.png");
                     var normal=AssetDatabase.LoadAssetAtPath<Texture2D>(kind=="Earth"?"Assets/Art/Ground/DirtNormal.png":"Assets/Generated/Village/SurfaceTextures/"+kind+"_Normal.png");
                     if(albedo==null||normal==null)throw new Exception("Missing original surface maps: "+kind);
-                    material.SetTexture("_MainTex",albedo);material.SetTexture("_BumpMap",normal);material.SetColor("_Color",tint);
-                    material.SetFloat("_DetailScale",1);material.SetFloat("_Smoothness",kind=="Wood"?.2f:.16f);
+                    bool suppliedPbrDetail=source.HasProperty("normalTexture")&&source.GetTexture("normalTexture")!=null||source.HasProperty("metallicRoughnessTexture")&&source.GetTexture("metallicRoughnessTexture")!=null;
+                    if(suppliedPbrDetail&&source.HasProperty("baseColorTexture"))
+                    {
+                        // Retain valid authored normal/roughness data and its original shader/UVs.
+                        material.SetTexture("baseColorTexture",albedo);
+                    }
+                    else
+                    {
+                        material.shader=Shader.Find("FPP/Metric Surface Lit");if(material.shader==null)throw new Exception("Missing metric surface shader");
+                        material.SetTexture("_MainTex",albedo);material.SetTexture("_BumpMap",normal);material.SetColor("_Color",tint);
+                        material.SetFloat("_DetailScale",1);material.SetFloat("_Smoothness",kind=="Wood"?.2f:.16f);
+                    }
                     AssetDatabase.CreateAsset(material,path);
                     Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/material-detail-repairs.txt",model+" / "+source.name+" -> "+kind+"; original source unchanged; existing images preserved\n");
                 }

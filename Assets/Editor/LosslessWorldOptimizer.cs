@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
 namespace Fpp.Editor
@@ -10,8 +11,8 @@ namespace Fpp.Editor
         [Serializable] private class Report
         {
             public string status="Structural editor audit, NOT measured Android FPS. No mesh simplification, texture resizing, lighting/MSAA/shadow/resolution reduction or distance LOD applied.";
-            public int renderers,uniqueMeshes,sharedMeshInstances,instancingEligibleRenderers,deduplicatedTextureReferences;
-            public long visibleTriangleInstances,uniqueMeshTriangles,editorTextureObjectBytesBefore,editorTextureObjectBytesAfter;
+            public int renderers,uniqueMeshes,sharedMeshInstances,instancingEligibleRenderers,deduplicatedTextureReferences,rawPixelTexturesHashed,engineHashTextures;
+            public long enabledTriangleInstances,uniqueMeshTriangles,editorTextureObjectBytesBefore,editorTextureObjectBytesAfter;
         }
         public static void BakeVisibility()
         {
@@ -27,7 +28,7 @@ namespace Fpp.Editor
         public static void Apply()
         {
             var report=new Report();var meshes=new HashSet<Mesh>();var before=new HashSet<Texture>();var after=new HashSet<Texture>();
-            var textures=new Dictionary<string,Texture>();var copies=new Dictionary<Material,Material>();
+            var identities=new Dictionary<Texture,string>();var textures=new Dictionary<string,Texture>();var copies=new Dictionary<Material,Material>();
             var counts=new Dictionary<Mesh,int>();var renderers=UnityEngine.Object.FindObjectsOfType<MeshRenderer>();
             foreach(var renderer in renderers)
             {
@@ -42,7 +43,7 @@ namespace Fpp.Editor
                 var filter=renderer.GetComponent<MeshFilter>();if(filter==null||filter.sharedMesh==null)continue;
                 var mesh=filter.sharedMesh;report.renderers++;long triangles=0;
                 for(int sub=0;sub<mesh.subMeshCount;sub++)if(mesh.GetTopology(sub)==MeshTopology.Triangles)triangles+=(long)mesh.GetIndexCount(sub)/3;
-                report.visibleTriangleInstances+=triangles;
+                report.enabledTriangleInstances+=triangles;
                 if(meshes.Add(mesh))report.uniqueMeshTriangles+=triangles;else report.sharedMeshInstances++;
                 var materials=renderer.sharedMaterials;bool eligible=counts[mesh]>1;
                 for(int i=0;i<materials.Length;i++)
@@ -57,10 +58,22 @@ namespace Fpp.Editor
                         {
                             var texture=source.GetTexture(property);if(texture==null)continue;
                             var image=texture as Texture2D;if(image==null)continue;
-                            var hash=image.imageContentsHash;
-                            // An unset hash is not identity evidence. Never merge by filename/size alone.
-                            if(!hash.isValid)continue;
-                            string key=hash+"/"+texture.width+"/"+texture.height+"/"+texture.graphicsFormat+"/"+image.mipmapCount+"/"+texture.filterMode+"/"+texture.wrapModeU+"/"+texture.wrapModeV+"/"+texture.wrapModeW+"/"+texture.anisoLevel+"/"+texture.mipMapBias;
+                            string identity;
+                            if(!identities.TryGetValue(image,out identity))
+                            {
+                                // Imported glTF subassets can have distinct/unset engine hashes for equal pixels.
+                                // Prefer exact CPU pixel+all-mip payload identity when already readable.
+                                // Never turn read/write on or alter any original pixels to obtain a hash.
+                                if(image.isReadable)
+                                {
+                                    using(var sha=SHA256.Create())identity="pixels:"+BitConverter.ToString(sha.ComputeHash(image.GetRawTextureData<byte>().ToArray()));
+                                    report.rawPixelTexturesHashed++;
+                                }
+                                else {var hash=image.imageContentsHash;identity=hash.isValid?"engine:"+hash.ToString():null;if(hash.isValid)report.engineHashTextures++;}
+                                identities.Add(image,identity);
+                            }
+                            if(identity==null)continue;
+                            string key=identity+"/"+texture.width+"/"+texture.height+"/"+texture.graphicsFormat+"/"+image.mipmapCount+"/"+image.isReadable+"/"+image.streamingMipmaps+"/"+image.streamingMipmapsPriority+"/"+texture.filterMode+"/"+texture.wrapModeU+"/"+texture.wrapModeV+"/"+texture.wrapModeW+"/"+texture.anisoLevel+"/"+texture.mipMapBias;
                             Texture canonical;if(textures.TryGetValue(key,out canonical))
                             {if(canonical!=texture){copy.SetTexture(property,canonical);report.deduplicatedTextureReferences++;}}
                             else textures.Add(key,texture);

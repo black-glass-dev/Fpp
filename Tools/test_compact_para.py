@@ -76,10 +76,13 @@ class CompactPara(unittest.TestCase):
 
     def test_lossless_optimizations_do_not_replace_quality_settings(self):
         optimizer=Path('Assets/Editor/LosslessWorldOptimizer.cs').read_text()
-        for token in ['imageContentsHash','graphicsFormat','mipmapCount','wrapModeU','mipMapBias','!hash.isValid','StaticOcclusionCulling.Compute()','smallestHole=.25f','~StaticEditorFlags.BatchingStatic']:
+        for token in ['imageContentsHash','graphicsFormat','mipmapCount','wrapModeU','mipMapBias','hash.isValid','StaticOcclusionCulling.Compute()','smallestHole=.25f','~StaticEditorFlags.BatchingStatic']:
             self.assertIn(token,optimizer)
         for forbidden in ['SetResolution','shadowDistance=','renderScale=','SetTriangles','SetVertices','Resize(','SetLODs','fast_simplification']:
             self.assertNotIn(forbidden,optimizer)
+        self.assertIn('SHA256.Create()',optimizer)
+        self.assertIn('GetRawTextureData<byte>().ToArray()',optimizer)
+        self.assertIn('streamingMipmapsPriority',optimizer)
         bootstrap=Path('Assets/Scripts/MobileBootstrap.cs').read_text()
         self.assertIn('currentRenderPipeline==null&&c.dynamicResolution&&PlayerPrefs.GetInt("fpp.visual.drs",0)!=0)ApplyResolution(c)',bootstrap)
 
