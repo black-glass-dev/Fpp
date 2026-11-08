@@ -1,7 +1,7 @@
 name: Publish requested map test APK (not accepted release)
 on:
   push:
-    branches: [arena/f3a68c52-fpp]
+    branches: [arena/f3a71c52-fpp]
     paths: ['.github/workflows/publish-map-diagnostic.yml']
 permissions:
   contents: write
@@ -13,15 +13,15 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
-      SOURCE_RUN: '42479348320'
+      SOURCE_RUN: '42481817550'
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: arena/f3a68c52-fpp
+          ref: arena/f3a71c52-fpp
       - name: Download independently signed diagnostic APK and genuine build images
         run: |
-          gh run download "$SOURCE_RUN" --name 'diagnostic-APK-68-NOT-QA-ACCEPTED' --dir apk
-          gh run download "$SOURCE_RUN" --name 'build-scene-evidence-68' --dir evidence
+          gh run download "$SOURCE_RUN" --name 'diagnostic-APK-71-NOT-QA-ACCEPTED' --dir apk
+          gh run download "$SOURCE_RUN" --name 'build-scene-evidence-71' --dir evidence
       - name: Independently verify artifact and publish explicit diagnostic prerelease
         run: |
           trap 'echo "::error::Diagnostic publisher failed at shell line $LINENO"' ERR
@@ -33,14 +33,14 @@ jobs:
               assert required.issubset(z.namelist()) and z.testzip() is None
           digest=hashlib.sha256(p.read_bytes()).hexdigest()
           pathlib.Path('apk/SHA256.txt').write_text(digest+'  Fpp.apk\n')
-          pathlib.Path('QA/diagnostic-map-68.json').write_text(json.dumps({'run':'42479348320','bytes':p.stat().st_size,'apkSha256':digest,'status':'signed diagnostic APK; native gate and full art/device acceptance are separate'},indent=2)+'\n')
+          pathlib.Path('QA/diagnostic-map-71.json').write_text(json.dumps({'run':'42481817550','bytes':p.stat().st_size,'apkSha256':digest,'status':'signed diagnostic APK; native gate and full art/device acceptance are separate'},indent=2)+'\n')
           PY
           signer=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
           test -n "$signer" || { echo "::error::Host apksigner not found"; exit 1; }
           "$signer" verify apk/Fpp.apk || { echo "::error::Downloaded APK signature verification failed"; exit 1; }
           source=$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq .head_sha)
-          test "$source" = e9eaa76f5ba7b2c0972eeb85b5070675a6b82777 || { echo "::error::Source run SHA mismatch"; exit 1; }
-          gh release create diagnostic-map-68 apk/Fpp.apk apk/SHA256.txt --target "$source" --prerelease --title 'Map test APK 68 — diagnostic, not full acceptance' --notes 'Requested Android ARM64 map preview. All18 supplied GLB sources staged; expanded courtyard/pond district, brick material repair and vertex-colour material binding. APK contents and signature independently verified. This is NOT a completed/QA-accepted release: native gate, camera/HUD visual review, interiors, remaining texture/model polish and target-device performance are separate and may remain red. Water/fallbacks are labelled placeholders. Do not interpret this preview as all Prompt1/Prompt2 work completed. Signing continuity with older installations is not guaranteed.' > /tmp/release-result.txt 2>&1 || { cat /tmp/release-result.txt; echo "::error::Diagnostic release upload/create failed; see release response above"; exit 1; }
+          test "$source" = 805ddd31798877e0eaf6e268522284c5822171f1 || { echo "::error::Source run SHA mismatch"; exit 1; }
+          gh release create diagnostic-map-71 apk/Fpp.apk apk/SHA256.txt --target "$source" --prerelease --title 'Map test APK 71 — diagnostic, not full acceptance' --notes 'Requested Android ARM64 map preview. All18 supplied GLB sources staged; expanded courtyard/pond district, brick material repair and vertex-colour material binding. APK contents and signature independently verified. This is NOT a completed/QA-accepted release: native gate, camera/HUD visual review, interiors, remaining texture/model polish and target-device performance are separate and may remain red. Water/fallbacks are labelled placeholders. Do not interpret this preview as all Prompt1/Prompt2 work completed. Signing continuity with older installations is not guaranteed.' > /tmp/release-result.txt 2>&1 || { cat /tmp/release-result.txt; echo "::error::Diagnostic release upload/create failed; see release response above"; exit 1; }
       - name: Recover bounded genuine render previews and placement receipt
         run: |
           pip install pillow==12.0.0
@@ -48,20 +48,20 @@ jobs:
           from pathlib import Path
           from PIL import Image
           import io,shutil
-          output=Path('QA/Review-map-68');output.mkdir(exist_ok=True);budget=230000
+          output=Path('QA/Review-map-71');output.mkdir(exist_ok=True);budget=230000
           for name in ('unity-spawn.png','unity-environment.png','unity-ak-held.png'):
               candidates=list(Path('evidence').rglob(name))
               if not candidates:continue
               image=Image.open(candidates[0]).convert('RGB');image.thumbnail((960,540))
               data=io.BytesIO();image.save(data,format='JPEG',quality=74,optimize=True)
               if len(data.getvalue())<=budget:(output/(Path(name).stem+'.jpg')).write_bytes(data.getvalue());budget-=len(data.getvalue())
-          for receipt in Path('evidence').rglob('village-placement.json'):shutil.copyfile(receipt,'QA/village-placement-68.json')
+          for receipt in Path('evidence').rglob('village-placement.json'):shutil.copyfile(receipt,'QA/village-placement-71.json')
           PY
-          git add QA/diagnostic-map-68.json QA/Review-map-68 QA/village-placement-68.json
+          git add QA/diagnostic-map-71.json QA/Review-map-71 QA/village-placement-71.json
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           if ! git diff --cached --quiet; then
-            git commit -m 'Preserve signed diagnostic-map68 receipt and genuine build screenshots'
-            git pull --rebase origin arena/f3a68c52-fpp
-            git push origin HEAD:arena/f3a68c52-fpp
+            git commit -m 'Preserve signed diagnostic-map71 receipt and genuine build screenshots'
+            git pull --rebase origin arena/f3a71c52-fpp
+            git push origin HEAD:arena/f3a71c52-fpp
           fi
