@@ -45,7 +45,7 @@ half4 FppFragment(FppVaryings i):SV_Target
  float2 p=i.world.xz,uv=p*_DetailScale;
  half macro=FppNoise(p*.18)*.65+FppNoise(p*.57)*.35;
  half lane=1-smoothstep(4.1,5.0,abs(p.x));half yard=(1-smoothstep(15.8,17.5,abs(p.x)))*(1-smoothstep(4.6,6,abs(p.y)));
- half road=_Road*max(lane,yard),soil=lerp(smoothstep(.38,.72,macro)*.78,1,road);
+ half road=saturate(_Road),soil=lerp(smoothstep(.38,.72,macro)*.78,1,road);
  half ruts=pow(saturate(1-abs(abs(p.x)-2.05)*2.6),3)*road;
  s.albedo=lerp(SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,uv).rgb,SAMPLE_TEXTURE2D(_SoilTex,sampler_SoilTex,uv*1.13+float2(.32,.71)).rgb,soil)*lerp(.78,1.16,FppNoise(p*.075+17))*(1-ruts*.17);
  half3 detail=normalize(lerp(UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap,sampler_BumpMap,uv)),UnpackNormal(SAMPLE_TEXTURE2D(_SoilNormal,sampler_SoilNormal,uv*1.13+float2(.32,.71))),soil));

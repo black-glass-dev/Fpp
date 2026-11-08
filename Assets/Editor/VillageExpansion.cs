@@ -15,8 +15,9 @@ namespace Fpp.Editor
         [Serializable] private class Entry { public string pack,name,assetPath,sourcePath; }
         [Serializable] private class Usage { public string source,placement,calibration;public Vector3 size,position;public int instances; }
         [Serializable] private class Placement { public string name;public float x,z,yaw,height,width; }
+        [Serializable] private class Lane {public string name;public float x,z,width,length;public bool existing;}
         [Serializable] private class Anchor { public float x,z; }
-        [Serializable] private class Layout { public string districtName;public int halfWidth,halfDepth;public Placement[] models;public Anchor[] treeAnchors; }
+        [Serializable] private class Layout { public string districtName;public int halfWidth,halfDepth;public Placement[] models;public Anchor[] treeAnchors;public Lane[] lanes; }
         private static Layout layout;
         private static bool Helper(string name) { return name.StartsWith("UCX_",StringComparison.OrdinalIgnoreCase)||name.IndexOf("Collision",StringComparison.OrdinalIgnoreCase)>=0||name.EndsWith("_LOD1",StringComparison.OrdinalIgnoreCase)||name.EndsWith("_LOD2",StringComparison.OrdinalIgnoreCase); }
         private static bool Helper(Transform t) {for(;t!=null;t=t.parent)if(Helper(t.name))return true;return false;}
@@ -53,13 +54,8 @@ namespace Fpp.Editor
             var district=new GameObject(layout.districtName);
             CreateTerrain(district.transform,ground);CreatePond(district.transform);
             foreach(var pickup in UnityEngine.Object.FindObjectsOfType<WeaponPickup>()){var p=pickup.transform.position;pickup.transform.position-=Vector3.up*GroundBuilder.Height(p.x,p.z);}
-            Slab("East connected neighbourhood lane",new Vector3(22,.025f,-8),new Vector3(4.2f,.05f,82),lane,district.transform);
-            Slab("East residential alley",new Vector3(40,.025f,-9),new Vector3(2.4f,.05f,58),lane,district.transform);
-            Slab("South cross gali",new Vector3(35,.025f,-21),new Vector3(30,.05f,2.4f),lane,district.transform);
-            Slab("North cross gali",new Vector3(35,.025f,-2),new Vector3(30,.05f,2.4f),lane,district.transform);
-            Slab("West courtyard connection",new Vector3(-25,.025f,10),new Vector3(24,.05f,2.4f),lane,district.transform);
-            Slab("West uthan",new Vector3(-36,.025f,-28),new Vector3(7,.05f,11),lane,district.transform);
-            Slab("West inner passage",new Vector3(-36,.025f,5),new Vector3(2.4f,.05f,55),lane,district.transform);
+            foreach(var lanePlan in layout.lanes)if(!lanePlan.existing)
+                Slab(lanePlan.name,new Vector3(lanePlan.x,.025f,lanePlan.z),new Vector3(lanePlan.width,.05f,lanePlan.length),lane,district.transform);
             var usage=new List<Usage>();int tree=0;
             foreach(var entry in catalog.models)
             {
@@ -125,7 +121,7 @@ namespace Fpp.Editor
                         foreach(var filter in go.GetComponentsInChildren<MeshFilter>())if(filter.sharedMesh!=null&&!Helper(filter.transform))
                         {var collider=filter.GetComponent<MeshCollider>();if(collider==null)collider=filter.gameObject.AddComponent<MeshCollider>();collider.sharedMesh=filter.sharedMesh;}
                     }
-                    foreach(var t in go.GetComponentsInChildren<Transform>(true))GameObjectUtility.SetStaticEditorFlags(t.gameObject,StaticEditorFlags.BatchingStatic|StaticEditorFlags.OccludeeStatic|(entry.pack=="House"?StaticEditorFlags.OccluderStatic:0));
+                    foreach(var t in go.GetComponentsInChildren<Transform>(true))GameObjectUtility.SetStaticEditorFlags(t.gameObject,StaticEditorFlags.BatchingStatic|StaticEditorFlags.OccludeeStatic|(entry.pack=="House"?StaticEditorFlags.OccluderStatic:(StaticEditorFlags)0));
                     if(first==null)first=go;
                 }
                 if(entry.pack=="Tree")tree++;

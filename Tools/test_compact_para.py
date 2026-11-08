@@ -22,7 +22,28 @@ class CompactPara(unittest.TestCase):
                 self.assertEqual(4.2,parcel['width'])
             else:self.assertTrue(3<=parcel['height']<=8)
         self.assertEqual(24,len(layout['treeAnchors']))
-        self.assertTrue(all(-60<t['x']<0 for t in layout['treeAnchors']))
+        self.assertEqual(21,sum(-60<t['x']<0 for t in layout['treeAnchors']))
+        # Conservative maximum13.5m city parcels leave a2.5m gap for the2.4m alley.
+        city=[m for m in layout['models'] if m['x'] in (34,50)]
+        self.assertEqual(7,len(city))
+        self.assertGreaterEqual(50-34-13.5,2.4)
+        self.assertGreater(24-4.2/2,16+10/2)
+        self.assertGreaterEqual(34-13.5/2,24+4.2/2)
+
+    def test_all_paths_form_one_connected_walk_network(self):
+        lanes=json.loads(Path('Assets/Editor/VillageLayout.json').read_text())['lanes']
+        def touches(a,b):
+            return abs(a['x']-b['x'])<=(a['width']+b['width'])/2+.001 and abs(a['z']-b['z'])<=(a['length']+b['length'])/2+.001
+        reached={0}
+        for _ in lanes:
+            reached|={i for i,a in enumerate(lanes) if any(touches(a,lanes[j]) for j in reached)}
+        self.assertEqual(len(lanes),len(reached),'No disconnected cosmetic road strips')
+        for lane in lanes:
+            self.assertLessEqual(abs(lane['x'])+lane['width']/2,60)
+            self.assertLessEqual(abs(lane['z'])+lane['length']/2,60)
+        shader=Path('Assets/Shaders/FppUrpWorld.hlsl').read_text()
+        self.assertIn('road=saturate(_Road)',shader)
+        self.assertNotIn('_Road*max(lane,yard)',shader)
 
     def test_full_detail_kept_instead_of_simultaneous_lods_or_proxy_rendering(self):
         source=Path('Assets/Editor/VillageExpansion.cs').read_text()

@@ -5,7 +5,7 @@
   "models": [
     {
       "name": "Brick road0(রাস্তা কালা দেখাচ্ছি লাল করতে হবে বাংলাদেশের ইটের রাস্তার মতো)",
-      "x": 22,
+      "x": 24,
       "z": -36,
       "yaw": 0,
       "height": 0,
@@ -45,7 +45,7 @@
     },
     {
       "name": "Bd house 1",
-      "x": 32,
+      "x": 34,
       "z": -30,
       "yaw": 270,
       "height": 6.6,
@@ -69,7 +69,7 @@
     },
     {
       "name": "Bd house 4",
-      "x": 32,
+      "x": 34,
       "z": -12,
       "yaw": 270,
       "height": 7.2,
@@ -77,7 +77,7 @@
     },
     {
       "name": "Bd house 5",
-      "x": 48,
+      "x": 50,
       "z": -30,
       "yaw": 270,
       "height": 7.2,
@@ -85,7 +85,7 @@
     },
     {
       "name": "Bd house 6",
-      "x": 48,
+      "x": 50,
       "z": -12,
       "yaw": 270,
       "height": 7.0,
@@ -93,7 +93,7 @@
     },
     {
       "name": "Bd house 7",
-      "x": 32,
+      "x": 34,
       "z": 8,
       "yaw": 270,
       "height": 7.2,
@@ -101,7 +101,7 @@
     },
     {
       "name": "Bd house 8(need better texture)",
-      "x": 48,
+      "x": 50,
       "z": 8,
       "yaw": 270,
       "height": 7.8,
@@ -109,7 +109,7 @@
     },
     {
       "name": "Bd house 9(need better texture)",
-      "x": 32,
+      "x": 34,
       "z": 25,
       "yaw": 270,
       "height": 7.8,
@@ -178,8 +178,8 @@
       "z": 40
     },
     {
-      "x": -23,
-      "z": -40
+      "x": 56,
+      "z": 24
     },
     {
       "x": -52,
@@ -210,8 +210,8 @@
       "z": 52
     },
     {
-      "x": -22,
-      "z": 53
+      "x": 35,
+      "z": 51
     },
     {
       "x": -53,
@@ -242,8 +242,122 @@
       "z": 52
     },
     {
-      "x": -51,
-      "z": 54
+      "x": 55,
+      "z": 53
+    }
+  ],
+  "lanes": [
+    {
+      "name": "Main lane",
+      "x": 0,
+      "z": 0,
+      "width": 5,
+      "length": 88,
+      "existing": true
+    },
+    {
+      "name": "Courtyard",
+      "x": 0,
+      "z": 0,
+      "width": 24,
+      "length": 10,
+      "existing": true
+    },
+    {
+      "name": "East connected neighbourhood lane",
+      "x": 24,
+      "z": -6,
+      "width": 4.2,
+      "length": 78,
+      "existing": false
+    },
+    {
+      "name": "East residential alley",
+      "x": 42,
+      "z": -9,
+      "width": 2.4,
+      "length": 58,
+      "existing": false
+    },
+    {
+      "name": "South cross gali",
+      "x": 37,
+      "z": -21,
+      "width": 30,
+      "length": 2.4,
+      "existing": false
+    },
+    {
+      "name": "North cross gali",
+      "x": 37,
+      "z": -2,
+      "width": 30,
+      "length": 2.4,
+      "existing": false
+    },
+    {
+      "name": "West courtyard connection",
+      "x": -25,
+      "z": 10,
+      "width": 24,
+      "length": 2.4,
+      "existing": false
+    },
+    {
+      "name": "West uthan",
+      "x": -36,
+      "z": -28,
+      "width": 7,
+      "length": 11,
+      "existing": false
+    },
+    {
+      "name": "West inner passage",
+      "x": -36,
+      "z": 5,
+      "width": 2.4,
+      "length": 55,
+      "existing": false
+    },
+    {
+      "name": "Core east crosslink",
+      "x": 12,
+      "z": -9,
+      "width": 24,
+      "length": 2.4,
+      "existing": false
+    },
+    {
+      "name": "Core west crosslink",
+      "x": -18,
+      "z": -9,
+      "width": 36,
+      "length": 2.4,
+      "existing": false
+    },
+    {
+      "name": "West approach",
+      "x": -36,
+      "z": -39,
+      "width": 2.4,
+      "length": 13,
+      "existing": false
+    },
+    {
+      "name": "Pond branch",
+      "x": 44,
+      "z": 19,
+      "width": 6,
+      "length": 2.4,
+      "existing": false
+    },
+    {
+      "name": "Pond ghat approach",
+      "x": 46,
+      "z": 25,
+      "width": 2.4,
+      "length": 14,
+      "existing": false
     }
   ]
 }

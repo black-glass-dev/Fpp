@@ -18,7 +18,9 @@ namespace Fpp.Editor
             var area=new GameObject("Compact para conservative visibility bake").AddComponent<OcclusionArea>();
             area.center=new Vector3(0,10,0);area.size=new Vector3(120,40,120);
             StaticOcclusionCulling.smallestOccluder=2;StaticOcclusionCulling.smallestHole=.25f;StaticOcclusionCulling.backfaceThreshold=100;
+            Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/build-progress.txt","VISIBILITY BAKE START\n");
             bool baked=StaticOcclusionCulling.Compute();
+            File.AppendAllText("QA/runtime/build-progress.txt","VISIBILITY BAKE END "+baked+"\n");
             if(!baked)throw new Exception("Conservative static visibility bake failed; do not claim baked occlusion");
             Directory.CreateDirectory("QA/runtime");File.WriteAllText("QA/runtime/visibility-bake.txt","Unity static occlusion bake completed. Full-resolution source geometry retained; smallest hole.25m; trees are not static occluders. FPV remains excluded from world occlusion. Actual device frame-time improvement remains unmeasured.");
         }
