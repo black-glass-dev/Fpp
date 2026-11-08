@@ -52,7 +52,7 @@ namespace Fpp.Editor
                     float scale=target/footprint;
                     if(entry.pack=="House")foreach(var renderer in go.GetComponentsInChildren<Renderer>())
                         if(renderer.name.Equals("Door",StringComparison.OrdinalIgnoreCase)&&renderer.bounds.size.y>.01f)
-                        {float doorScale=2.2f/renderer.bounds.size.y;if(footprint*doorScale>=12&&footprint*doorScale<=32)scale=doorScale;break;}
+                        {float doorScale=2.3f/renderer.bounds.size.y;if(footprint*doorScale>=6&&footprint*doorScale<=40)scale=doorScale;break;}
                     go.transform.localScale*=scale;
                     Vector3 location;float yaw;
                     if(entry.pack=="House")
