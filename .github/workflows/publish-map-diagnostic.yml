@@ -20,8 +20,8 @@ jobs:
           ref: arena/f3a68c52-fpp
       - name: Download independently signed diagnostic APK and genuine build images
         run: |
-          gh run download "$SOURCE_RUN" --pattern 'diagnostic-APK-68-NOT-QA-ACCEPTED' --dir apk
-          gh run download "$SOURCE_RUN" --pattern 'build-scene-evidence-68' --dir evidence
+          gh run download "$SOURCE_RUN" --name 'diagnostic-APK-68-NOT-QA-ACCEPTED' --dir apk
+          gh run download "$SOURCE_RUN" --name 'build-scene-evidence-68' --dir evidence
       - name: Independently verify artifact and publish explicit diagnostic prerelease
         run: |
           trap 'echo "::error::Diagnostic publisher failed at shell line $LINENO"' ERR
