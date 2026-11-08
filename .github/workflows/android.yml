@@ -88,6 +88,7 @@ jobs:
       - name: Validate model inventory
         run: python Tools/validate_assets.py Assets/PackModels/catalog.json
       - uses: actions/cache@v4
+        id: unityCache
         with:
           path: Library
           key: unity-android-2022.3.62f1-${{ hashFiles('Packages/**', 'ProjectSettings/**', 'Assets/**') }}
@@ -164,6 +165,12 @@ jobs:
             QA/runtime/village-placement.json
           if-no-files-found: warn
           retention-days: 14
+      - name: Preserve successfully built Unity cache before native QA
+        if: steps.unityCache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: Library
+          key: ${{ steps.unityCache.outputs.cache-primary-key }}
       - name: Fetch pinned test-runner wrapper
         uses: actions/checkout@v4
         with:

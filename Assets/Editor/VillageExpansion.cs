@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using UnityEngine.Rendering.Universal;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -21,6 +23,11 @@ namespace Fpp.Editor
             if(catalog.models==null||catalog.models.Length!=18)throw new Exception("Village inventory must contain all18 models");
             foreach(string boundary in new[]{"North boundary","South boundary","West boundary","East boundary"})
             {var old=GameObject.Find(boundary);if(old!=null)UnityEngine.Object.DestroyImmediate(old);}
+            // glTFast caches the first material generator before generated URP assets exist.
+            // Pin the inspected5.0.4 generator explicitly before reimport, not a stale Built-in one.
+            var generator=typeof(GLTFast.Materials.MaterialGenerator).GetField("s_DefaultMaterialGenerator",BindingFlags.Static|BindingFlags.NonPublic);
+            if(generator==null)throw new Exception("Pinned glTF material-generator contract changed");
+            generator.SetValue(null,new GLTFast.Materials.UniversalRPMaterialGenerator((UniversalRenderPipelineAsset)GraphicsSettings.defaultRenderPipeline));
             var district=new GameObject("Bangladesh courtyard and pond district (600 x 440m)");
             CreateTerrain(district.transform,ground);CreatePond(district.transform);
             // Connection paths lead between the old playable centre and courtyard clusters.
@@ -39,6 +46,7 @@ namespace Fpp.Editor
                 for(int instance=0;instance<instances;instance++)
                 {
                     var go=(GameObject)PrefabUtility.InstantiatePrefab(prefab);go.name=entry.name;go.transform.SetParent(district.transform,false);
+                    var sourceRotation=go.transform.localRotation;
                     var bounds=Bounds(go);float footprint=Mathf.Max(bounds.size.x,bounds.size.z);if(footprint<.001f)throw new Exception("Degenerate supplied model: "+entry.name);
                     float target=entry.pack=="House"?18:entry.pack=="Tree"?9:85;
                     float scale=target/footprint;
@@ -60,7 +68,7 @@ namespace Fpp.Editor
                         location=new Vector3(Mathf.Cos(angle)*(185+tree*12),0,Mathf.Sin(angle)*155);yaw=instance*47;
                     }
                     else {location=road==0?new Vector3(-45,.06f,-100):new Vector3(-45,.06f,100);yaw=0;road++;}
-                    go.transform.rotation=Quaternion.Euler(0,yaw,0);bounds=Bounds(go);
+                    go.transform.rotation=Quaternion.Euler(0,yaw,0)*sourceRotation;bounds=Bounds(go);
                     go.transform.position+=location-new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
                     foreach(var renderer in go.GetComponentsInChildren<Renderer>())
                     {

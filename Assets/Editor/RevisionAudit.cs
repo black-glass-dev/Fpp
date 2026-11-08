@@ -22,6 +22,10 @@ namespace Fpp.Editor
                 foreach(var material in renderer.sharedMaterials)
                 {
                     if(material==null)throw new Exception("Missing material on "+renderer.name);
+                    if(material.shader.name.Contains("glTF")&&material.GetTag("RenderPipeline",false,"")!="UniversalPipeline")
+                        throw new Exception("glTF material uses wrong render pipeline: "+renderer.name+" / "+material.shader.name);
+                    if(!material.shader.isSupported||UnityEditor.ShaderUtil.ShaderHasError(material.shader))
+                        throw new Exception("Unsupported/broken shader on "+renderer.name+" / "+material.shader.name);
                     if(material.shader.name=="Standard" && material.mainTexture==null)
                         throw new Exception("Diffuse texture not bound: "+renderer.name);
                 }

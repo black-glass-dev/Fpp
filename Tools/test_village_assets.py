@@ -43,7 +43,11 @@ class VillageAssets(unittest.TestCase):
         shader=Path('Assets/Shaders/FppUrpWorld.hlsl').read_text()
         self.assertIn('s.albedo=i.color.rgb*_Color.rgb',shader)
         self.assertIn('FPP_VERTEX_COLOR',Path('Assets/Shaders/SourceVertexColour.shader').read_text())
-        self.assertIn('Missing material on',Path('Assets/Editor/RevisionAudit.cs').read_text())
+        audit=Path('Assets/Editor/RevisionAudit.cs').read_text()
+        self.assertIn('Missing material on',audit)
+        self.assertIn('wrong render pipeline',audit)
+        self.assertIn('UniversalRPMaterialGenerator',builder)
+        self.assertIn('Quaternion.Euler(0,yaw,0)*sourceRotation',builder)
 
     def test_import_preserves_sources_and_has_a_mandatory_scene_gate(self):
         stage=Path('Tools/stage_village_assets.py').read_text()
