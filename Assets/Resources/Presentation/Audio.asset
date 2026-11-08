@@ -47,3 +47,5 @@ MonoBehaviour:
   ui: 0.12
   music: 0.5
   vorbisQuality: 0.7
+  hapticMilliseconds: 12
+  hapticAmplitude: 50

@@ -6,6 +6,7 @@ namespace Fpp
     {
         [Range(8,32)]public int maxVoices=32;
         public int sampleRate=24000,variants=4;
+        public int hapticMilliseconds=12,hapticAmplitude=50;
         [Range(0,1)]public float master=.65f,weapons=.7f,foley=.12f,ambience=.035f;
         [Range(0,1)]public float ui=.12f,music=.5f,vorbisQuality=.7f;
         public float[] layerSeconds={.08f,.24f,.065f,.18f,.65f,.055f,2};

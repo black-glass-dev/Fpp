@@ -141,7 +141,7 @@ namespace Fpp
             var root=Panel(text,safeRoot,new Color(.06f,.09f,.1f,.85f));Rect(root,Vector2.one,Vector2.one,position,new Vector2(115,42));
             var label=Label(text+" text",root,text,17,TextAnchor.MiddleCenter);label.raycastTarget=false;
             label.rectTransform.anchorMin=Vector2.zero;label.rectTransform.anchorMax=Vector2.one;label.rectTransform.offsetMin=label.rectTransform.offsetMax=Vector2.zero;
-            root.gameObject.AddComponent<Button>().onClick.AddListener(action);
+            root.gameObject.AddComponent<Button>().onClick.AddListener(()=>{UiHaptics.Pulse();action();});
         }
         private void CreateEditor()
         {
@@ -168,7 +168,7 @@ namespace Fpp
         {
             var p=Panel(text,parent,new Color(.22f,.3f,.3f,1));Rect(p,min,max,Vector2.zero,Vector2.zero);
             var t=Label(text,p,text,18,TextAnchor.MiddleCenter);t.raycastTarget=false;t.rectTransform.anchorMin=Vector2.zero;t.rectTransform.anchorMax=Vector2.one;t.rectTransform.offsetMin=t.rectTransform.offsetMax=Vector2.zero;
-            p.gameObject.AddComponent<Button>().onClick.AddListener(callback);
+            p.gameObject.AddComponent<Button>().onClick.AddListener(()=>{UiHaptics.Pulse();callback();});
         }
         private void CreateCredits()
         {
@@ -202,7 +202,7 @@ namespace Fpp
         private void RefreshVisualTitle()
         {
             var r=PresentationRenderer.Active;if(visualTitle==null||r==null)return;
-            visualTitle.text=r.Tier+"  /  "+r.Day+"\nDRS "+(r.DynamicResolution?"ON":"OFF")+" | GRAIN "+(PlayerPrefs.GetInt("fpp.visual.grain",1)!=0?"ON":"OFF")+" | BLUR "+(PlayerPrefs.GetInt("fpp.visual.blur",0)!=0?"ON":"OFF");
+            visualTitle.text=r.Tier+"  /  "+r.Day+"\nDRS "+(r.DynamicResolution?"ON":"OFF")+" | GRAIN "+(PlayerPrefs.GetInt("fpp.visual.grain",1)!=0?"ON":"OFF")+" | BLUR "+(PlayerPrefs.GetInt("fpp.visual.blur",0)!=0?"ON":"OFF")+" | HAPTICS "+(UiHaptics.Enabled?"ON":"OFF");
         }
         private void CreateVisualSettings()
         {
@@ -222,6 +222,7 @@ namespace Fpp
                 var slider=track.gameObject.AddComponent<Slider>();gainSliders[i]=slider;slider.minValue=0;slider.maxValue=1;slider.SetValueWithoutNotify(PresentationAudio.Active!=null?PresentationAudio.Active.BusVolume(bus):.5f);
                 var handle=Panel("Gain handle",track,new Color(.9f,.76f,.4f));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(20,0));slider.handleRect=handle;slider.targetGraphic=handle.GetComponent<Image>();slider.onValueChanged.AddListener(v=>{if(PresentationAudio.Active!=null)PresentationAudio.Active.SetBusVolume(bus,v);});
             }
+            SmallButton(root,"HAPTICS",new Vector2(.02f,.03f),new Vector2(.3f,.12f),()=>{UiHaptics.Enabled=!UiHaptics.Enabled;RefreshVisualTitle();});
             SmallButton(root,"SAVE / CLOSE",new Vector2(.65f,.03f),new Vector2(.97f,.12f),()=>{PlayerPrefs.Save();visualPanel.SetActive(false);});visualPanel.SetActive(false);
         }
         private void SettingSlider(Transform parent,string title,float y,float value,float min,float max,UnityEngine.Events.UnityAction<float> update,SensitivitySettings settings)
@@ -244,6 +245,7 @@ namespace Fpp
         public void Press(string id,bool down)
         {
             if(Modal)return;
+            if(down&&id!="move")UiHaptics.Pulse();
             if(down && weapons!=null)GunplayEvents.Send(GunplayEventKind.UI,weapons.view.position,weapons.ActiveWeapon,id);
             if(id=="fire")FireHeld=down;
             if(id=="aim")AimHeld=down;

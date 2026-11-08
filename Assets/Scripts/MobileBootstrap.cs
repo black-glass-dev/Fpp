@@ -9,6 +9,7 @@ namespace Fpp
         private void Awake()
         {
             if(GetComponent<PresentationAudio>()==null)gameObject.AddComponent<PresentationAudio>();
+            if(GetComponent<UiHaptics>()==null)gameObject.AddComponent<UiHaptics>();
             if(GetComponent<PresentationRenderer>()==null)gameObject.AddComponent<PresentationRenderer>();
             var c=GunplayConfig.Current;Application.targetFrameRate=c.targetFPS;
             QualitySettings.vSyncCount=0;QualitySettings.antiAliasing=0;
