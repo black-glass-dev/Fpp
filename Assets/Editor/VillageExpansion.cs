@@ -64,6 +64,7 @@ namespace Fpp.Editor
                     go.transform.position+=location-new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
                     foreach(var renderer in go.GetComponentsInChildren<Renderer>())
                     {
+                        BindMissingVertexMaterial(renderer,entry.pack);
                         if(entry.pack=="Road"&&entry.name.StartsWith("Brick road",StringComparison.OrdinalIgnoreCase))RepairBlackBrick(renderer);
                         renderer.shadowCastingMode=ShadowCastingMode.On;
                         renderer.receiveShadows=true;
@@ -102,6 +103,25 @@ namespace Fpp.Editor
             Slab("Expanded west perimeter",new Vector3(-300,1,0),new Vector3(1,2,440),ground,district.transform);
             Slab("Expanded east perimeter",new Vector3(300,1,0),new Vector3(1,2,440),ground,district.transform);
             Directory.CreateDirectory("QA/runtime");File.WriteAllText("QA/runtime/village-placement.json",JsonUtility.ToJson(new Receipt{files=usage.ToArray()},true));
+        }
+        private static void BindMissingVertexMaterial(Renderer renderer,string pack)
+        {
+            var materials=renderer.sharedMaterials;var filter=renderer.GetComponent<MeshFilter>();
+            if(materials.Length==0)materials=new Material[Mathf.Max(1,filter!=null&&filter.sharedMesh!=null?filter.sharedMesh.subMeshCount:1)];
+            bool vertexColour=filter!=null&&filter.sharedMesh!=null&&filter.sharedMesh.HasVertexAttribute(VertexAttribute.Color);
+            for(int i=0;i<materials.Length;i++)if(materials[i]==null)
+            {
+                string path="Assets/Generated/Village/"+(vertexColour?"PreservedVertexColours":pack+"_NO_SOURCE_MATERIAL_PLACEHOLDER")+".mat";
+                var material=AssetDatabase.LoadAssetAtPath<Material>(path);
+                if(material==null)
+                {
+                    var shader=Shader.Find(vertexColour?"FPP/Source Vertex Colour Lit":"Universal Render Pipeline/Lit");
+                    if(shader==null)throw new Exception("Missing source-colour fallback shader");
+                    material=new Material(shader);material.color=vertexColour?Color.white:pack=="Tree"?new Color(.25f,.38f,.16f):new Color(.7f,.67f,.6f);AssetDatabase.CreateAsset(material,path);
+                }
+                materials[i]=material;
+            }
+            renderer.sharedMaterials=materials;
         }
         private static void RepairBlackBrick(Renderer renderer)
         {

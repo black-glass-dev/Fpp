@@ -8,11 +8,23 @@ CBUFFER_START(UnityPerMaterial)
 float4 _MainTex_ST, _Color, _Entry, _InteriorRect, _SkirtRect;
 float _Road, _DetailScale, _TrimBelow, _ScanGroundBelow, _InteriorTop;
 CBUFFER_END
-struct FppVertex {float4 positionOS:POSITION;float3 normalOS:NORMAL;float2 uv:TEXCOORD0;};
-struct FppVaryings {float4 positionCS:SV_POSITION;float3 world:TEXCOORD0;half3 normal:TEXCOORD1;float2 uv:TEXCOORD2;half fog:TEXCOORD3;};
+struct FppVertex {float4 positionOS:POSITION;float3 normalOS:NORMAL;float2 uv:TEXCOORD0;
+#if defined(FPP_VERTEX_COLOR)
+ half4 color:COLOR;
+#endif
+};
+struct FppVaryings {float4 positionCS:SV_POSITION;float3 world:TEXCOORD0;half3 normal:TEXCOORD1;float2 uv:TEXCOORD2;half fog:TEXCOORD3;
+#if defined(FPP_VERTEX_COLOR)
+ half4 color:TEXCOORD4;
+#endif
+};
 FppVaryings FppVert(FppVertex v)
 {
- FppVaryings o=(FppVaryings)0;o.world=TransformObjectToWorld(v.positionOS.xyz);o.normal=TransformObjectToWorldNormal(v.normalOS);o.positionCS=TransformWorldToHClip(o.world);o.uv=v.uv*_MainTex_ST.xy+_MainTex_ST.zw;o.fog=ComputeFogFactor(o.positionCS.z);return o;
+ FppVaryings o=(FppVaryings)0;o.world=TransformObjectToWorld(v.positionOS.xyz);o.normal=TransformObjectToWorldNormal(v.normalOS);o.positionCS=TransformWorldToHClip(o.world);o.uv=v.uv*_MainTex_ST.xy+_MainTex_ST.zw;o.fog=ComputeFogFactor(o.positionCS.z);
+#if defined(FPP_VERTEX_COLOR)
+ o.color=v.color;
+#endif
+ return o;
 }
 void FppClip(float3 p)
 {
@@ -38,6 +50,8 @@ half4 FppFragment(FppVaryings i):SV_Target
  s.albedo=lerp(SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,uv).rgb,SAMPLE_TEXTURE2D(_SoilTex,sampler_SoilTex,uv*1.13+float2(.32,.71)).rgb,soil)*lerp(.78,1.16,FppNoise(p*.075+17))*(1-ruts*.17);
  half3 detail=normalize(lerp(UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap,sampler_BumpMap,uv)),UnpackNormal(SAMPLE_TEXTURE2D(_SoilNormal,sampler_SoilNormal,uv*1.13+float2(.32,.71))),soil));
  n=normalize(n+half3(detail.x,0,detail.y)*.65);s.smoothness=lerp(.08,.16,ruts);s.occlusion=.93;
+#elif defined(FPP_VERTEX_COLOR)
+ s.albedo=i.color.rgb*_Color.rgb;
 #elif defined(FPP_BRICK)
  float2 uv=abs(n.x)>.5?i.world.zy:i.world.xy;uv.y*=1.6;s.albedo=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,uv).rgb*_Color.rgb;
 #else

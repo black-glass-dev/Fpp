@@ -36,6 +36,15 @@ class VillageAssets(unittest.TestCase):
         self.assertIn('HBB_Road_Final',setup)
         self.assertIn('new Material(materials[i])',setup)
 
+    def test_material_free_sources_keep_vertex_colours_instead_of_null_materials(self):
+        builder=Path('Assets/Editor/VillageExpansion.cs').read_text()
+        for token in ['BindMissingVertexMaterial(renderer,entry.pack)','HasVertexAttribute(VertexAttribute.Color)','FPP/Source Vertex Colour Lit','NO_SOURCE_MATERIAL_PLACEHOLDER']:
+            self.assertIn(token,builder)
+        shader=Path('Assets/Shaders/FppUrpWorld.hlsl').read_text()
+        self.assertIn('s.albedo=i.color.rgb*_Color.rgb',shader)
+        self.assertIn('FPP_VERTEX_COLOR',Path('Assets/Shaders/SourceVertexColour.shader').read_text())
+        self.assertIn('Missing material on',Path('Assets/Editor/RevisionAudit.cs').read_text())
+
     def test_import_preserves_sources_and_has_a_mandatory_scene_gate(self):
         stage=Path('Tools/stage_village_assets.py').read_text()
         self.assertIn('shutil.copyfile(source, target)',stage)
