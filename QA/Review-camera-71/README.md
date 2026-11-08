@@ -1,0 +1,1 @@
+Actual Unity Play Mode captures from native71 at 0/20/200m after scripted rapid yaw inputs. JPEG review copies; full source PNGs remain in gameplay-qa-71 artifact. Native71 timed out without final XML. Still images and stable skin-count/alignment checks do NOT certify Android temporal ghosting, finger contact, or performance.
