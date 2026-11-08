@@ -35,7 +35,7 @@ MonoBehaviour:
   maxDistance: 200
   occlusionHz: 3500
   occlusionDB: -8
-  duckDB: -4
+  duckDB: -3
   duckSeconds: 0.12
   reflectionDistance: 85
   soundSpeed: 343
@@ -44,3 +44,6 @@ MonoBehaviour:
   reflectionGain: 0.065
   hitGain: 0.16
   impactGain: 0.12
+  ui: 0.12
+  music: 0.5
+  vorbisQuality: 0.7

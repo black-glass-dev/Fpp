@@ -125,7 +125,7 @@ namespace Fpp.Editor
             ViewmodelSetup.Attach(camera.transform, weapons);
             player.AddComponent<MobileHud>();
             GunplaySetup.Configure(player,weapons);
-            UrpPresentationSetup.Apply(weapons);
+            UrpPresentationSetup.Apply(weapons);PresentationAudioSetup.Apply();
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();

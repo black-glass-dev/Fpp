@@ -17,8 +17,8 @@ for path in Path('QA/test-results').rglob('*results.xml'):
             info['failure']='\n'.join(safe)[:3000]
         suite['cases'].append(info)
     out['suites'].append(suite)
-for path in Path('QA/runtime').glob('*'):
-    if path.suffix in ('.csv','.txt') and path.stat().st_size<50000:out['measurements'][path.name]=path.read_text()
+for path in Path('QA/runtime').rglob('*'):
+    if path.suffix in ('.csv','.txt','.json') and path.stat().st_size<50000:out['measurements'][str(path.relative_to('QA/runtime'))]=path.read_text()
 # Keep only a bounded selection of genuine camera images in Git; full sequences stay CI artifacts.
 import shutil
 preview=Path('QA/Previews');preview.mkdir(exist_ok=True)

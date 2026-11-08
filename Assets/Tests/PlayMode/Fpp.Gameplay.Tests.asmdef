@@ -4,7 +4,8 @@
   "references": [
     "Fpp.Gameplay",
     "Unity.RenderPipelines.Core.Runtime",
-    "Unity.RenderPipelines.Universal.Runtime"
+    "Unity.RenderPipelines.Universal.Runtime",
+    "Unity.Collections"
   ],
   "includePlatforms": [],
   "optionalUnityReferences": [

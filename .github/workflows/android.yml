@@ -149,6 +149,13 @@ jobs:
           coverageEnabled: false
           githubToken: ''
           artifactsPath: QA/test-results
+      - name: Measure actual captured audio (diagnostic, not loudness acceptance)
+        if: always()
+        run: |
+          if [ -f QA/runtime/audio/combat-mix.wav ]; then
+            python -m pip install --quiet imageio-ffmpeg==0.6.0
+            python Tools/measure_audio_output.py
+          fi
       - name: Publish small, credential-free Play Mode result summary
         if: always()
         env:
