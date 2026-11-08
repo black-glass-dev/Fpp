@@ -20,6 +20,33 @@ jobs:
       - run: pip install gdown==5.2.0
       - name: Download and inspect all three archives without changing art
         run: python Tools/audit_village_archives.py
+      - name: Inspect original embedded base-colour images (previews only)
+        run: |
+          pip install pillow==12.0.0
+          python - <<'PYTEXTURE'
+          import json,struct,io,hashlib
+          from pathlib import Path
+          from PIL import Image
+          out=Path('QA/VillageTexturePreviews');out.mkdir(parents=True,exist_ok=True)
+          report=[];budget=1200000
+          for path in sorted(Path('.asset-staging/village').rglob('*.glb')):
+              with path.open('rb') as stream:
+                  header=stream.read(20);length=struct.unpack_from('<I',header,12)[0];doc=json.loads(stream.read(length));chunk=stream.read(8);binary=stream.read(struct.unpack_from('<I',chunk)[0])
+              row={'source':path.name,'images':[]}
+              for material in doc.get('materials',[]):
+                  pbr=material.get('pbrMetallicRoughness',{});texture=pbr.get('baseColorTexture')
+                  if not texture:continue
+                  image=doc['images'][doc['textures'][texture['index']]['source']]
+                  if 'bufferView' not in image:continue
+                  view=doc['bufferViews'][image['bufferView']];start=view.get('byteOffset',0)
+                  picture=Image.open(io.BytesIO(binary[start:start+view['byteLength']])).convert('RGB');original=picture.size;picture.thumbnail((384,384))
+                  data=io.BytesIO();picture.save(data,format='JPEG',quality=72,optimize=True);encoded=data.getvalue()
+                  key=hashlib.sha256((path.name+material.get('name','')).encode()).hexdigest()[:16]+'.jpg'
+                  if len(encoded)<=budget:(out/key).write_bytes(encoded);budget-=len(encoded)
+                  row['images'].append({'material':material.get('name',''),'originalSize':original,'factor':pbr.get('baseColorFactor',[1,1,1,1]),'preview':key})
+              report.append(row)
+          Path('QA/village-texture-inspection.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+          PYTEXTURE
       - name: Preserve unchanged sources outside Git
         uses: actions/upload-artifact@v4
         with:
@@ -29,7 +56,7 @@ jobs:
           if-no-files-found: error
       - name: Save full inventory to session branch
         run: |
-          git add QA/village-source-inventory.json
+          git add QA/village-source-inventory.json QA/village-texture-inspection.json QA/VillageTexturePreviews
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
