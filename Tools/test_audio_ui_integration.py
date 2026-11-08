@@ -43,6 +43,17 @@ class AudioUiIntegration(unittest.TestCase):
         self.assertIn('if(owner.FloatingJoystick)rect.localPosition=floatingOrigin',control)
         self.assertIn('data.pointerId!=finger',control)
 
+    def test_lossless_viewmodel_and_effect_toggle_contract(self):
+        source=Path('Assets/Scripts/PresentationRenderer.cs').read_text()
+        for token in ['overlay.useOcclusionCulling=false','MotionVectorGenerationMode.ForceNoMotion','skin.skinnedMotionVectors=false','skin.forceMatrixRecalculationPerRender=true','fpp.visual.native-default-v1']:
+            self.assertIn(token,source)
+        self.assertEqual(1,source.count('GetComponent<WeaponController>()'))
+        for name in ['ToggleGrain','ToggleBlur']:
+            method=source.split('public void '+name+'()')[1].split('}')[0]
+            self.assertNotIn('SetTier(',method)
+            self.assertIn('ApplyEffectToggles()',method)
+        self.assertIn('dynamicResolution: 0',Path('Assets/Resources/Gunplay/Config.asset').read_text())
+
     def test_hud_capture_has_real_pixel_gate_and_ungraded_final_camera(self):
         helper=Path('Assets/Scripts/RenderEvidence.cs').read_text()
         self.assertIn('data.renderPostProcessing=false',helper)

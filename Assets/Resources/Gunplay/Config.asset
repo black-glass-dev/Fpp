@@ -106,7 +106,7 @@ MonoBehaviour:
   maxResolutionScale: 1
   resolutionStep: .05
   resolutionHysteresis: 1.12
-  dynamicResolution: 1
+  dynamicResolution: 0
   landingPitch: 1.2
   flinchDegrees: .8
   gunProbeHalf: .04

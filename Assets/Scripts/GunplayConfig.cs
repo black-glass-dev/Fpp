@@ -38,7 +38,7 @@ namespace Fpp
         public float shellLife=2, impactLife=.22f, shellSpeed=2, fallbackClickVolume=.12f;
         public int targetFPS=60, baseWidth=1920, baseHeight=1080, resolutionSampleFrames=60;
         public float minResolutionScale=.6f, maxResolutionScale=1, resolutionStep=.05f, resolutionHysteresis=1.12f;
-        public bool dynamicResolution=true;
+        public bool dynamicResolution=false;
         public static GunplayConfig Current { get { if(current==null)current=Resources.Load<GunplayConfig>("Gunplay/Config"); if(current==null)throw new System.InvalidOperationException("Missing Resources/Gunplay/Config");return current; } }
         private static GunplayConfig current;
     }

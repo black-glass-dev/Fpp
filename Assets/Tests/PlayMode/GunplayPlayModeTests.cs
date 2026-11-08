@@ -271,12 +271,12 @@ namespace Fpp.Tests
         }
         private static void AssertJoystickModes(MobileHud hud)
         {
-            HudControl move=null;foreach(var control in hud.GetComponentsInChildren<HudControl>())if(control.placement.id=="move")move=control;
+            HudControl move=null;foreach(var control in UnityEngine.Object.FindObjectsOfType<HudControl>())if(control.placement.id=="move")move=control;
             Assert.NotNull(move);var rect=(RectTransform)move.transform;bool original=hud.FloatingJoystick;
             var point=RectTransformUtility.WorldToScreenPoint(null,rect.TransformPoint(rect.rect.center))+Vector2.right*Screen.width*.05f;
             var pointer=new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current){pointerId=1001,position=point};
             var other=new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current){pointerId=1002,position=point};
-            var zone=hud.GetComponentInChildren<FloatingJoystickZone>();Assert.NotNull(zone);
+            var zone=UnityEngine.Object.FindObjectOfType<FloatingJoystickZone>();Assert.NotNull(zone);
             try
             {
                 hud.FloatingJoystick=false;zone.OnPointerDown(pointer);Assert.AreEqual(Vector2.zero,hud.Move,"fixed stick ignores background down");
@@ -319,6 +319,12 @@ namespace Fpp.Tests
             var world=weapons.view.GetComponent<Camera>();var overlay=weapons.weaponCamera;
             var worldData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(world);
             var overlayData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(overlay);
+            Assert.False(overlay.useOcclusionCulling,"FPV must never use world occlusion at elevation");
+            foreach(var renderer in overlay.GetComponentsInChildren<Renderer>(true))
+            {
+                Assert.AreEqual(UnityEngine.MotionVectorGenerationMode.ForceNoMotion,renderer.motionVectorGenerationMode);
+                var skin=renderer as SkinnedMeshRenderer;if(skin!=null){Assert.False(skin.skinnedMotionVectors);Assert.True(skin.updateWhenOffscreen);Assert.True(skin.forceMatrixRecalculationPerRender);}
+            }
             Assert.AreEqual(UnityEngine.Rendering.Universal.CameraRenderType.Base,worldData.renderType);Assert.AreEqual(UnityEngine.Rendering.Universal.CameraRenderType.Overlay,overlayData.renderType);
             Assert.True(overlayData.clearDepth,"overlay must clear world depth");Assert.Contains(overlay,worldData.cameraStack);Assert.False(worldData.renderPostProcessing,"do not tone-map the world twice");Assert.True(overlayData.renderPostProcessing);Assert.AreEqual(.01f,overlay.nearClipPlane,.0001f);Assert.AreEqual(1<<8,overlay.cullingMask);Assert.AreEqual(0,world.cullingMask&(1<<8));
             foreach(PresentationTier tier in Enum.GetValues(typeof(PresentationTier)))
@@ -327,7 +333,11 @@ namespace Fpp.Tests
                 var pipeline=UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline as UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset;Assert.NotNull(pipeline);
                 Assert.AreEqual(tier==PresentationTier.PCUltra?1:4,pipeline.msaaSampleCount);Assert.AreEqual(tier==PresentationTier.PCUltra?200:80,pipeline.shadowDistance);Assert.AreEqual(tier==PresentationTier.PCUltra?4:2,pipeline.shadowCascadeCount);
             }
-            presentation.SetTier(PresentationTier.High);yield return null;GunplayVisualTests.AssertUngradedHud(weapons);GunplayVisualTests.Save(Output+"/urp-stack-high.png",weapons);
+            presentation.SetTier(PresentationTier.High);yield return null;
+            var pipelineBefore=UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline;
+            presentation.ToggleGrain();presentation.ToggleGrain();presentation.ToggleBlur();presentation.ToggleBlur();
+            Assert.AreSame(pipelineBefore,UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline,"effect-only toggles must not rebuild pipeline");
+            GunplayVisualTests.AssertUngradedHud(weapons);GunplayVisualTests.Save(Output+"/urp-stack-high.png",weapons);
             foreach(var renderer in UnityEngine.Object.FindObjectsOfType<Renderer>())foreach(var material in renderer.sharedMaterials)
             {Assert.NotNull(material);Assert.True(material.shader.isSupported,material.shader.name);Assert.False(UnityEditor.ShaderUtil.ShaderHasError(material.shader),material.shader.name);Assert.AreNotEqual("Standard",material.shader.name,"scene materials must be converted, not rendered pink");}
             File.WriteAllText(Output+"/urp-presentation-playmode.txt","Actual URP camera stack render, independent layer8 FPV near.01, single final post grade, 4 serialized tier assets with 4x mobile MSAA/80m2cascades and PC200m4cascades, supported scene shaders/no compiler errors. Forward+ capability fallback; PC SMAA because URP14 TAA cannot camera-stack. Not device performance or complete PBR/GI proof.");

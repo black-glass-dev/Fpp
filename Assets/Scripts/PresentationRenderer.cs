@@ -16,20 +16,30 @@ namespace Fpp
         private UniversalRenderPipelineAsset pipeline;
         private PresentationVisualSettings visual;private VolumeProfile profile;private ColorAdjustments grade;private Bloom bloom;
         private FilmGrain grain;private MotionBlur blur;private float exposureVelocity;
-        private int slowFrames,fastFrames;private Light sun;
+        private int slowFrames,fastFrames;private Light sun;private WeaponController owner;
         public static void Stack(Camera world,Camera overlay)
         {
             var baseData=world.GetUniversalAdditionalCameraData();baseData.renderType=CameraRenderType.Base;
             world.allowHDR=true;world.allowMSAA=true;baseData.renderPostProcessing=overlay==null;baseData.requiresDepthTexture=true;
             if(overlay!=null)
             {
+                // FPV is camera-local and always visible: world occlusion/history is invalid for it.
+                overlay.useOcclusionCulling=false;
+                foreach(var renderer in overlay.GetComponentsInChildren<Renderer>(true))
+                {
+                    renderer.motionVectorGenerationMode=MotionVectorGenerationMode.ForceNoMotion;
+                    var skin=renderer as SkinnedMeshRenderer;if(skin!=null){skin.skinnedMotionVectors=false;skin.updateWhenOffscreen=true;skin.forceMatrixRecalculationPerRender=true;}
+                }
                 overlay.allowHDR=true;overlay.allowMSAA=true;var data=overlay.GetUniversalAdditionalCameraData();data.renderType=CameraRenderType.Overlay;data.renderPostProcessing=true; // URP14 clearDepth is read-only, defaults true.
                 if(!baseData.cameraStack.Contains(overlay))baseData.cameraStack.Add(overlay);
             }
         }
         private void Start()
         {
-            Active=this;sun=RenderSettings.sun;visual=PresentationVisualSettings.Current;DynamicResolution=PlayerPrefs.GetInt("fpp.visual.drs",GunplayConfig.Current.dynamicResolution?1:0)!=0;
+            Active=this;owner=GetComponent<WeaponController>();sun=RenderSettings.sun;visual=PresentationVisualSettings.Current;
+            // One-time migration for the requested no-resolution-loss baseline; DRS remains explicit opt-in.
+            if(!PlayerPrefs.HasKey("fpp.visual.native-default-v1")){PlayerPrefs.SetInt("fpp.visual.drs",0);PlayerPrefs.SetInt("fpp.visual.native-default-v1",1);PlayerPrefs.Save();}
+            DynamicResolution=PlayerPrefs.GetInt("fpp.visual.drs",GunplayConfig.Current.dynamicResolution?1:0)!=0;
             var authored=GameObject.Find("Authored presentation volume");if(authored!=null)authored.SetActive(false);
             var volume=new GameObject("Presentation grade (HUD remains ScreenSpaceOverlay)").AddComponent<Volume>();volume.transform.SetParent(transform,false);volume.isGlobal=true;volume.priority=10;
             profile=ScriptableObject.CreateInstance<VolumeProfile>();volume.sharedProfile=profile;
@@ -42,7 +52,7 @@ namespace Fpp
             blur=profile.Add<MotionBlur>();blur.intensity.Override(visual.motionBlur);
             SetTier((PresentationTier)Mathf.Clamp(PlayerPrefs.GetInt("fpp.visual.tier",2),0,3));
             SetDay((DayPreset)Mathf.Clamp(PlayerPrefs.GetInt("fpp.visual.day",0),0,2));
-            var owner=GetComponent<WeaponController>();if(owner!=null)Stack(owner.view.GetComponent<Camera>(),owner.weaponCamera);
+            if(owner!=null)Stack(owner.view.GetComponent<Camera>(),owner.weaponCamera);
         }
         public void SetTier(PresentationTier tier)
         {
@@ -55,20 +65,24 @@ namespace Fpp
             // URP14 TAA explicitly does not support camera stacks. PC uses documented SMAA fallback.
             // Forward+ requires a capable API; GLES3 gets the Forward renderer as an explicit fallback.
             bool plus=SystemInfo.supportsComputeShaders&&SystemInfo.graphicsDeviceType!=GraphicsDeviceType.OpenGLES3;
-            var owner=GetComponent<WeaponController>();if(owner!=null)
+            if(owner!=null)
             {
                 int renderer=(tier>=PresentationTier.High&&plus)?1:0;
                 owner.view.GetComponent<Camera>().GetUniversalAdditionalCameraData().SetRenderer(renderer);owner.weaponCamera.GetUniversalAdditionalCameraData().SetRenderer(renderer);
                 owner.weaponCamera.GetUniversalAdditionalCameraData().antialiasing=tier==PresentationTier.PCUltra?AntialiasingMode.SubpixelMorphologicalAntiAliasing:AntialiasingMode.None;
             }
-            if(grain!=null)grain.active=tier>=PresentationTier.High&&PlayerPrefs.GetInt("fpp.visual.grain",1)!=0;
-            if(blur!=null)blur.active=tier>=PresentationTier.High&&PlayerPrefs.GetInt("fpp.visual.blur",0)!=0;
+            ApplyEffectToggles();
             if(bloom!=null)bloom.active=tier!=PresentationTier.Low;
             PlayerPrefs.SetInt("fpp.visual.tier",(int)tier);slowFrames=fastFrames=0;
         }
+        private void ApplyEffectToggles()
+        {
+            if(grain!=null)grain.active=Tier>=PresentationTier.High&&PlayerPrefs.GetInt("fpp.visual.grain",1)!=0;
+            if(blur!=null)blur.active=Tier>=PresentationTier.High&&PlayerPrefs.GetInt("fpp.visual.blur",0)!=0;
+        }
         public void ToggleDynamicResolution(){DynamicResolution=!DynamicResolution;PlayerPrefs.SetInt("fpp.visual.drs",DynamicResolution?1:0);if(!DynamicResolution&&pipeline!=null)pipeline.renderScale=visual.maxScale;slowFrames=fastFrames=0;}
-        public void ToggleGrain(){PlayerPrefs.SetInt("fpp.visual.grain",PlayerPrefs.GetInt("fpp.visual.grain",1)==0?1:0);SetTier(Tier);}
-        public void ToggleBlur(){PlayerPrefs.SetInt("fpp.visual.blur",PlayerPrefs.GetInt("fpp.visual.blur",0)==0?1:0);SetTier(Tier);}
+        public void ToggleGrain(){PlayerPrefs.SetInt("fpp.visual.grain",PlayerPrefs.GetInt("fpp.visual.grain",1)==0?1:0);ApplyEffectToggles();}
+        public void ToggleBlur(){PlayerPrefs.SetInt("fpp.visual.blur",PlayerPrefs.GetInt("fpp.visual.blur",0)==0?1:0);ApplyEffectToggles();}
         public void SetDay(DayPreset day)
         {
             Day=day;if(sun==null)sun=RenderSettings.sun;
@@ -93,7 +107,7 @@ namespace Fpp
             // Roof-probe fallback exposure, not a claim of histogram-based luminance metering.
             if(grade!=null)
             {
-                var owner=GetComponent<WeaponController>();bool interior=owner!=null&&Physics.Raycast(owner.view.position,Vector3.up,visual.roofProbeDistance,~(1<<8),QueryTriggerInteraction.Ignore);
+                bool interior=owner!=null&&Physics.Raycast(owner.view.position,Vector3.up,visual.roofProbeDistance,~(1<<8),QueryTriggerInteraction.Ignore);
                 grade.postExposure.value=Mathf.SmoothDamp(grade.postExposure.value,interior?visual.interiorEV:visual.exteriorEV,ref exposureVelocity,visual.exposureTime,Mathf.Infinity,Time.unscaledDeltaTime);
             }
         }
