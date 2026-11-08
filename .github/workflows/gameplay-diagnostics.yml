@@ -1,4 +1,5 @@
 name: Gameplay QA diagnostics
+# Refresh completed native55 logs after cancellation and index recovered images.
 on:
   push:
     branches: [arena/f3a68c52-fpp]
@@ -43,7 +44,7 @@ jobs:
           selected=[]
           for line in lines:
               if re.search(r'password|email|serial|token|credential|https?://|signature',line,re.I):continue
-              if not re.search(r'FPP QA|PUBLISH_DIAGNOSTIC|error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Fpp\.| at .*Assets|ignored|pathspec|hint:|Process completed|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
+              if not re.search(r'Camera|RenderRequest|RenderPipeline|Starting test|FPP QA|PUBLISH_DIAGNOSTIC|error CS\d+|Exception:|Error:|ERROR|FAIL|failed|not found|Unknown|Unsupported|Fpp\.| at .*Assets|ignored|pathspec|hint:|Process completed|Assertion|fatal:|Permission denied|No such file|Traceback|Total tests|Tests run|No tests|Expected:|But was:|Result:|Tests run:|Results:|activation failed|License error',line,re.I):continue
               line=re.sub(r'[^\s@]+@[^\s@]+','[EMAIL]',line)
               selected.append(line[-700:])
           root=pathlib.Path('QA');root.mkdir(exist_ok=True)
@@ -78,7 +79,8 @@ jobs:
               env=dict(os.environ,RUN_ID=os.environ['RUN'])
               subprocess.run(['python','Tools/summarize_gameplay_qa.py'],env=env,check=True)
               review=Path('QA/Review-'+os.environ['RUN']);review.mkdir(exist_ok=True);budget=180000
-              for name in ('touch-pressed','ak47-fire','ak47-tactical-0.40'):
+              (Path('QA')/('runtime-index-'+os.environ['RUN']+'.json')).write_text(__import__('json').dumps({str(p.relative_to(runtime)):p.stat().st_size for p in runtime.rglob('*') if p.is_file()},indent=2))
+              for name in ('urp-hud-sentinel','mark23-idle','mark23-ads','touch-pressed','ak47-fire','ak47-tactical-0.40'):
                   source=runtime/(name+'.png')
                   if not source.exists():continue
                   image=Image.open(source).convert('RGB');image.thumbnail((960,540))

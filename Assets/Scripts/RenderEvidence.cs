@@ -22,7 +22,7 @@ namespace Fpp
             var mode=canvas.renderMode;var previousCamera=canvas.worldCamera;float plane=canvas.planeDistance;
             var transforms=canvas.GetComponentsInChildren<Transform>(true);var layers=new int[transforms.Length];
             var auxiliary=new GameObject("Evidence-only ungraded UI camera"){hideFlags=HideFlags.HideAndDontSave};
-            var camera=auxiliary.AddComponent<Camera>();camera.CopyFrom(overlay);camera.transform.SetPositionAndRotation(overlay.transform.position,overlay.transform.rotation);camera.cullingMask=1<<uiLayer;camera.targetTexture=null;camera.enabled=true;
+            var camera=auxiliary.AddComponent<Camera>();camera.CopyFrom(overlay);camera.transform.SetPositionAndRotation(overlay.transform.position,overlay.transform.rotation);camera.cullingMask=1<<uiLayer;camera.targetTexture=destination;camera.enabled=true;
             var data=camera.GetUniversalAdditionalCameraData();data.renderType=CameraRenderType.Overlay;data.renderPostProcessing=false;
             var serialized=new UnityEditor.SerializedObject(overlay.GetUniversalAdditionalCameraData());data.SetRenderer(serialized.FindProperty("m_RendererIndex").intValue);
             var stack=world.GetUniversalAdditionalCameraData().cameraStack;
