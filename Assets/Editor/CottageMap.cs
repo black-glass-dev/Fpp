@@ -44,8 +44,8 @@ namespace Fpp.Editor
             wall.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Ground/Stone.png");
             wall.mainTextureScale = new Vector2(2, 2);
             GroundBuilder.Create(grass);
-            Cube("Main lane", new Vector3(0, .015f, 0), new Vector3(10, .03f, 88), road);
-            Cube("Courtyard", new Vector3(0, .02f, 0), new Vector3(35, .04f, 12), road);
+            Cube("Main lane", new Vector3(0, .015f, 0), new Vector3(5, .03f, 88), road);
+            Cube("Courtyard", new Vector3(0, .02f, 0), new Vector3(24, .04f, 10), road);
             for (int row = 0; row < 3; row++)
                 for (int side = -1; side <= 1; side += 2)
                 {
@@ -53,13 +53,13 @@ namespace Fpp.Editor
                     house.name = "Cottage " + row + " " + side;
                     house.transform.rotation = Quaternion.Euler(0, side == -1 ? 90 : 270, 0);
                     Bounds bounds = BoundsOf(house);
-                    // Fit export units to a roughly17.5m footprint without modifying source mesh.
+                    // Fit export units to a roughly10m footprint without modifying source mesh.
                     float footprint = Mathf.Max(bounds.size.x, bounds.size.z);
                     if (footprint < .001f) throw new Exception("Invalid cottage bounds");
-                    house.transform.localScale *= 17.5f / footprint;
+                    house.transform.localScale *= 10f / footprint;
                     bounds = BoundsOf(house);
-                    house.transform.position += new Vector3(side * 20 - bounds.center.x,
-                        -bounds.min.y, (row - 1) * 26 - bounds.center.z);
+                    house.transform.position += new Vector3(side * (row==2?16:12) - bounds.center.x,
+                        -bounds.min.y, (row - 1) * 18 - bounds.center.z);
                     foreach (var renderer in house.GetComponentsInChildren<Renderer>())
                     {
                         var materials = renderer.sharedMaterials;
@@ -125,7 +125,9 @@ namespace Fpp.Editor
             ViewmodelSetup.Attach(camera.transform, weapons);
             player.AddComponent<MobileHud>();
             GunplaySetup.Configure(player,weapons);
-            UrpPresentationSetup.Apply(weapons);VillageExpansion.Build(grass,road);PresentationAudioSetup.Apply();
+            UrpPresentationSetup.Apply(weapons);VillageExpansion.Build(grass,road);PresentationAudioSetup.Apply();LosslessWorldOptimizer.Apply();
+            EditorSceneManager.SaveScene(scene, ScenePath);
+            LosslessWorldOptimizer.BakeVisibility();
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();

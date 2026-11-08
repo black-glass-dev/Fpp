@@ -24,6 +24,8 @@ def main():
         raise RuntimeError('Expected all18 supplied models; inventory changed')
     from create_village_brick import create
     create(output / 'BrickTextures')
+    from create_village_surfaces import create as create_surfaces
+    create_surfaces(output / 'SurfaceTextures')
     (output / 'catalog.json').write_text(json.dumps({'models': models}, ensure_ascii=False, indent=2) + '\n')
     print('Staged all18 source GLBs unchanged; no decimation or texture resizing')
 

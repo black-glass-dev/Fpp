@@ -1,0 +1,249 @@
+{
+  "districtName": "Bangladesh compact para (120 x 120m)",
+  "halfWidth": 60,
+  "halfDepth": 60,
+  "models": [
+    {
+      "name": "Brick road0(রাস্তা কালা দেখাচ্ছি লাল করতে হবে বাংলাদেশের ইটের রাস্তার মতো)",
+      "x": 22,
+      "z": -36,
+      "yaw": 0,
+      "height": 0,
+      "width": 4.2
+    },
+    {
+      "name": "Road(ready to use)",
+      "x": -36,
+      "z": -49,
+      "yaw": 0,
+      "height": 0,
+      "width": 4.2
+    },
+    {
+      "name": "Bd tree 5",
+      "x": 0,
+      "z": 0,
+      "yaw": 0,
+      "height": 7.5,
+      "width": 0
+    },
+    {
+      "name": "Mango free (ready to use)",
+      "x": 0,
+      "z": 0,
+      "yaw": 0,
+      "height": 7.5,
+      "width": 0
+    },
+    {
+      "name": "Mango tree",
+      "x": 0,
+      "z": 0,
+      "yaw": 0,
+      "height": 7.5,
+      "width": 0
+    },
+    {
+      "name": "Bd house 1",
+      "x": 32,
+      "z": -30,
+      "yaw": 270,
+      "height": 6.6,
+      "width": 0
+    },
+    {
+      "name": "bd house 2",
+      "x": -43,
+      "z": -28,
+      "yaw": 90,
+      "height": 4.1,
+      "width": 0
+    },
+    {
+      "name": "Bd house 3",
+      "x": -29,
+      "z": -28,
+      "yaw": 270,
+      "height": 4.2,
+      "width": 0
+    },
+    {
+      "name": "Bd house 4",
+      "x": 32,
+      "z": -12,
+      "yaw": 270,
+      "height": 7.2,
+      "width": 0
+    },
+    {
+      "name": "Bd house 5",
+      "x": 48,
+      "z": -30,
+      "yaw": 270,
+      "height": 7.2,
+      "width": 0
+    },
+    {
+      "name": "Bd house 6",
+      "x": 48,
+      "z": -12,
+      "yaw": 270,
+      "height": 7.0,
+      "width": 0
+    },
+    {
+      "name": "Bd house 7",
+      "x": 32,
+      "z": 8,
+      "yaw": 270,
+      "height": 7.2,
+      "width": 0
+    },
+    {
+      "name": "Bd house 8(need better texture)",
+      "x": 48,
+      "z": 8,
+      "yaw": 270,
+      "height": 7.8,
+      "width": 0
+    },
+    {
+      "name": "Bd house 9(need better texture)",
+      "x": 32,
+      "z": 25,
+      "yaw": 270,
+      "height": 7.8,
+      "width": 0
+    },
+    {
+      "name": "Bd house 10(need some fix and better texture)",
+      "x": 24,
+      "z": 48,
+      "yaw": 180,
+      "height": 7.6,
+      "width": 0
+    },
+    {
+      "name": "Bd house oo (need better texture)",
+      "x": -36,
+      "z": 48,
+      "yaw": 180,
+      "height": 7.5,
+      "width": 0
+    },
+    {
+      "name": "Bd house r",
+      "x": -43,
+      "z": 10,
+      "yaw": 90,
+      "height": 4.2,
+      "width": 0
+    },
+    {
+      "name": "Bd house11 (shop)",
+      "x": 24,
+      "z": -48,
+      "yaw": 180,
+      "height": 3.0,
+      "width": 0
+    }
+  ],
+  "treeAnchors": [
+    {
+      "x": -53,
+      "z": -35
+    },
+    {
+      "x": -51,
+      "z": -18
+    },
+    {
+      "x": -52,
+      "z": 0
+    },
+    {
+      "x": -53,
+      "z": 18
+    },
+    {
+      "x": -50,
+      "z": 34
+    },
+    {
+      "x": -43,
+      "z": 40
+    },
+    {
+      "x": -25,
+      "z": 40
+    },
+    {
+      "x": -23,
+      "z": -40
+    },
+    {
+      "x": -52,
+      "z": -43
+    },
+    {
+      "x": -53,
+      "z": -6
+    },
+    {
+      "x": -24,
+      "z": -18
+    },
+    {
+      "x": -24,
+      "z": 6
+    },
+    {
+      "x": -50,
+      "z": 25
+    },
+    {
+      "x": -27,
+      "z": 30
+    },
+    {
+      "x": -45,
+      "z": 52
+    },
+    {
+      "x": -22,
+      "z": 53
+    },
+    {
+      "x": -53,
+      "z": 50
+    },
+    {
+      "x": -53,
+      "z": 7
+    },
+    {
+      "x": -51,
+      "z": -30
+    },
+    {
+      "x": -20,
+      "z": -34
+    },
+    {
+      "x": -24,
+      "z": 18
+    },
+    {
+      "x": -46,
+      "z": 32
+    },
+    {
+      "x": -28,
+      "z": 52
+    },
+    {
+      "x": -51,
+      "z": 54
+    }
+  ]
+}

@@ -11,16 +11,20 @@ namespace Fpp
             if(GetComponent<PresentationAudio>()==null)gameObject.AddComponent<PresentationAudio>();
             if(GetComponent<UiHaptics>()==null)gameObject.AddComponent<UiHaptics>();
             if(GetComponent<PresentationRenderer>()==null)gameObject.AddComponent<PresentationRenderer>();
+            if(GetComponent<FrameTimeEvidence>()==null)gameObject.AddComponent<FrameTimeEvidence>();
             var c=GunplayConfig.Current;Application.targetFrameRate=c.targetFPS;
-            QualitySettings.vSyncCount=0;QualitySettings.antiAliasing=0;
-            QualitySettings.shadows=ShadowQuality.HardOnly;QualitySettings.shadowDistance=28;QualitySettings.shadowCascades=0;QualitySettings.shadowResolution=ShadowResolution.Medium;
+            QualitySettings.vSyncCount=0;
+            if(UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline==null)
+            {QualitySettings.antiAliasing=0;
+            QualitySettings.shadows=ShadowQuality.HardOnly;QualitySettings.shadowDistance=28;QualitySettings.shadowCascades=0;QualitySettings.shadowResolution=ShadowResolution.Medium;}
             Screen.sleepTimeout=SleepTimeout.NeverSleep;
             nativeWidth=Screen.width;nativeHeight=Screen.height;
-            if(Application.isMobilePlatform)ApplyResolution(c);
+            // URP starts at the device's native framebuffer. Never silently cap it to1280x720.
+            if(Application.isMobilePlatform&&UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline==null&&c.dynamicResolution&&PlayerPrefs.GetInt("fpp.visual.drs",0)!=0)ApplyResolution(c);
         }
         private void Update()
         {
-            var c=GunplayConfig.Current;if(UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline!=null||!Application.isMobilePlatform||!c.dynamicResolution)return;
+            var c=GunplayConfig.Current;if(UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline!=null||!Application.isMobilePlatform||!c.dynamicResolution||PlayerPrefs.GetInt("fpp.visual.drs",0)==0)return;
             elapsed+=Time.unscaledDeltaTime;if(++frames<c.resolutionSampleFrames)return;
             float target=1f/c.targetFPS,average=elapsed/frames;elapsed=0;frames=0;
             float next=scale;

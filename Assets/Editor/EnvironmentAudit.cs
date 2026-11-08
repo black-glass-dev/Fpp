@@ -7,12 +7,12 @@ namespace Fpp.Editor
         public static void Validate()
         {
             Physics.SyncTransforms();
-            var ground=GameObject.Find("Sculpted ground");
+            var ground=GameObject.Find("Expanded ground and sloped pond basin");
             if(ground==null || ground.GetComponent<MeshCollider>()==null || ground.GetComponent<MeshFilter>().sharedMesh.bounds.size.y<.15f)
                 throw new Exception("Ground must have real relief and matching collision");
-            if(GroundBuilder.Height(0,-20)!=0 || GroundBuilder.Height(20,26)!=0)
+            if(Mathf.Abs(VillageExpansion.SurfaceHeight(0,-20)+.04f)>.0001f || Mathf.Abs(VillageExpansion.SurfaceHeight(20,26)+.04f)>.0001f)
                 throw new Exception("Road and cottage pads must remain level");
-            var district=GameObject.Find("Bangladesh courtyard and pond district (600 x 440m)");
+            var district=GameObject.Find("Bangladesh compact para (120 x 120m)");
             var trunks=UnityEngine.Object.FindObjectsOfType<CapsuleCollider>();int count=0;
             foreach(var trunk in trunks)if(trunk.gameObject.name.ToLowerInvariant().Contains("tree"))
             {if(district==null||!trunk.transform.IsChildOf(district.transform))count++;if(trunk.bounds.size.x>1 || trunk.GetComponent<BoxCollider>()!=null)throw new Exception("Tree canopy must not block walking");}

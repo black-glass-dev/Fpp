@@ -6,7 +6,7 @@ TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
 TEXTURE2D(_SoilNormal); SAMPLER(sampler_SoilNormal);
 CBUFFER_START(UnityPerMaterial)
 float4 _MainTex_ST, _Color, _Entry, _InteriorRect, _SkirtRect;
-float _Road, _DetailScale, _TrimBelow, _ScanGroundBelow, _InteriorTop;
+float _Road, _DetailScale, _TrimBelow, _ScanGroundBelow, _InteriorTop, _Smoothness, _Metallic;
 CBUFFER_END
 struct FppVertex {float4 positionOS:POSITION;float3 normalOS:NORMAL;float2 uv:TEXCOORD0;
 #if defined(FPP_VERTEX_COLOR)
@@ -50,6 +50,14 @@ half4 FppFragment(FppVaryings i):SV_Target
  s.albedo=lerp(SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,uv).rgb,SAMPLE_TEXTURE2D(_SoilTex,sampler_SoilTex,uv*1.13+float2(.32,.71)).rgb,soil)*lerp(.78,1.16,FppNoise(p*.075+17))*(1-ruts*.17);
  half3 detail=normalize(lerp(UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap,sampler_BumpMap,uv)),UnpackNormal(SAMPLE_TEXTURE2D(_SoilNormal,sampler_SoilNormal,uv*1.13+float2(.32,.71))),soil));
  n=normalize(n+half3(detail.x,0,detail.y)*.65);s.smoothness=lerp(.08,.16,ruts);s.occlusion=.93;
+#elif defined(FPP_METRIC_DETAIL)
+ // Metre-based projection: source UV scale cannot turn bricks into metre-wide slabs.
+ half3 axis=abs(n);bool top=axis.y>=axis.x&&axis.y>=axis.z;bool side=axis.x>axis.z;
+ float2 uv=(top?i.world.xz:side?i.world.zy:i.world.xy)*_DetailScale;
+ s.albedo=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,uv).rgb*_Color.rgb;
+ half3 bump=UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap,sampler_BumpMap,uv));
+ n=normalize(n+(top?half3(bump.x,0,bump.y):side?half3(0,bump.y,bump.x):half3(bump.x,bump.y,0))*.3);
+ s.smoothness=_Smoothness;s.metallic=_Metallic;
 #elif defined(FPP_VERTEX_COLOR)
  s.albedo=i.color.rgb*_Color.rgb;
 #elif defined(FPP_BRICK)

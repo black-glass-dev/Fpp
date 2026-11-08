@@ -43,7 +43,8 @@ namespace Fpp
         private HudControl joystick;
         private string cachedName,cachedNearby;private int cachedAmmo=-1,cachedHits=-1;private bool cachedReload;
 
-        private void Awake() { Instance = this; weapons = GetComponent<WeaponController>(); }
+        private TestPlayer cachedMotor;
+        private void Awake() { Instance = this; weapons = GetComponent<WeaponController>();cachedMotor=GetComponent<TestPlayer>(); }
         private void Start()
         {
             font = Resources.Load<Font>("Fonts/Hud");
@@ -99,8 +100,8 @@ namespace Fpp
         {
             if (safeRoot == null) return;
             if (lastSafe != Screen.safeArea) ApplySafeArea();
-            var motor=weapons!=null?weapons.GetComponent<TestPlayer>():null;
-            foreach(var control in controls)if(control.placement.id=="mount")control.gameObject.SetActive(Editing||motor!=null&&(motor.MountAvailable||motor.Mounted));
+            var motor=cachedMotor;
+            foreach(var control in controls)if(control.placement.id=="mount"){bool visible=Editing||motor!=null&&(motor.MountAvailable||motor.Mounted);if(control.gameObject.activeSelf!=visible)control.gameObject.SetActive(visible);}
             // Objective is top-center; user control placements are never reset by styling.
             if (weapons != null)
             {
@@ -202,6 +203,7 @@ namespace Fpp
             SmallButton(p,"DAMAGE #",new Vector2(.69f,.50f),new Vector2(.96f,.63f),()=>{settings.damageNumbers=!settings.damageNumbers;settings.Save();});
             SmallButton(p,"CURVE",new Vector2(.69f,.33f),new Vector2(.96f,.46f),()=>{settings.curve=(SensitivitySettings.ResponseCurve)(((int)settings.curve+1)%3);settings.Save();});
             SmallButton(p,"SAVE / CLOSE",new Vector2(.69f,.1f),new Vector2(.96f,.25f),()=>{settings.Save();settingsPanel.SetActive(false);});
+            SmallButton(p,"COPY PERF",new Vector2(.69f,.005f),new Vector2(.96f,.09f),()=>{var evidence=GetComponent<FrameTimeEvidence>();if(evidence!=null)Debug.Log(evidence.CopyReport());});
             settingsPanel.SetActive(false);CreateVisualSettings();
         }
         private void RefreshVisualTitle()

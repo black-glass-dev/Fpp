@@ -60,7 +60,7 @@ namespace Fpp.Editor
                     main.transform.position=new Vector3(0,2.65f,33);main.transform.LookAt(new Vector3(1.4f,3.2f,28));
                     Save(main,null,"Docs/Previews/unity-mosque-interior.png");
                     // Review every supplied model close-up, not just the old spawn block.
-                    var district=GameObject.Find("Bangladesh courtyard and pond district (600 x 440m)");
+                    var district=GameObject.Find("Bangladesh compact para (120 x 120m)");
                     if(!File.Exists("QA/runtime/village-placement.json"))throw new Exception("Missing placement receipt");
                     var receipt=JsonUtility.FromJson<ReviewReceipt>(File.ReadAllText("QA/runtime/village-placement.json"));
                     int modelIndex=0;var names=new HashSet<string>();
@@ -77,7 +77,7 @@ namespace Fpp.Editor
                         Save(main,null,"Docs/Previews/unity-village-"+(modelIndex++).ToString("00")+".png");
                     }
                     if(modelIndex!=18)throw new Exception("Expected close-up review of all18 supplied models");
-                    main.transform.position=new Vector3(95,7,5);main.transform.LookAt(new Vector3(115,-.3f,35));Save(main,null,"Docs/Previews/unity-village-pond.png");
+                    main.transform.position=new Vector3(32,5,28);main.transform.LookAt(new Vector3(46,-.3f,40));Save(main,null,"Docs/Previews/unity-village-pond.png");
                     foreach(var pickup in pickups)if(pickup.displayName.Contains("Glock"))
                     {
                         main.transform.position=pickup.transform.position+new Vector3(.6f,.8f,-.6f);
@@ -96,12 +96,14 @@ namespace Fpp.Editor
         [Serializable] private class ReviewReceipt { public ReviewEntry[] files; }
         private static void Save(Camera world,Camera overlay,string path)
         {
+            Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/build-progress.txt","CAPTURE START "+path+"\n");
             var rt=RenderTexture.GetTemporary(1280,720,24,RenderTextureFormat.ARGB32);
             RenderEvidence.Into(world,overlay,rt,GameObject.Find("Mobile HUD").GetComponent<Canvas>());
             var old=RenderTexture.active;RenderTexture.active=rt;
             var texture=new Texture2D(1280,720,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1280,720),0,0);texture.Apply();
             File.WriteAllBytes(path,texture.EncodeToPNG());UnityEngine.Object.DestroyImmediate(texture);
             world.targetTexture=null;RenderTexture.active=old;RenderTexture.ReleaseTemporary(rt);
+            File.AppendAllText("QA/runtime/build-progress.txt","CAPTURE END "+path+"\n");
         }
     }
 }

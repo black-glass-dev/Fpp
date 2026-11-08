@@ -315,12 +315,25 @@ namespace Fpp.Tests
         [UnityTest,Timeout(120000)] public IEnumerator SuppliedVillageModelsPondAndExpandedRoutesExist()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
-            var district=GameObject.Find("Bangladesh courtyard and pond district (600 x 440m)");Assert.NotNull(district);
+            var district=GameObject.Find("Bangladesh compact para (120 x 120m)");Assert.NotNull(district);
             Assert.NotNull(GameObject.Find("Village pond water (placeholder surface)"));
             Assert.IsNull(GameObject.Find("North boundary"),"old enclosure must not block the expansion");
             Assert.Greater(district.GetComponentsInChildren<MeshCollider>().Length,18,"accurate geometry collisions required");
             string[] houses={"Bd house 1","bd house 2","Bd house 3","Bd house 4","Bd house 5","Bd house 6","Bd house 7","Bd house 8(need better texture)","Bd house 9(need better texture)","Bd house 10(need some fix and better texture)","Bd house oo (need better texture)","Bd house r","Bd house11 (shop)"};
             foreach(string name in houses){var house=GameObject.Find(name);Assert.NotNull(house,name);Assert.Greater(house.GetComponentsInChildren<MeshCollider>().Length,0,name);}
+            foreach(string name in houses)
+            {
+                var renderers=GameObject.Find(name).GetComponentsInChildren<Renderer>();Bounds bounds=default(Bounds);bool found=false;
+                foreach(var renderer in renderers)if(renderer.enabled){if(!found){bounds=renderer.bounds;found=true;}else bounds.Encapsulate(renderer.bounds);}
+                Assert.True(found,name);Assert.LessOrEqual(bounds.size.y,10,name+" human scale");Assert.LessOrEqual(Mathf.Max(bounds.size.x,bounds.size.z),13.51f,name+" parcel size");
+                Assert.LessOrEqual(Mathf.Abs(bounds.center.x)+bounds.extents.x,59.5f,name+" map bounds");Assert.LessOrEqual(Mathf.Abs(bounds.center.z)+bounds.extents.z,59.5f,name+" map bounds");
+            }
+            foreach(Transform child in district.transform)if(child.name.StartsWith("Brick road",StringComparison.OrdinalIgnoreCase)||child.name.StartsWith("Road(ready",StringComparison.OrdinalIgnoreCase))
+            {
+                var renderers=child.GetComponentsInChildren<Renderer>();var bounds=renderers[0].bounds;foreach(var renderer in renderers)bounds.Encapsulate(renderer.bounds);Assert.AreEqual(4.2f,bounds.size.x,.02f,"Road must use metre-scale width");
+            }
+            foreach(var renderer in district.GetComponentsInChildren<Renderer>())if(renderer.enabled)
+            {Assert.False(renderer.name.StartsWith("UCX_",StringComparison.OrdinalIgnoreCase));Assert.False(renderer.name.EndsWith("_LOD1",StringComparison.OrdinalIgnoreCase));Assert.False(renderer.name.EndsWith("_LOD2",StringComparison.OrdinalIgnoreCase));}
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();
             GunplayVisualTests.Save(Output+"/village-spawn.png",weapons);
             File.WriteAllText(Output+"/village-scene-check.txt","All13 named house/shop models exist, expanded district and pond exist, old north enclosure removed and triangle collisions present. All18-file placement receipt generated at build. Interior walkability/visual quality/device performance not certified by presence checks.");

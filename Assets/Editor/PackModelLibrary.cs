@@ -126,7 +126,7 @@ namespace Fpp.Editor
                         string name = entry.name.ToLowerInvariant();
                         model.transform.position = name.Contains("mosque") ? new Vector3(0,.05f,32) :
                             name.Contains("haystack") ? new Vector3(-10,.05f,12) :
-                            new Vector3(prop % 2 == 0 ? -29 : 29,.05f,-32+prop*6);
+                            name.Contains("tree") ? new Vector3(prop % 2 == 0 ? -52 : -21,.05f,prop % 2 == 0 ? -50 : 45) : new Vector3(prop % 2 == 0 ? -29 : 29,.05f,-32+prop*6);
                         if(!name.Contains("mosque"))model.transform.position+=Vector3.up*GroundBuilder.Height(model.transform.position.x,model.transform.position.z);
                         var collider = model.AddComponent<BoxCollider>();
                         var renderers = model.GetComponentsInChildren<Renderer>();

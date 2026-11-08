@@ -13,7 +13,24 @@ namespace Fpp.Editor
     {
         [Serializable] private class Catalog { public Entry[] models; }
         [Serializable] private class Entry { public string pack,name,assetPath,sourcePath; }
-        [Serializable] private class Usage { public string source,placement;public Vector3 size,position;public int instances; }
+        [Serializable] private class Usage { public string source,placement,calibration;public Vector3 size,position;public int instances; }
+        [Serializable] private class Placement { public string name;public float x,z,yaw,height,width; }
+        [Serializable] private class Anchor { public float x,z; }
+        [Serializable] private class Layout { public string districtName;public int halfWidth,halfDepth;public Placement[] models;public Anchor[] treeAnchors; }
+        private static Layout layout;
+        private static bool Helper(string name) { return name.StartsWith("UCX_",StringComparison.OrdinalIgnoreCase)||name.IndexOf("Collision",StringComparison.OrdinalIgnoreCase)>=0||name.EndsWith("_LOD1",StringComparison.OrdinalIgnoreCase)||name.EndsWith("_LOD2",StringComparison.OrdinalIgnoreCase); }
+        private static bool Helper(Transform t) {for(;t!=null;t=t.parent)if(Helper(t.name))return true;return false;}
+        private static void FullDetailOnly(GameObject go)
+        {
+            // Authored alternate LOD/proxy objects are not additional visible houses.
+            // Keep full detail; do not switch to a reduced LOD at distance.
+            Directory.CreateDirectory("QA/runtime");
+            foreach(var filter in go.GetComponentsInChildren<MeshFilter>(true))if(Helper(filter.transform)&&filter.sharedMesh!=null)
+                File.AppendAllText("QA/runtime/helper-exclusions.txt",go.name+" / "+filter.name+" / vertices="+filter.sharedMesh.vertexCount+"; alternate LOD/proxy not drawn, full-detail source retained\n");
+            foreach(var group in go.GetComponentsInChildren<LODGroup>())group.enabled=false;
+            foreach(var t in go.GetComponentsInChildren<Transform>())if(t.name.StartsWith("UCX_",StringComparison.OrdinalIgnoreCase)||t.name.EndsWith("_LOD1",StringComparison.OrdinalIgnoreCase)||t.name.EndsWith("_LOD2",StringComparison.OrdinalIgnoreCase))t.gameObject.SetActive(false);
+            foreach(var renderer in go.GetComponentsInChildren<Renderer>())if(Helper(renderer.transform))renderer.enabled=false;
+        }
         [Serializable] private class Receipt { public Usage[] files;public string status="Placed all18 originals; visual/interior/device acceptance pending"; }
         public static void Build(Material ground,Material lane)
         {
@@ -28,51 +45,60 @@ namespace Fpp.Editor
             var generator=typeof(GLTFast.Materials.MaterialGenerator).GetField("s_DefaultMaterialGenerator",BindingFlags.Static|BindingFlags.NonPublic);
             if(generator==null)throw new Exception("Pinned glTF material-generator contract changed");
             generator.SetValue(null,new GLTFast.Materials.UniversalRPMaterialGenerator((UniversalRenderPipelineAsset)GraphicsSettings.defaultRenderPipeline));
-            var district=new GameObject("Bangladesh courtyard and pond district (600 x 440m)");
+            layout=JsonUtility.FromJson<Layout>(File.ReadAllText("Assets/Editor/VillageLayout.json"));
+            if(layout.models.Length!=18||layout.treeAnchors.Length!=24)throw new Exception("Incomplete compact layout");
+            var oldGround=GameObject.Find("Sculpted ground");if(oldGround!=null)UnityEngine.Object.DestroyImmediate(oldGround);
+            var stones=GameObject.Find("Batched small ground stones");
+            if(stones!=null){var filter=stones.GetComponent<MeshFilter>();var mesh=UnityEngine.Object.Instantiate(filter.sharedMesh);var vertices=mesh.vertices;for(int i=0;i<vertices.Length;i++)vertices[i].y-=GroundBuilder.Height(vertices[i].x,vertices[i].z);mesh.vertices=vertices;mesh.RecalculateBounds();AssetDatabase.CreateAsset(mesh,"Assets/Generated/Village/LevelledPebbles.asset");filter.sharedMesh=mesh;}
+            var district=new GameObject(layout.districtName);
             CreateTerrain(district.transform,ground);CreatePond(district.transform);
-            // Connection paths lead between the old playable centre and courtyard clusters.
-            Slab("East courtyard lane",new Vector3(105,.025f,0),new Vector3(170,.05f,5),lane,district.transform);
-            Slab("West courtyard lane",new Vector3(-105,.025f,-30),new Vector3(170,.05f,5),lane,district.transform);
-            Slab("Village north-south lane",new Vector3(-45,.025f,0),new Vector3(5,.05f,310),lane,district.transform);
-            var usage=new List<Usage>();int house=0,tree=0,road=0;
-            var courtyardCentres=new[]{new Vector3(-100,0,-115),new Vector3(75,0,-100),new Vector3(-135,0,10),new Vector3(70,0,115),new Vector3(160,0,-70),new Vector3(-100,0,125)};
+            foreach(var pickup in UnityEngine.Object.FindObjectsOfType<WeaponPickup>()){var p=pickup.transform.position;pickup.transform.position-=Vector3.up*GroundBuilder.Height(p.x,p.z);}
+            Slab("East connected neighbourhood lane",new Vector3(22,.025f,-8),new Vector3(4.2f,.05f,82),lane,district.transform);
+            Slab("East residential alley",new Vector3(40,.025f,-9),new Vector3(2.4f,.05f,58),lane,district.transform);
+            Slab("South cross gali",new Vector3(35,.025f,-21),new Vector3(30,.05f,2.4f),lane,district.transform);
+            Slab("North cross gali",new Vector3(35,.025f,-2),new Vector3(30,.05f,2.4f),lane,district.transform);
+            Slab("West courtyard connection",new Vector3(-25,.025f,10),new Vector3(24,.05f,2.4f),lane,district.transform);
+            Slab("West uthan",new Vector3(-36,.025f,-28),new Vector3(7,.05f,11),lane,district.transform);
+            Slab("West inner passage",new Vector3(-36,.025f,5),new Vector3(2.4f,.05f,55),lane,district.transform);
+            var usage=new List<Usage>();int tree=0;
             foreach(var entry in catalog.models)
             {
                 // Import under the actual generated URP, not the initial missing/default pipeline.
                 AssetDatabase.ImportAsset(entry.assetPath,ImportAssetOptions.ForceUpdate|ImportAssetOptions.ForceSynchronousImport);
                 var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(entry.assetPath);
                 if(prefab==null)throw new Exception("glTF importer did not create model: "+entry.assetPath);
-                int instances=entry.pack=="Tree"?8:1;GameObject first=null;
+                Placement plan=null;foreach(var candidate in layout.models)if(candidate.name==entry.name){plan=candidate;break;}
+                if(plan==null)throw new Exception("Unplaced supplied model: "+entry.name);
+                int instances=entry.pack=="Tree"?8:1;GameObject first=null;string calibration="manual height reference; visual validation pending";
                 for(int instance=0;instance<instances;instance++)
                 {
                     var go=(GameObject)PrefabUtility.InstantiatePrefab(prefab);go.name=entry.name;go.transform.SetParent(district.transform,false);
+                    FullDetailOnly(go);
                     var sourceRotation=go.transform.localRotation;
                     var bounds=Bounds(go);float footprint=Mathf.Max(bounds.size.x,bounds.size.z);if(footprint<.001f)throw new Exception("Degenerate supplied model: "+entry.name);
-                    float target=entry.pack=="House"?18:entry.pack=="Tree"?9:85;
-                    float scale=target/footprint;
-                    if(entry.pack=="House")foreach(var renderer in go.GetComponentsInChildren<Renderer>())
-                        if(renderer.name.Equals("Door",StringComparison.OrdinalIgnoreCase)&&renderer.bounds.size.y>.01f)
-                        {float doorScale=2.3f/renderer.bounds.size.y;if(footprint*doorScale>=6&&footprint*doorScale<=40)scale=doorScale;break;}
-                    go.transform.localScale*=scale;
-                    Vector3 location;float yaw;
+                    float scale=plan.height/Mathf.Max(.001f,bounds.size.y);
+                    if(entry.pack=="Road") { scale=plan.width/bounds.size.x;calibration="uniform scale to4.2m street width, not85m blanket length"; }
                     if(entry.pack=="House")
                     {
-                        int cluster=house/2;var centre=courtyardCentres[Mathf.Min(cluster,courtyardCentres.Length-1)];
-                        bool shop=entry.name.ToLowerInvariant().Contains("shop");
-                        location=shop?new Vector3(-65,0,-15):centre+new Vector3(house%2==0?-18:18,0,0);
-                        yaw=house%2==0?90:270;house++;
+                        var doors=new List<float>();
+                        foreach(var renderer in go.GetComponentsInChildren<Renderer>())
+                        {
+                            string name=renderer.name.ToLowerInvariant();float height=renderer.bounds.size.y;
+                            if((name=="door"||name.StartsWith("door_"))&&!name.Contains("frame")&&!name.Contains("latch")&&height>bounds.size.y*.18f&&height<bounds.size.y*.75f)doors.Add(height);
+                        }
+                        if(doors.Count>0){doors.Sort();float doorScale=2.1f/doors[doors.Count/2];if(footprint*doorScale>=3&&footprint*doorScale<=13.5f){scale=doorScale;calibration="authored door panel median calibrated to2.1m";}}
+                        if(footprint*scale>13.5f)throw new Exception("House exceeds compact parcel: "+entry.name);
                     }
-                    else if(entry.pack=="Tree")
-                    {
-                        float angle=(instance*45+tree*13)*Mathf.Deg2Rad;
-                        location=new Vector3(Mathf.Cos(angle)*(185+tree*12),0,Mathf.Sin(angle)*155);yaw=instance*47;
-                    }
-                    else {location=road==0?new Vector3(-45,.06f,-100):new Vector3(-45,.06f,100);yaw=0;road++;}
+                    go.transform.localScale*=scale;
+                    Vector3 location=new Vector3(plan.x,.02f,plan.z);float yaw=plan.yaw;
+                    if(entry.pack=="Tree") {var anchor=layout.treeAnchors[tree*8+instance];location=new Vector3(anchor.x,0,anchor.z);yaw=instance*47;}
                     go.transform.rotation=Quaternion.Euler(0,yaw,0)*sourceRotation;bounds=Bounds(go);
                     go.transform.position+=location-new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
                     foreach(var renderer in go.GetComponentsInChildren<Renderer>())
                     {
                         BindMissingVertexMaterial(renderer,entry.pack);
+                        if(Helper(renderer.transform))continue;
+                        VillageSurfaceRepair.Apply(renderer,entry.pack,entry.name);
                         if(entry.pack=="Road"&&entry.name.StartsWith("Brick road",StringComparison.OrdinalIgnoreCase))RepairBlackBrick(renderer);
                         renderer.shadowCastingMode=ShadowCastingMode.On;
                         renderer.receiveShadows=true;
@@ -96,20 +122,19 @@ namespace Fpp.Editor
                     else
                     {
                         // Non-convex triangle collisions retain authored door/window/interior openings.
-                        foreach(var filter in go.GetComponentsInChildren<MeshFilter>())if(filter.sharedMesh!=null)
+                        foreach(var filter in go.GetComponentsInChildren<MeshFilter>())if(filter.sharedMesh!=null&&!Helper(filter.transform))
                         {var collider=filter.GetComponent<MeshCollider>();if(collider==null)collider=filter.gameObject.AddComponent<MeshCollider>();collider.sharedMesh=filter.sharedMesh;}
                     }
-                    foreach(var t in go.GetComponentsInChildren<Transform>(true))GameObjectUtility.SetStaticEditorFlags(t.gameObject,StaticEditorFlags.BatchingStatic|StaticEditorFlags.OccluderStatic|StaticEditorFlags.OccludeeStatic);
+                    foreach(var t in go.GetComponentsInChildren<Transform>(true))GameObjectUtility.SetStaticEditorFlags(t.gameObject,StaticEditorFlags.BatchingStatic|StaticEditorFlags.OccludeeStatic|(entry.pack=="House"?StaticEditorFlags.OccluderStatic:0));
                     if(first==null)first=go;
                 }
                 if(entry.pack=="Tree")tree++;
-                var finalBounds=Bounds(first);usage.Add(new Usage{source=entry.pack+"/"+entry.sourcePath,placement=first.name,position=first.transform.position,size=finalBounds.size,instances=instances});
+                var finalBounds=Bounds(first);usage.Add(new Usage{source=entry.pack+"/"+entry.sourcePath,placement=first.name,position=first.transform.position,size=finalBounds.size,instances=instances,calibration=calibration});
             }
-            // Visible low perimeter, outside all new routes rather than the old70x90m enclosure.
-            Slab("Expanded north perimeter",new Vector3(0,1,220),new Vector3(600,2,1),ground,district.transform);
-            Slab("Expanded south perimeter",new Vector3(0,1,-220),new Vector3(600,2,1),ground,district.transform);
-            Slab("Expanded west perimeter",new Vector3(-300,1,0),new Vector3(1,2,440),ground,district.transform);
-            Slab("Expanded east perimeter",new Vector3(300,1,0),new Vector3(1,2,440),ground,district.transform);
+            Slab("Compact north perimeter",new Vector3(0,1,60),new Vector3(120,2,1),ground,district.transform);
+            Slab("Compact south perimeter",new Vector3(0,1,-60),new Vector3(120,2,1),ground,district.transform);
+            Slab("Compact west perimeter",new Vector3(-60,1,0),new Vector3(1,2,120),ground,district.transform);
+            Slab("Compact east perimeter",new Vector3(60,1,0),new Vector3(1,2,120),ground,district.transform);
             Directory.CreateDirectory("QA/runtime");File.WriteAllText("QA/runtime/village-placement.json",JsonUtility.ToJson(new Receipt{files=usage.ToArray()},true));
         }
         private static void BindMissingVertexMaterial(Renderer renderer,string pack)
@@ -142,8 +167,8 @@ namespace Fpp.Editor
                 if(material==null){material=new Material(materials[i]){name="Fired brick repair (original procedural maps)"};AssetDatabase.CreateAsset(material,path);}
                 var texture=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Generated/Village/BrickTextures/FiredBrick_BaseColor.png");
                 var normal=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Generated/Village/BrickTextures/FiredBrick_Normal.png");
-                if(texture==null||normal==null||!material.HasProperty("baseColorTexture"))throw new Exception("Pinned glTF brick repair material contract unavailable");
-                material.SetTexture("baseColorTexture",texture);material.SetVector("baseColorFactor",Vector4.one);
+                if(texture==null||normal==null)throw new Exception("Pinned glTF brick repair material contract unavailable");
+                material.shader=Shader.Find("FPP/Metric Surface Lit");material.SetTexture("_MainTex",texture);material.SetTexture("_BumpMap",normal);material.SetColor("_Color",Color.white);material.SetFloat("_DetailScale",1/1.92f);material.SetFloat("_Smoothness",.14f);
                 if(material.HasProperty("normalTexture"))material.SetTexture("normalTexture",normal);
                 if(material.HasProperty("roughnessFactor"))material.SetFloat("roughnessFactor",.86f);
                 if(material.HasProperty("metallicFactor"))material.SetFloat("metallicFactor",0);
@@ -154,21 +179,21 @@ namespace Fpp.Editor
         private static Bounds Bounds(GameObject go)
         {
             var renderers=go.GetComponentsInChildren<Renderer>();if(renderers.Length==0)throw new Exception("Empty village model "+go.name);
-            var bounds=renderers[0].bounds;foreach(var renderer in renderers)bounds.Encapsulate(renderer.bounds);return bounds;
+            Bounds bounds=default(Bounds);bool found=false;foreach(var renderer in renderers)if(renderer.enabled&&!Helper(renderer.transform)){if(!found){bounds=renderer.bounds;found=true;}else bounds.Encapsulate(renderer.bounds);}if(!found)throw new Exception("No visible source geometry");return bounds;
         }
         private static GameObject Slab(string name,Vector3 position,Vector3 size,Material material,Transform parent)
         {
             var go=GameObject.CreatePrimitive(PrimitiveType.Cube);go.name=name;go.transform.SetParent(parent,false);go.transform.position=position;go.transform.localScale=size;go.GetComponent<Renderer>().sharedMaterial=material;go.isStatic=true;return go;
         }
-        private static float Height(float x,float z)
+        public static float SurfaceHeight(float x,float z)
         {
-            float radius=Mathf.Sqrt(Mathf.Pow((x-115)/28,2)+Mathf.Pow((z-35)/20,2));
+            float radius=Mathf.Sqrt(Mathf.Pow((x-46)/11,2)+Mathf.Pow((z-40)/9,2));
             return radius<1?-2.7f*Mathf.SmoothStep(0,1,1-radius):-.04f;
         }
         private static void CreateTerrain(Transform parent,Material material)
         {
-            const int width=301,depth=221;var vertices=new Vector3[width*depth];var uv=new Vector2[vertices.Length];var indices=new List<int>();
-            for(int z=0;z<depth;z++)for(int x=0;x<width;x++){int i=z*width+x;float px=x*2-300,pz=z*2-220;vertices[i]=new Vector3(px,Height(px,pz),pz);uv[i]=new Vector2(px/4,pz/4);}
+            int width=layout.halfWidth*2+1,depth=layout.halfDepth*2+1;var vertices=new Vector3[width*depth];var uv=new Vector2[vertices.Length];var indices=new List<int>();
+            for(int z=0;z<depth;z++)for(int x=0;x<width;x++){int i=z*width+x;float px=x-layout.halfWidth,pz=z-layout.halfDepth;vertices[i]=new Vector3(px,SurfaceHeight(px,pz),pz);uv[i]=new Vector2(px/4,pz/4);}
             for(int z=0;z<depth-1;z++)for(int x=0;x<width-1;x++){int i=z*width+x;indices.AddRange(new[]{i,i+width,i+1,i+1,i+width,i+width+1});}
             var mesh=new Mesh{indexFormat=IndexFormat.UInt32};mesh.vertices=vertices;mesh.uv=uv;mesh.SetTriangles(indices,0);mesh.RecalculateNormals();mesh.RecalculateTangents();
             string path="Assets/Generated/Village/Ground.asset";AssetDatabase.DeleteAsset(path);AssetDatabase.CreateAsset(mesh,path);
@@ -180,11 +205,11 @@ namespace Fpp.Editor
             // New water placeholder: original supplied textures remain untouched; no swimming claim.
             var material=new Material(Shader.Find("Universal Render Pipeline/Lit"));material.color=new Color(.11f,.25f,.23f);material.SetFloat("_Smoothness",.85f);
             string matPath="Assets/Generated/Village/Pond.mat";AssetDatabase.DeleteAsset(matPath);AssetDatabase.CreateAsset(material,matPath);
-            var vertices=new Vector3[65];var triangles=new int[63*3];vertices[0]=new Vector3(115,-.3f,35);
-            for(int i=0;i<64;i++){float a=i*Mathf.PI*2/63;vertices[i+1]=vertices[0]+new Vector3(Mathf.Cos(a)*24,0,Mathf.Sin(a)*17);if(i<63){triangles[i*3]=0;triangles[i*3+1]=i+2;triangles[i*3+2]=i+1;}}
+            var vertices=new Vector3[65];var triangles=new int[63*3];vertices[0]=new Vector3(46,-.3f,40);
+            for(int i=0;i<64;i++){float a=i*Mathf.PI*2/63;vertices[i+1]=vertices[0]+new Vector3(Mathf.Cos(a)*9,0,Mathf.Sin(a)*7);if(i<63){triangles[i*3]=0;triangles[i*3+1]=i+2;triangles[i*3+2]=i+1;}}
             var mesh=new Mesh{vertices=vertices,triangles=triangles};mesh.RecalculateNormals();AssetDatabase.CreateAsset(mesh,"Assets/Generated/Village/Pond.asset");
             var pond=new GameObject("Village pond water (placeholder surface)",typeof(MeshFilter),typeof(MeshRenderer));pond.transform.SetParent(parent,false);pond.GetComponent<MeshFilter>().sharedMesh=mesh;pond.GetComponent<Renderer>().sharedMaterial=material;
-            for(int i=0;i<5;i++)Slab("Pond ghat step "+i,new Vector3(115,-.12f-i*.18f,14+i*.7f),new Vector3(4,.25f,1),material,parent);
+            for(int i=0;i<5;i++)Slab("Pond ghat step "+i,new Vector3(46,-.12f-i*.18f,31+i*.5f),new Vector3(4,.25f,1),material,parent);
         }
     }
 }
