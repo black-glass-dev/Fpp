@@ -332,6 +332,19 @@ namespace Fpp.Tests
             Assert.True(weapons.OwnsWeapon("mark23"));
             File.WriteAllText(Output+"/inventory-player-loop.txt","Four collected weapons survive movement away from pickup locations; actual SWAP input cycles all4 once, preserving Mark23 5+65 and secondary7+73. No automatic drops.");
         }
+        [UnityTest] public IEnumerator CeilingImpactCancelsUpwardVelocityWithoutHeadSticking()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
+            var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(10,1,10);
+            var roof=GameObject.CreatePrimitive(PrimitiveType.Cube);roof.transform.position=new Vector3(1000,2.2f,1000);roof.transform.localScale=new Vector3(5,.4f,5);
+            cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;Physics.SyncTransforms();yield return new WaitForSeconds(.25f);Assert.True(cc.isGrounded);
+            input.Value.Jump=true;float deadline=Time.time+1;
+            while((cc.collisionFlags&CollisionFlags.Above)==0&&Time.time<deadline)yield return null;
+            Assert.AreNotEqual(0,(int)(cc.collisionFlags&CollisionFlags.Above),"actual controller must hit low roof");float hitHeight=motor.transform.position.y;
+            yield return new WaitForSeconds(.12f);Assert.Less(motor.transform.position.y,hitHeight-.03f,"head impact must stop ascent immediately rather than stick until gravity catches up");
+            File.WriteAllText(Output+"/ceiling-impact.txt","Actual jump under2m roof: CharacterController reports Above; upward velocity cancelled and player descends within120ms. No head-sticking plateau.");
+        }
         [UnityTest] public IEnumerator MovementDoesNotRunAgainstWallsOrAutoMantleWithoutJump()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;

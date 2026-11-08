@@ -101,7 +101,7 @@ namespace Fpp
             {jumpAt=now;falling=c.jumpVelocity;prone=crouched=false;SetState(MovementState.Airborne);}
             if(input.Jump && input.Move.y>0 && grounded && !prone && TryMantle(c)){return;}
             falling=grounded&&falling<=0?c.groundedVelocity:falling-c.gravity*dt;
-            Vector3 beforeMove=transform.position;controller.Move((momentum+Vector3.up*falling)*dt);var moved=transform.position-beforeMove;Speed=new Vector2(moved.x,moved.z).magnitude/Mathf.Max(dt,.0001f);
+            Vector3 beforeMove=transform.position;var collisions=controller.Move((momentum+Vector3.up*falling)*dt);if((collisions&CollisionFlags.Above)!=0&&falling>0)falling=0;var moved=transform.position-beforeMove;Speed=new Vector2(moved.x,moved.z).magnitude/Mathf.Max(dt,.0001f);
             if(grounded&&Speed>c.prone)
             {
                 stepPhase+=dt*(IsSprinting?c.sprintCadence:c.walkCadence);
