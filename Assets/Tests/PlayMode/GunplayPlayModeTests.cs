@@ -260,6 +260,32 @@ namespace Fpp.Tests
             Assert.LessOrEqual(audio.ActiveVoices,32);
             File.WriteAllText(Output+"/audio-pool-playmode.txt","Four synthesized shot layers are non-silent; clip peaks bounded; 1000 UI events retain <=32 allocated voice slots. Not mixed-output LUFS/true-peak or device audibility acceptance.");
         }
+        private static void PressMenuButton(string name,Transform parent=null)
+        {
+            var buttons=parent!=null?parent.GetComponentsInChildren<UnityEngine.UI.Button>(true):UnityEngine.Object.FindObjectsOfType<UnityEngine.UI.Button>(true);
+            foreach(var button in buttons)if(button.name==name){button.onClick.Invoke();return;}
+            Assert.Fail("Missing menu button: "+name);
+        }
+        [UnityTest] public IEnumerator GraphicsAudioMenuChangesRealSettingsAndBlocksGameplay()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            var hud=MobileHud.Instance;var audio=PresentationAudio.Active;var renderer=PresentationRenderer.Active;float master=audio.BusVolume(0);var tier=renderer.Tier;var day=renderer.Day;bool drs=renderer.DynamicResolution;
+            PressMenuButton("SETTINGS");yield return null;PressMenuButton("VISUAL/AUDIO");yield return null;
+            var panel=GameObject.Find("Graphics and audio mix");Assert.NotNull(panel);Assert.True(hud.Modal);hud.Press("fire",true);Assert.False(hud.FireHeld);
+            try
+            {
+                var gain=panel.transform.Find("MASTER gain").GetComponent<UnityEngine.UI.Slider>();gain.value=.25f;yield return null;
+                Assert.That(audio.BusVolume(0),Is.EqualTo(.25f).Within(.0001f));Assert.True(audio.Mixer.GetFloat("BusMaster",out float db));Assert.That(db,Is.EqualTo(20*Mathf.Log10(.25f)).Within(.05f));
+                PressMenuButton("QUALITY",panel.transform);yield return null;Assert.AreNotEqual(tier,renderer.Tier);PressMenuButton("DAYLIGHT",panel.transform);Assert.AreNotEqual(day,renderer.Day);
+                PressMenuButton("DRS",panel.transform);Assert.AreNotEqual(drs,renderer.DynamicResolution);if(!renderer.DynamicResolution)Assert.AreEqual(1,renderer.ResolutionScale);
+                GunplayVisualTests.Save(Output+"/settings-visual-audio.png",UnityEngine.Object.FindObjectOfType<WeaponController>());
+            }
+            finally
+            {
+                audio.SetBusVolume(0,master);renderer.SetTier(tier);renderer.SetDay(day);if(renderer.DynamicResolution!=drs)renderer.ToggleDynamicResolution();PressMenuButton("SAVE / CLOSE",panel.transform);
+            }
+            Assert.False(hud.Modal);File.WriteAllText(Output+"/graphics-audio-menu.txt","Actual menu callbacks change mixer master dB, tier, daylight and persisted DRS; modal blocks fire; close restores gameplay. Native touch/haptics/device ergonomics separate.");
+        }
         [UnityTest] public IEnumerator UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors()
         {
             yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;

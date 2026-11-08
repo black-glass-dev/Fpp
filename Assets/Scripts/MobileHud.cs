@@ -17,7 +17,7 @@ namespace Fpp
     {
         public static MobileHud Instance { get; private set; }
         public bool Editing { get; private set; }
-        public bool Modal => Editing || settingsPanel!=null && settingsPanel.activeSelf || creditsPanel != null && creditsPanel.activeSelf;
+        public bool Modal => Editing || settingsPanel!=null && settingsPanel.activeSelf || visualPanel!=null && visualPanel.activeSelf || creditsPanel != null && creditsPanel.activeSelf;
         public Vector2 Move { get; private set; }
         public bool FireHeld { get; private set; }
         public bool AimHeld { get; private set; }
@@ -29,7 +29,8 @@ namespace Fpp
         private Sprite circle;
         private WeaponController weapons;
         private Text status, pickupLabel, editLabel;
-        private GameObject editorPanel, creditsPanel,settingsPanel;
+        private GameObject editorPanel, creditsPanel,settingsPanel,visualPanel;
+        private Text visualTitle;private readonly Slider[] gainSliders=new Slider[6];
         private Slider scaleSlider, opacitySlider;
         private InputFrame pending;private bool sprintHeld,crouchHeld;
         private HudControl selected;
@@ -53,7 +54,7 @@ namespace Fpp
             var scaler = go.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1280,720); scaler.matchWidthOrHeight = .5f;
             safeRoot = Panel("Safe area", go.transform, Color.clear); safeRoot.GetComponent<Image>().raycastTarget = false;
-            status = Label("Weapon status", safeRoot, "RANGE  //  000 HITS", 20, TextAnchor.UpperCenter);
+            status = Label("Weapon status", safeRoot, "RANGE  //  000 HITS", 28, TextAnchor.UpperCenter);
             Rect(status.rectTransform, new Vector2(.5f,1), new Vector2(.5f,1), new Vector2(0,-18), new Vector2(500,40));
             status.rectTransform.pivot=new Vector2(.5f,1);
             // Aim uses the camera viewport, not the asymmetric notch-safe control area.
@@ -176,7 +177,7 @@ namespace Fpp
             var viewport=Panel("Scroll area",p,Color.clear);Rect(viewport,new Vector2(.03f,.03f),new Vector2(.97f,.85f),Vector2.zero,Vector2.zero);
             viewport.gameObject.AddComponent<RectMask2D>();var scroll=viewport.gameObject.AddComponent<ScrollRect>();scroll.horizontal=false;scroll.viewport=viewport;
             var text=Label("Notices",viewport,"",18,TextAnchor.UpperLeft);text.rectTransform.anchorMin=new Vector2(0,1);text.rectTransform.anchorMax=Vector2.one;text.rectTransform.pivot=new Vector2(.5f,1);text.rectTransform.sizeDelta=new Vector2(0,2200);
-            var main=Resources.Load<TextAsset>("THIRD_PARTY_NOTICES");var mosque=Resources.Load<TextAsset>("MOSQUE_NOTICE");text.text=(main!=null?main.text:"")+"\n\n"+(mosque!=null?mosque.text:"")+"\n\nHUD font: DejaVu Sans Bold. Bitstream/DejaVu license notice bundled at Fonts/LICENSE.";
+            var main=Resources.Load<TextAsset>("THIRD_PARTY_NOTICES");var mosque=Resources.Load<TextAsset>("MOSQUE_NOTICE");text.text=(main!=null?main.text:"")+"\n\n"+(mosque!=null?mosque.text:"")+"\n\nHUD font: Roboto Condensed SemiBold (subset), SIL Open Font License. Notice bundled at Fonts/RobotoCondensed-OFL.";
             scroll.content=text.rectTransform;creditsPanel.SetActive(false);
         }
         private void CreateSettings()
@@ -190,12 +191,38 @@ namespace Fpp
             SettingSlider(p,"ADS low zoom",.26f,settings.lowZoom,.1f,2,v=>settings.lowZoom=v,settings);
             SettingSlider(p,"ADS high zoom",.12f,settings.highZoom,.1f,2,v=>settings.highZoom=v,settings);
             SettingSlider(p,"World FOV",.005f,settings.worldFOV<0?GunplayConfig.Current.worldFOV:settings.worldFOV,GunplayConfig.Current.minFOV,GunplayConfig.Current.maxFOV,v=>settings.worldFOV=v,settings);
-            SmallButton(p,"DROP WEAPON",new Vector2(.69f,.83f),new Vector2(.96f,.96f),()=>{settingsPanel.SetActive(false);weapons.DropActiveWeapon();});
+            SmallButton(p,"DROP WEAPON",new Vector2(.69f,.83f),new Vector2(.81f,.96f),()=>{settingsPanel.SetActive(false);weapons.DropActiveWeapon();});
+            SmallButton(p,"VISUAL/AUDIO",new Vector2(.82f,.83f),new Vector2(.98f,.96f),()=>{settingsPanel.SetActive(false);visualPanel.SetActive(true);RefreshVisualTitle();for(int i=0;i<6;i++)if(PresentationAudio.Active!=null)gainSliders[i].SetValueWithoutNotify(PresentationAudio.Active.BusVolume(i));});
             SmallButton(p,"GYRO",new Vector2(.69f,.67f),new Vector2(.96f,.80f),()=>{settings.gyro=!settings.gyro;settings.Save();});
             SmallButton(p,"DAMAGE #",new Vector2(.69f,.50f),new Vector2(.96f,.63f),()=>{settings.damageNumbers=!settings.damageNumbers;settings.Save();});
             SmallButton(p,"CURVE",new Vector2(.69f,.33f),new Vector2(.96f,.46f),()=>{settings.curve=(SensitivitySettings.ResponseCurve)(((int)settings.curve+1)%3);settings.Save();});
             SmallButton(p,"SAVE / CLOSE",new Vector2(.69f,.1f),new Vector2(.96f,.25f),()=>{settings.Save();settingsPanel.SetActive(false);});
-            settingsPanel.SetActive(false);
+            settingsPanel.SetActive(false);CreateVisualSettings();
+        }
+        private void RefreshVisualTitle()
+        {
+            var r=PresentationRenderer.Active;if(visualTitle==null||r==null)return;
+            visualTitle.text=r.Tier+"  /  "+r.Day+"\nDRS "+(r.DynamicResolution?"ON":"OFF")+" | GRAIN "+(PlayerPrefs.GetInt("fpp.visual.grain",1)!=0?"ON":"OFF")+" | BLUR "+(PlayerPrefs.GetInt("fpp.visual.blur",0)!=0?"ON":"OFF");
+        }
+        private void CreateVisualSettings()
+        {
+            var root=Panel("Graphics and audio mix",safeRoot,new Color(.035f,.05f,.065f,.98f));Rect(root,new Vector2(.1f,.1f),new Vector2(.9f,.9f),Vector2.zero,Vector2.zero);visualPanel=root.gameObject;
+            visualTitle=Label("Graphics options",root,"GRAPHICS / AUDIO",20,TextAnchor.MiddleCenter);Rect(visualTitle.rectTransform,new Vector2(.02f,.87f),new Vector2(.98f,.99f),Vector2.zero,Vector2.zero);
+            string[] options={"QUALITY","DAYLIGHT","GRAIN","MOTION BLUR","DRS"};
+            for(int i=0;i<options.Length;i++)
+            {
+                int option=i;float x=.02f+i*.195f;
+                SmallButton(root,options[i],new Vector2(x,.73f),new Vector2(x+.18f,.85f),()=>{var r=PresentationRenderer.Active;if(r==null)return;switch(option){case 0:r.SetTier((PresentationTier)(((int)r.Tier+1)%4));break;case 1:r.SetDay((DayPreset)(((int)r.Day+1)%3));break;case 2:r.ToggleGrain();break;case 3:r.ToggleBlur();break;default:r.ToggleDynamicResolution();break;}RefreshVisualTitle();});
+            }
+            string[] names={"MASTER","WEAPONS","FOLEY","AMBIENCE","UI","MUSIC STUB"};
+            for(int i=0;i<names.Length;i++)
+            {
+                int bus=i;float y=.60f-i*.085f;var label=Label(names[i],root,names[i],17,TextAnchor.MiddleLeft);Rect(label.rectTransform,new Vector2(.03f,y),new Vector2(.24f,y+.065f),Vector2.zero,Vector2.zero);
+                var track=Panel(names[i]+" gain",root,new Color(.2f,.27f,.28f));Rect(track,new Vector2(.27f,y+.015f),new Vector2(.94f,y+.055f),Vector2.zero,Vector2.zero);
+                var slider=track.gameObject.AddComponent<Slider>();gainSliders[i]=slider;slider.minValue=0;slider.maxValue=1;slider.SetValueWithoutNotify(PresentationAudio.Active!=null?PresentationAudio.Active.BusVolume(bus):.5f);
+                var handle=Panel("Gain handle",track,new Color(.9f,.76f,.4f));Rect(handle,new Vector2(.5f,0),new Vector2(.5f,1),Vector2.zero,new Vector2(20,0));slider.handleRect=handle;slider.targetGraphic=handle.GetComponent<Image>();slider.onValueChanged.AddListener(v=>{if(PresentationAudio.Active!=null)PresentationAudio.Active.SetBusVolume(bus,v);});
+            }
+            SmallButton(root,"SAVE / CLOSE",new Vector2(.65f,.03f),new Vector2(.97f,.12f),()=>{PlayerPrefs.Save();visualPanel.SetActive(false);});visualPanel.SetActive(false);
         }
         private void SettingSlider(Transform parent,string title,float y,float value,float min,float max,UnityEngine.Events.UnityAction<float> update,SensitivitySettings settings)
         {

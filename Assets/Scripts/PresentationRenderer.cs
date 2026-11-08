@@ -11,6 +11,7 @@ namespace Fpp
         public static PresentationRenderer Active {get;private set;}
         public PresentationTier Tier {get;private set;}
         public DayPreset Day {get;private set;}
+        public bool DynamicResolution {get;private set;}
         public float ResolutionScale=>pipeline!=null?pipeline.renderScale:1;
         private UniversalRenderPipelineAsset pipeline;
         private PresentationVisualSettings visual;private VolumeProfile profile;private ColorAdjustments grade;private Bloom bloom;
@@ -28,7 +29,7 @@ namespace Fpp
         }
         private void Start()
         {
-            Active=this;sun=RenderSettings.sun;visual=PresentationVisualSettings.Current;
+            Active=this;sun=RenderSettings.sun;visual=PresentationVisualSettings.Current;DynamicResolution=PlayerPrefs.GetInt("fpp.visual.drs",GunplayConfig.Current.dynamicResolution?1:0)!=0;
             var authored=GameObject.Find("Authored presentation volume");if(authored!=null)authored.SetActive(false);
             var volume=new GameObject("Presentation grade (HUD remains ScreenSpaceOverlay)").AddComponent<Volume>();volume.transform.SetParent(transform,false);volume.isGlobal=true;volume.priority=10;
             profile=ScriptableObject.CreateInstance<VolumeProfile>();volume.sharedProfile=profile;
@@ -65,6 +66,7 @@ namespace Fpp
             if(bloom!=null)bloom.active=tier!=PresentationTier.Low;
             PlayerPrefs.SetInt("fpp.visual.tier",(int)tier);slowFrames=fastFrames=0;
         }
+        public void ToggleDynamicResolution(){DynamicResolution=!DynamicResolution;PlayerPrefs.SetInt("fpp.visual.drs",DynamicResolution?1:0);if(!DynamicResolution&&pipeline!=null)pipeline.renderScale=visual.maxScale;slowFrames=fastFrames=0;}
         public void ToggleGrain(){PlayerPrefs.SetInt("fpp.visual.grain",PlayerPrefs.GetInt("fpp.visual.grain",1)==0?1:0);SetTier(Tier);}
         public void ToggleBlur(){PlayerPrefs.SetInt("fpp.visual.blur",PlayerPrefs.GetInt("fpp.visual.blur",0)==0?1:0);SetTier(Tier);}
         public void SetDay(DayPreset day)
@@ -81,7 +83,7 @@ namespace Fpp
         private void Update()
         {
             if(pipeline==null)return;
-            if(Application.isMobilePlatform&&GunplayConfig.Current.dynamicResolution)
+            if(Application.isMobilePlatform&&DynamicResolution)
             {
                 float target=1f/GunplayConfig.Current.targetFPS,frame=Time.unscaledDeltaTime;
                 slowFrames=frame>target*visual.slowRatio?slowFrames+1:0;fastFrames=frame<target*visual.fastRatio?fastFrames+1:0;
