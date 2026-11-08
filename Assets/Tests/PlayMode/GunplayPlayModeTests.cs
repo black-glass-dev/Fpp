@@ -312,6 +312,19 @@ namespace Fpp.Tests
             }
             Assert.False(hud.Modal);AssertJoystickModes(hud);File.WriteAllText(Output+"/graphics-audio-menu.txt","Actual menu callbacks change mixer master dB, tier, daylight and persisted DRS; modal blocks fire; close restores gameplay. Native touch/haptics/device ergonomics separate.");
         }
+        [UnityTest,Timeout(120000)] public IEnumerator SuppliedVillageModelsPondAndExpandedRoutesExist()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            var district=GameObject.Find("Bangladesh courtyard and pond district (600 x 440m)");Assert.NotNull(district);
+            Assert.NotNull(GameObject.Find("Village pond water (placeholder surface)"));
+            Assert.IsNull(GameObject.Find("North boundary"),"old enclosure must not block the expansion");
+            Assert.Greater(district.GetComponentsInChildren<MeshCollider>().Length,18,"accurate geometry collisions required");
+            string[] houses={"Bd house 1","bd house 2","Bd house 3","Bd house 4","Bd house 5","Bd house 6","Bd house 7","Bd house 8(need better texture)","Bd house 9(need better texture)","Bd house 10(need some fix and better texture)","Bd house oo (need better texture)","Bd house r","Bd house11 (shop)"};
+            foreach(string name in houses){var house=GameObject.Find(name);Assert.NotNull(house,name);Assert.Greater(house.GetComponentsInChildren<MeshCollider>().Length,0,name);}
+            var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();
+            GunplayVisualTests.Save(Output+"/village-spawn.png",weapons);
+            File.WriteAllText(Output+"/village-scene-check.txt","All13 named house/shop models exist, expanded district and pond exist, old north enclosure removed and triangle collisions present. All18-file placement receipt generated at build. Interior walkability/visual quality/device performance not certified by presence checks.");
+        }
         private static IEnumerator RapidTurnElevationEvidence(WeaponController weapons)
         {
             var player=weapons.GetComponent<TestPlayer>();var cc=player.GetComponent<CharacterController>();var hub=GameplayInput.Instance;

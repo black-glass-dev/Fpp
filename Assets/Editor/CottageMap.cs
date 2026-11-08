@@ -53,10 +53,10 @@ namespace Fpp.Editor
                     house.name = "Cottage " + row + " " + side;
                     house.transform.rotation = Quaternion.Euler(0, side == -1 ? 90 : 270, 0);
                     Bounds bounds = BoundsOf(house);
-                    // Fit export units to a roughly 14m footprint without modifying source mesh.
+                    // Fit export units to a roughly17.5m footprint without modifying source mesh.
                     float footprint = Mathf.Max(bounds.size.x, bounds.size.z);
                     if (footprint < .001f) throw new Exception("Invalid cottage bounds");
-                    house.transform.localScale *= 14f / footprint;
+                    house.transform.localScale *= 17.5f / footprint;
                     bounds = BoundsOf(house);
                     house.transform.position += new Vector3(side * 20 - bounds.center.x,
                         -bounds.min.y, (row - 1) * 26 - bounds.center.z);
@@ -114,7 +114,7 @@ namespace Fpp.Editor
             lens.nearClipPlane = .08f;
             lens.fieldOfView = 68;
             lens.cullingMask = ~(1 << 8);
-            lens.farClipPlane = 120;
+            lens.farClipPlane = 700;
             lens.clearFlags = CameraClearFlags.Skybox;
             lens.backgroundColor = new Color(.42f, .57f, .68f);
             camera.AddComponent<AudioListener>();
@@ -125,7 +125,7 @@ namespace Fpp.Editor
             ViewmodelSetup.Attach(camera.transform, weapons);
             player.AddComponent<MobileHud>();
             GunplaySetup.Configure(player,weapons);
-            UrpPresentationSetup.Apply(weapons);PresentationAudioSetup.Apply();
+            UrpPresentationSetup.Apply(weapons);VillageExpansion.Build(grass,road);PresentationAudioSetup.Apply();
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
             AssetDatabase.SaveAssets();

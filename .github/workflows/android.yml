@@ -77,6 +77,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.import-mosque.outputs.source_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Stage all supplied village GLBs without modifying source art
+        run: |
+          pip install gdown==5.2.0
+          python Tools/stage_village_assets.py
+          python Tools/create_metas.py
       - name: Validate model inventory
         run: python Tools/validate_assets.py Assets/PackModels/catalog.json
       - uses: actions/cache@v4

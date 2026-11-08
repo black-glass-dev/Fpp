@@ -12,6 +12,7 @@
     "com.unity.modules.jsonserialize": "1.0.0",
     "com.unity.modules.imageconversion": "1.0.0",
     "com.unity.modules.particlesystem": "1.0.0",
-    "com.unity.render-pipelines.universal": "14.0.11"
+    "com.unity.render-pipelines.universal": "14.0.11",
+    "com.atteneder.gltfast": "https://github.com/atteneder/glTFast.git#5c36f4405012b13ad14ec871b77ba063c53cbbc3"
   }
 }
