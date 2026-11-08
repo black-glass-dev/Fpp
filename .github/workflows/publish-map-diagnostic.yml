@@ -24,6 +24,7 @@ jobs:
           gh run download "$SOURCE_RUN" --pattern 'build-scene-evidence-68' --dir evidence
       - name: Independently verify artifact and publish explicit diagnostic prerelease
         run: |
+          trap 'echo "::error::Diagnostic publisher failed at shell line $LINENO"' ERR
           python - <<'PY'
           import pathlib,zipfile,hashlib,json
           p=pathlib.Path('apk/Fpp.apk')
@@ -35,11 +36,11 @@ jobs:
           pathlib.Path('QA/diagnostic-map-68.json').write_text(json.dumps({'run':'42479348320','bytes':p.stat().st_size,'apkSha256':digest,'status':'signed diagnostic APK; native gate and full art/device acceptance are separate'},indent=2)+'\n')
           PY
           signer=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)
-          test -n "$signer"
-          "$signer" verify apk/Fpp.apk
+          test -n "$signer" || { echo "::error::Host apksigner not found"; exit 1; }
+          "$signer" verify apk/Fpp.apk || { echo "::error::Downloaded APK signature verification failed"; exit 1; }
           source=$(gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN" --jq .head_sha)
-          test "$source" = e9eaa76f5ba7b2c0972eeb85b5070675a6b82777
-          gh release create diagnostic-map-68 apk/Fpp.apk apk/SHA256.txt --target "$source" --prerelease --title 'Map test APK 68 — diagnostic, not full acceptance' --notes 'Requested Android ARM64 map preview. All18 supplied GLB sources staged; expanded courtyard/pond district, brick material repair and vertex-colour material binding. APK contents and signature independently verified. This is NOT a completed/QA-accepted release: native gate, camera/HUD visual review, interiors, remaining texture/model polish and target-device performance are separate and may remain red. Water/fallbacks are labelled placeholders. Do not interpret this preview as all Prompt1/Prompt2 work completed. Signing continuity with older installations is not guaranteed.'
+          test "$source" = e9eaa76f5ba7b2c0972eeb85b5070675a6b82777 || { echo "::error::Source run SHA mismatch"; exit 1; }
+          gh release create diagnostic-map-68 apk/Fpp.apk apk/SHA256.txt --target "$source" --prerelease --title 'Map test APK 68 — diagnostic, not full acceptance' --notes 'Requested Android ARM64 map preview. All18 supplied GLB sources staged; expanded courtyard/pond district, brick material repair and vertex-colour material binding. APK contents and signature independently verified. This is NOT a completed/QA-accepted release: native gate, camera/HUD visual review, interiors, remaining texture/model polish and target-device performance are separate and may remain red. Water/fallbacks are labelled placeholders. Do not interpret this preview as all Prompt1/Prompt2 work completed. Signing continuity with older installations is not guaranteed.' > /tmp/release-result.txt 2>&1 || { cat /tmp/release-result.txt; echo "::error::Diagnostic release upload/create failed; see release response above"; exit 1; }
       - name: Recover bounded genuine render previews and placement receipt
         run: |
           pip install pillow==12.0.0
