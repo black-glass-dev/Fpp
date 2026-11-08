@@ -23,7 +23,7 @@ Applied as a fictional mixed para: compact two-storey streetside block on the ea
 - City roads4.2m wide; connected inner alleys2.4m, with cross-links between rows.
 - Authored individual door-panel median2.1m when available; named cases accepted only inside a bounded parcel. Scan-only models use explicit per-asset height references, pending close-up review, not a global18m footprint.
 - Road scales are uniform to4.2m width, preserving original geometry/aspect ratio. Brick detail is world-metric:1.92m map repeat contains8cells/16brick widths (~24x12cm), independent of source UV stretching.
-- Rural shared courtyard7x11m;24 supplied tree instances placed around west homes/gardens, not a distant perimeter ring. Existing two tree props moved away from new house interiors.
+- Rural shared courtyard7x11m;21 supplied tree instances placed around west homes/gardens and3 beside the pond, not a distant perimeter ring. Existing two tree props moved away from new house interiors.
 - Pond water18x14m with sloped collision basin and ghat. Water shading remains provisional, no swimming claim.
 - Old cottages fit10m footprints, with extra mosque clearance for the northern pair. Spawn, weapon ownership, rig, controls and core range remain.
 
@@ -39,6 +39,9 @@ Applied as a fictional mixed para: compact two-storey streetside block on the ea
 
 ## Texture notice and scope
 User notified before this stage. Original ZIPs/GLBs and existing supplied PBR images remain unchanged. Deterministic original2048px plaster/concrete/wood colour+normal maps are shared among untextured opaque semantic materials, using world-metric projection. Intentional metal/glass/leaf colours and cutout/transparent materials are not blanket-replaced. Shop's untextured scan gets provisional wooden surface detail. Existing blurry scan images are not falsely labelled fixed merely because they exist; review each close-up. Generated PNG maps use explicit normal-map import and uncompressed originals, not a hidden lossy texture downgrade.
+
+## Route validation
+All14 planned lane/courtyard rectangles form a single connected walk network, including cross-links through gaps between old cottages, the west uthan approach and pond ghat approach. Conservative city parcels leave2.5m between rows for the2.4m alley and separate the east street from the north cottage pair. Fixed ground shading incorrectly restricting assigned dirt paths to world x=0. Rectangle connectivity is not an interior/doorway walk-through proof.
 
 ## Required real evidence
 `QA/runtime/helper-exclusions.txt`, `material-detail-repairs.txt`, `lossless-world-audit.json`, `visibility-bake.txt`, `build-progress.txt`, `test-progress.txt`; actual18-model/pond PNGs; independent signed APK verification; full22-case XML. Review road contacts/steps, house scale/entry paths, interior clearances and culling at doorway/elevation. Compare the same device/tier/route before/after, with native pixels/effects unchanged. No final report or highly-optimized/device-FPS claim until measured.
