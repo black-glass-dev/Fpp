@@ -1,0 +1,275 @@
+{
+    "files": [
+        {
+            "source": "Road/Brick road0(রাস্তা কালা দেখাচ্ছি লাল করতে হবে বাংলাদেশের ইটের রাস্তার মতো).glb",
+            "placement": "Brick road0(রাস্তা কালা দেখাচ্ছি লাল করতে হবে বাংলাদেশের ইটের রাস্তার মতো)",
+            "size": {
+                "x": 28.333343505859376,
+                "y": 0.3387877345085144,
+                "z": 85.0
+            },
+            "position": {
+                "x": -45.0,
+                "y": 0.05999999865889549,
+                "z": -100.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "Road/Road(ready to use).glb",
+            "placement": "Road(ready to use)",
+            "size": {
+                "x": 47.67315673828125,
+                "y": 84.99998474121094,
+                "z": 13.571334838867188
+            },
+            "position": {
+                "x": -48.95615005493164,
+                "y": 41.95195770263672,
+                "z": 106.7856674194336
+            },
+            "instances": 1
+        },
+        {
+            "source": "Tree/Bd tree 5.glb",
+            "placement": "Bd tree 5",
+            "size": {
+                "x": 8.9951171875,
+                "y": 9.713813781738282,
+                "z": 9.0
+            },
+            "position": {
+                "x": 185.0,
+                "y": 4.76837158203125e-7,
+                "z": 0.0
+            },
+            "instances": 8
+        },
+        {
+            "source": "Tree/Mango free (ready to use).glb",
+            "placement": "Mango free (ready to use)",
+            "size": {
+                "x": 9.0,
+                "y": 9.406917572021485,
+                "z": 8.767684936523438
+            },
+            "position": {
+                "x": 191.95089721679688,
+                "y": 0.0,
+                "z": 34.86741256713867
+            },
+            "instances": 8
+        },
+        {
+            "source": "Tree/Mango tree.glb",
+            "placement": "Mango tree",
+            "size": {
+                "x": 9.0,
+                "y": 7.020453929901123,
+                "z": 7.01495361328125
+            },
+            "position": {
+                "x": 187.75868225097657,
+                "y": 3.5378551483154299,
+                "z": 67.96635437011719
+            },
+            "instances": 8
+        },
+        {
+            "source": "House/Bd house 1.glb",
+            "placement": "Bd house 1",
+            "size": {
+                "x": 18.0,
+                "y": 12.734371185302735,
+                "z": 17.214202880859376
+            },
+            "position": {
+                "x": -117.98357391357422,
+                "y": 6.348021984100342,
+                "z": -114.9937973022461
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/bd house 2.glb",
+            "placement": "bd house 2",
+            "size": {
+                "x": 14.7186279296875,
+                "y": 11.523401260375977,
+                "z": 18.0
+            },
+            "position": {
+                "x": -82.0,
+                "y": 0.0,
+                "z": -115.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 3.glb",
+            "placement": "Bd house 3",
+            "size": {
+                "x": 14.708572387695313,
+                "y": 10.972286224365235,
+                "z": 18.0
+            },
+            "position": {
+                "x": 57.0,
+                "y": 0.0,
+                "z": -100.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 4.glb",
+            "placement": "Bd house 4",
+            "size": {
+                "x": 17.04425048828125,
+                "y": 11.9309720993042,
+                "z": 18.0
+            },
+            "position": {
+                "x": 93.0,
+                "y": 0.0,
+                "z": -100.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 5.glb",
+            "placement": "Bd house 5",
+            "size": {
+                "x": 15.33050537109375,
+                "y": 11.379661560058594,
+                "z": 18.000003814697267
+            },
+            "position": {
+                "x": -153.0,
+                "y": 0.0,
+                "z": 10.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 6.glb",
+            "placement": "Bd house 6",
+            "size": {
+                "x": 18.0,
+                "y": 16.57219696044922,
+                "z": 11.882070541381836
+            },
+            "position": {
+                "x": -116.99996948242188,
+                "y": 8.285123825073243,
+                "z": 10.000038146972657
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 7.glb",
+            "placement": "Bd house 7",
+            "size": {
+                "x": 14.095748901367188,
+                "y": 16.047874450683595,
+                "z": 18.0
+            },
+            "position": {
+                "x": 52.0,
+                "y": 8.023938179016114,
+                "z": 115.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 8(need better texture).glb",
+            "placement": "Bd house 8(need better texture)",
+            "size": {
+                "x": 17.508010864257814,
+                "y": 13.553637504577637,
+                "z": 18.0
+            },
+            "position": {
+                "x": 88.0,
+                "y": 0.0,
+                "z": 115.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 9(need better texture).glb",
+            "placement": "Bd house 9(need better texture)",
+            "size": {
+                "x": 15.08740234375,
+                "y": 13.936894416809082,
+                "z": 18.0
+            },
+            "position": {
+                "x": 142.0,
+                "y": 0.0,
+                "z": -70.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house 10(need some fix and better texture).glb",
+            "placement": "Bd house 10(need some fix and better texture)",
+            "size": {
+                "x": 17.507568359375,
+                "y": 16.329261779785158,
+                "z": 18.0
+            },
+            "position": {
+                "x": 178.0,
+                "y": 8.164631843566895,
+                "z": -70.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house oo (need better texture).glb",
+            "placement": "Bd house oo (need better texture)",
+            "size": {
+                "x": 15.9736328125,
+                "y": 11.58838939666748,
+                "z": 18.0
+            },
+            "position": {
+                "x": -118.0,
+                "y": 0.0,
+                "z": 125.0
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house r.glb",
+            "placement": "Bd house r",
+            "size": {
+                "x": 14.813323974609375,
+                "y": 8.538917541503907,
+                "z": 18.0
+            },
+            "position": {
+                "x": -82.02845001220703,
+                "y": 4.270308971405029,
+                "z": 124.99998474121094
+            },
+            "instances": 1
+        },
+        {
+            "source": "House/Bd house11 (shop).glb",
+            "placement": "Bd house11 (shop)",
+            "size": {
+                "x": 15.314971923828125,
+                "y": 11.056610107421875,
+                "z": 18.000003814697267
+            },
+            "position": {
+                "x": -64.7132797241211,
+                "y": 5.750385761260986,
+                "z": -14.852147102355957
+            },
+            "instances": 1
+        }
+    ],
+    "status": "Placed all18 originals; visual/interior/device acceptance pending"
+}
