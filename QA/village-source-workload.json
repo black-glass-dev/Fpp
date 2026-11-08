@@ -1,0 +1,1933 @@
+{
+  "status": "Original source topology/image metadata only; estimates are NOT Android GPU memory or FPS. No source changed.",
+  "models": [
+    {
+      "source": "Bd house 1.glb",
+      "uniqueMeshTriangles": 500000,
+      "fullDetailNodeTriangleInstances": 500000,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "material_1",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1.0,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": true
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "8c6b4d51113367f08d614af9f012451b132c2184d349fda1a02e26e95010256f",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "38a03bb5c88c8f84ff487be628020e8ca698f0baac93aed20d5fb17a5110c299",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "c06599f020821323dbb82a19e1b09d2030134400846215fc623564ef59855b71",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        }
+      ]
+    },
+    {
+      "source": "Bd house 10(need some fix and better texture).glb",
+      "uniqueMeshTriangles": 3602,
+      "fullDetailNodeTriangleInstances": 3602,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "material_1",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1.0,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": true
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "4e37f2540cdc29a9d470a02f4e3e8781ade4c8dd2420c879df98f5142179331d",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "0e59f25e4907e783da67d42a8eadb855a45a4472c2c6e57fbfc3c3ee184d4ef4",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "c326dcaf1704e84b70390b08c95db7c428fd1f554fe52f86f7665d2c1e7e95ae",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        }
+      ]
+    },
+    {
+      "source": "Bd house 3.glb",
+      "uniqueMeshTriangles": 15318,
+      "fullDetailNodeTriangleInstances": 11380,
+      "excludedHelperTriangles": 3938,
+      "materials": [
+        {
+          "name": "Brick joints",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Compacted earthen plaster",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Old fired brick",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Woven split bamboo | packed herringbone",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Aged dark sal timber",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Door plank warm brown",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Recessed joinery shadow",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Iron latch",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Galvanised zinc sheet",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Tin ridge and fasteners",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "cdea0b7564fe300bab208cd7f73bb20fb6255e49691f320914908ba416e42ef3",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "sha256": "4ebc25fbb176bb58bf60a9118f37f674f618d0318ad9bde10fbce22b2245ca89",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 87381
+        },
+        {
+          "size": [
+            128,
+            128
+          ],
+          "sha256": "08fe7885fc198ed3ea3a1d4b6410c67fe86eeae73fb5793ebb3abbe34b44ff1e",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 87381
+        }
+      ]
+    },
+    {
+      "source": "Bd house 4.glb",
+      "uniqueMeshTriangles": 24772,
+      "fullDetailNodeTriangleInstances": 24772,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "Plinth_Stone",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Floor_Tile",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Step_Concrete",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Accent_Sage",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Plaster_Cream",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Interior_Plaster",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Wood_Dark",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Metal_Steel",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Ceiling_White",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Wood_Walnut",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Glass_Dark",
+          "alphaMode": "BLEND",
+          "doubleSided": true,
+          "factorAlpha": 0.6000000238418579,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Metal_Grille",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Pipe_PVC",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "MidBand_Grey",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "fc496d025c061c79569fbf4a41207b4a8fe4c33ada8c2e370d5f88ed0825e72f",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "b00d765e2e5baa2d4128fe1a667cc0b106dd6baa70a1ad3e798e3aebe0293b08",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "e6421f1a651f3ed63830a4a8005fbf8dd848c661ef1e98408618bd82892703b5",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        }
+      ]
+    },
+    {
+      "source": "Bd house 5.glb",
+      "uniqueMeshTriangles": 7884,
+      "fullDetailNodeTriangleInstances": 7884,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "M_Concrete_Dark",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Floor_Tile",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Plaster_Cream",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Trim_GreenGrey",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Concrete_Grey",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Steel_Brushed",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Glass_Dark_Opaque",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Wood_Teak",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "6ec68e4ae62c5b1221c00b52c420767a64dfc1f31288feb634f97943c4826b40",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "a7f12b4f2344c4332963c2d7bb6b6af6993a60a039fe64348df0d856f317588a",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "d2aecbc9d4884b2e0e12248f8da3a1513150ba3676975e4810b307b198f5fefd",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "7708770a422e343df5f97bbe8b567a7325e55cc310895314f13c0a53b2f38d8a",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "d712c50d4b5ef58c486ac3dc26b41f3bac731122186f6859781d3453c64988c1",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "61631be65ce9da8f891a991e177d4d26535c936f04b3f51882a65a876422f860",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        }
+      ]
+    },
+    {
+      "source": "Bd house 6.glb",
+      "uniqueMeshTriangles": 485100,
+      "fullDetailNodeTriangleInstances": 485100,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "material_1",
+          "alphaMode": "OPAQUE",
+          "doubleSided": false,
+          "factorAlpha": 1.0,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": true
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            8192,
+            8192
+          ],
+          "sha256": "978818004b97897206af026051fe35de54783b38883b215090f961dda8f57bfd",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 357913941
+        },
+        {
+          "size": [
+            8192,
+            8192
+          ],
+          "sha256": "8d5c804cf48d74f8274e05f2eb30cb0d813651729410b18d565bb7a4b51b17c5",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 357913941
+        }
+      ]
+    },
+    {
+      "source": "Bd house 7.glb",
+      "uniqueMeshTriangles": 4198,
+      "fullDetailNodeTriangleInstances": 4198,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "material_1",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1.0,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": true
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "d98aeb37f6d7f3270d48bbb747321ee7cfe3d38bf8f4d612ed30c427e3a7d641",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "70ca790589120803c534fce930125d74bf5c474e459155da6830d618a444d60e",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "b9f9eb06376a4123adc257d46cf9b7b6a7e3b6892e2a99938d4561526475120c",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        }
+      ]
+    },
+    {
+      "source": "Bd house 8(need better texture).glb",
+      "uniqueMeshTriangles": 31172,
+      "fullDetailNodeTriangleInstances": 31172,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "Concrete_SoftGrey_Baked",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "Floor_Pale_Stone_Baked",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "Plaster_Warm_OffWhite_Baked",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "Plaster_Localized_Weathering_Baked",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "Wood_Honey_Timber_Baked",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "Teal_Painted_Metal",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Charcoal_Painted_Iron",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Wood_Raised_Panel_Highlight",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Window_Opaque_Interior_Panels",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "b9bf538829d366c13c01f216c78c3b882bba02f2ca045c01f4df17bb81d99969",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "80a9892c28c7f007a8400896e033cdba5a2932fd5174f3177a130fcde8ae30bc",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "d36839545f63611f8ec17c21c2140bd92e27c0ec33b11796f9e51c667e0ba6de",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "25788436f8a04682c31f6ab0bd74f279a3d13d604c9fb9be120503bca8136479",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "573d514efbeed9f81659c7d729a5ee8f3d718230d8017c6fa75fe18e1e5af91e",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "af22573fd09810f992adfc979c37e8ccba658bb8d16f704c8e58da5a112cd60a",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "4491e9a94c871eeb4666ef31811c0648d8a3065a3c124aa122ef1054326fdc41",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "8d184a156411f6b7f2435deb7e82b3a38a7e084c134d86571905b5c9c4c59dd1",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "fc05fd2371375d3e135edb7ffdeb2f633f7794335032cc4ea7492cccddb6df2c",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "18aec9e80bc7b058e93633c777356dd696c20cd1213d7b4b5fe665ab75a82d8c",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        }
+      ]
+    },
+    {
+      "source": "Bd house 9(need better texture).glb",
+      "uniqueMeshTriangles": 13044,
+      "fullDetailNodeTriangleInstances": 13044,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "M_Plaster",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Concrete",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_FloorTerrazzo",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Metal",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_TealPaint",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Wood",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Glass",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "aeeb8afb84f14b9b19369cd9d2929226121aa3d12dbf2ef7f34750c3d7b27d41",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "44e4c9f85a28de25d9e04a13082525851cfcd59d221a5c8ac228bc49b6cfc67f",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "742f3ac5f81a9bcc87bcbc6d1c95bb3352a84e4dc05c8ef01dfe4df85d7e61db",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "952ea63ee66515630313a69ddb43e5dda9f9763c3c490f097f3be2de2677e4b7",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "f2f17c7476a4c3939385091e4fa2257befcd2b6e692e7c793a00bf4a5df04f3a",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "8cf5af0ba01ced6d737f40b40484f6fbf7331e871bd2708a2526574a6facd349",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "09ae6823eca1f3dc527899b5324b91385442e66d51eb35fe878ebbbe166e54a0",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        }
+      ]
+    },
+    {
+      "source": "Bd house oo (need better texture).glb",
+      "uniqueMeshTriangles": 10788,
+      "fullDetailNodeTriangleInstances": 10788,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "Pale warm concrete",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Interior neutral tile",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Warm lime plaster",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Sage grey concrete",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Dark metal grilles",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Walnut painted timber",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Inset wood panels",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Dark opaque window panels",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": []
+    },
+    {
+      "source": "Bd house r.glb",
+      "uniqueMeshTriangles": 487636,
+      "fullDetailNodeTriangleInstances": 487636,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "material_1",
+          "alphaMode": "OPAQUE",
+          "doubleSided": false,
+          "factorAlpha": 1.0,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": true
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            8192,
+            8192
+          ],
+          "sha256": "5ebbd1e94274052baf6609e06207a948465db9ee18f5276b04e5cbfd6a008295",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 357913941
+        },
+        {
+          "size": [
+            8192,
+            8192
+          ],
+          "sha256": "0cc59f42f4d37d67029ca7141fc028678ab7ecdc0c62740d8e951068bf7d00d0",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 357913941
+        }
+      ]
+    },
+    {
+      "source": "Bd house11 (shop).glb",
+      "uniqueMeshTriangles": 927714,
+      "fullDetailNodeTriangleInstances": 927714,
+      "excludedHelperTriangles": 0,
+      "materials": [],
+      "images": []
+    },
+    {
+      "source": "bd house 2.glb",
+      "uniqueMeshTriangles": 153002,
+      "fullDetailNodeTriangleInstances": 153002,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "MudMat",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "ThatchMat",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "RidgeMat",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "BambooPosts",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "BambooBeam",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "DoorWood",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "FrameWood",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Iron",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "WindowWood",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "BambooBars",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "CharpaiWood",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "ClayMat",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "9357e1e0d7ef629338f1d9d566c1af946e1dd5927a4cc6cdb7575ba8ec3244d0",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "3fc2f6d94c57765f77013708f069cb46bcd13e330ba62a1e767e40ac72ad0eeb",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "4d5144359ffe9022f7ff560dbb5df5368d8b4299b17899871feeffb30ef57ec5",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "03215e58642dccf306dab32b170b5fabec77c55056bb3760cfd058a7b90e9b19",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "488b645c65f5c264d2fb52931b5da6b35f3ebf4f7d168fed955ff6256328622e",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "42c5b647943d2827b13a9952e633353ef6b4bb24e179013b52eea1ff51c4bf77",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "8e8b57bacc2ae69db999c74ae7f1b9931d7168136a1b9c1a0df3221fdec0c42a",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "e9ff49c59160f2caf4553cb171a8bf347b4e93ab0f8415568834eb74369bcbfa",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "e63112930a3d490751cdd1151ea26ade260c9377ab2177c97ad4dbd2fa9002a5",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "28c81de4bd2ba4e930aa5b413edbe94549cc515abf1383d9d23dcd44030876f8",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "6158baba3f511c87862754bd6d43a5e17f9eb04ebaf0bd0ab99ac6d6e3bfa147",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "25a819000650661520bbac39324b4baeb80a8b51cdee5abb2fd85d03897394a7",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "85378a9aad7ee9672be246abbe9440c0ee2838af81fd4d0be388b065d0ce11ea",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "ed19260bcbee288a03b0e1d2f0aaf5bbe0e4ef72cc3bf351331f6f89bf1a0f77",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        }
+      ]
+    },
+    {
+      "source": "Brick road0(রাস্তা কালা দেখাচ্ছি লাল করতে হবে বাংলাদেশের ইটের রাস্তার মতো).glb",
+      "uniqueMeshTriangles": 1536,
+      "fullDetailNodeTriangleInstances": 1536,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "HBB_Road_Final",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": true
+        },
+        {
+          "name": "Shoulder_Earth",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "8df9555ab1d43f8a9666ec398c51345ba630e256ab201b2f229f31ccfa197646",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "863100354a621fb533ccdff403d08fa6b46cb599eedeaf0b5e04a24dc67f7d25",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "sha256": "d541a8afe4418657133019f86bf85e955d5db611d312c13c6f078c693c638413",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 22369621
+        }
+      ]
+    },
+    {
+      "source": "Road(ready to use).glb",
+      "uniqueMeshTriangles": 500000,
+      "fullDetailNodeTriangleInstances": 500000,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "material_1",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1.0,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": true
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            4096,
+            4096
+          ],
+          "sha256": "5b1e4be028c54e46ea4a7db9ac6855e6a30d41e624f7540a732385fe4dbe40e8",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 89478485
+        },
+        {
+          "size": [
+            4096,
+            4096
+          ],
+          "sha256": "50b622bf133c57a4801e2f70159d5da733b694363fba38b3adbdca473091b561",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 89478485
+        },
+        {
+          "size": [
+            4096,
+            4096
+          ],
+          "sha256": "8cb561f0c189c2ff421b7036702f2d63fa84bfe7af528e88999878bf15f735e7",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 89478485
+        }
+      ]
+    },
+    {
+      "source": "Bd tree 5.glb",
+      "uniqueMeshTriangles": 13768,
+      "fullDetailNodeTriangleInstances": 13724,
+      "excludedHelperTriangles": 44,
+      "materials": [
+        {
+          "name": "M_Bark_Trunk",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": true
+        },
+        {
+          "name": "M_Bark_Twig",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": true
+        },
+        {
+          "name": "M_Bark_Fine",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Leaf_Deep",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Leaf_Mid",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Leaf_Olive",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Leaf_Young",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Leaf_WarmNew",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Leaf_Yellow",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Petiole",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_LeafAtlas",
+          "alphaMode": "BLEND",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Thorn",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Fruit_Green",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Fruit_YellowGreen",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Fruit_Mature",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "M_Collision",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "624d1610574abda525d30ead94e974742a84d455a5dd34a177f5f05ee92c893a",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "bfc330b8ff4c26af03eeef269e346003c2bb2c5aaf597d206a86281672ecb912",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "2093bfa944f757f181da277440b7f145e397f9a1d73614fdbd03b78c2bf68ef7",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "5b8738d77b8a59fa3dec41d4c743086ea4dc6326ae79ba0f553bec1b6925ba3b",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "98c865b4e8036472fcae6bd7677431e91f34960d3375d3cfed354fbded8a2107",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            512,
+            512
+          ],
+          "sha256": "e5074d4c50c227ceec21eadbe87c5e5ab620e124bbc42fcb777d8c4181c782e3",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 1398101
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "79c88ab7a05aaee703c18c6b486c0ecc9dcca7408fb0105b0843bc25964b5789",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "2d1ce56c8db7a18c0c14d94e64c4f5bbc6a4e81ae4a47dab333c94f314c2060d",
+          "alphaRange": [
+            0,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        }
+      ]
+    },
+    {
+      "source": "Mango free (ready to use).glb",
+      "uniqueMeshTriangles": 11985,
+      "fullDetailNodeTriangleInstances": 11985,
+      "excludedHelperTriangles": 0,
+      "materials": [
+        {
+          "name": "Bark | grey-brown / opaque",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": true,
+          "roughnessImage": false
+        },
+        {
+          "name": "Foliage | mango lanceolate atlas / alpha mask",
+          "alphaMode": "MASK",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Pedicels | dry olive",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": false,
+          "normalImage": false,
+          "roughnessImage": false
+        },
+        {
+          "name": "Fruit | green to muted yellow / opaque",
+          "alphaMode": "OPAQUE",
+          "doubleSided": true,
+          "factorAlpha": 1,
+          "baseImage": true,
+          "normalImage": false,
+          "roughnessImage": false
+        }
+      ],
+      "images": [
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "c3af25d4e4c3562a823568983b2a1cca9456f0d7da811108ad0b76985258216b",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "2844f1e734f32e9fe651057468ab1ace42c15d0fc2f9158317023704e03bccb9",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            1024,
+            1024
+          ],
+          "sha256": "6594ba4a6036da9967f0b02c151f4dd3ad7f02e1bca61941681c76f8d4d76f56",
+          "alphaRange": [
+            0,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 5592405
+        },
+        {
+          "size": [
+            256,
+            256
+          ],
+          "sha256": "6c96b71bed89f52ee81c1a63a3d86bb4d7f1fe6a0a4d8b977aad855ba5fc4d7e",
+          "alphaRange": [
+            255,
+            255
+          ],
+          "rgba8AllMipsEstimateBytes": 349525
+        }
+      ]
+    },
+    {
+      "source": "Mango tree.glb",
+      "uniqueMeshTriangles": 1041782,
+      "fullDetailNodeTriangleInstances": 1041782,
+      "excludedHelperTriangles": 0,
+      "materials": [],
+      "images": []
+    }
+  ],
+  "duplicateEncodedImages": {}
+}
