@@ -29,7 +29,7 @@ def clean(source,target):
     for axis,(lo,hi) in enumerate(CROP):
         inside&=((coords[:,:,axis]>=lo)&(coords[:,:,axis]<=hi)).all(1)
         candidate&=~((coords[:,:,axis]<lo).all(1)|(coords[:,:,axis]>hi).all(1))
-    kept=tris[inside];used,remap=np.unique(kept,return_inverse=True);output=[original[used]];indices=remap.tolist();extras=[]
+    kept=tris[inside];used,remap=np.unique(kept,return_inverse=True);output=[original[used]];indices=remap.reshape(-1).tolist();extras=[]
     def clip(poly,axis,bound,lower):
         if not poly:return []
         result=[];prev=poly[-1];pv=prev[8+axis];pin=pv>=bound if lower else pv<=bound

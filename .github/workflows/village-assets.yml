@@ -88,6 +88,7 @@ jobs:
       - name: Inspect original road geometry and attached scan debris without modifying any model
         run: |
           pip install numpy==2.2.6
+          python -m unittest QA.analysis.test_clean_road_scan
           python QA/analysis/profile_road_geometry.py
           python - <<'PYCLEAN'
           import runpy
