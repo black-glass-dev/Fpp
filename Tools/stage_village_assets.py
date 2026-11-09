@@ -20,6 +20,17 @@ def main():
             target = output / (pack['name'] + '_' + str(index).zfill(2) + '.glb')
             shutil.copyfile(source, target)
             models.append({'pack': pack['name'], 'name': Path(entry['path']).stem, 'assetPath': target.as_posix(), 'sourcePath': entry['path']})
+            if pack['name']=='Road' and source.name=='Road(ready to use).glb':
+                import sys
+                sys.path.insert(0,str(Path(__file__).resolve().parent.parent))
+                from QA.analysis.clean_road_scan import clean
+                derived=output/'Road_CleanCore.glb'
+                receipt=clean(source,derived)
+                assert receipt['retainedAttributesExact'] and receipt['originalImageBinaryPrefixExact']
+                models[-1]['derivedAssetPath']=derived.as_posix()
+                models[-1]['roadSurfaceReference01']=receipt['surfaceReference01']
+                (output/'road-cleanup-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+
     if len(models) != 18:
         raise RuntimeError('Expected all18 supplied models; inventory changed')
     from create_village_brick import create

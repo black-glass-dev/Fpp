@@ -12,7 +12,7 @@ namespace Fpp.Editor
     public static class VillageExpansion
     {
         [Serializable] private class Catalog { public Entry[] models; }
-        [Serializable] private class Entry { public string pack,name,assetPath,sourcePath; }
+        [Serializable] private class Entry { public string pack,name,assetPath,sourcePath,derivedAssetPath;public float roadSurfaceReference01; }
         [Serializable] private class Usage { public string source,placement,calibration;public Vector3 size,position;public int instances; }
         [Serializable] private class Placement { public string name;public float x,z,yaw,height,width;public int[] treeIndices; }
         [Serializable] private class Lane {public string name;public float x,z,width,length;public bool existing;}
@@ -38,6 +38,9 @@ namespace Fpp.Editor
             const string path="Assets/Generated/Village/catalog.json";
             if(!File.Exists(path))throw new Exception("All18 supplied village models must be staged before scene generation");
             var catalog=JsonUtility.FromJson<Catalog>(File.ReadAllText(path));
+            const string cleanup="Assets/Generated/Village/road-cleanup-receipt.json";
+            if(!File.Exists(cleanup))throw new Exception("Missing measured road-cleanup provenance");
+            Directory.CreateDirectory("QA/runtime");File.Copy(cleanup,"QA/runtime/road-cleanup-receipt.json",true);
             if(catalog.models==null||catalog.models.Length!=18)throw new Exception("Village inventory must contain all18 models");
             foreach(string boundary in new[]{"North boundary","South boundary","West boundary","East boundary"})
             {var old=GameObject.Find(boundary);if(old!=null)UnityEngine.Object.DestroyImmediate(old);}
@@ -60,20 +63,21 @@ namespace Fpp.Editor
             foreach(var entry in catalog.models)
             {
                 // Import under the actual generated URP, not the initial missing/default pipeline.
-                AssetDatabase.ImportAsset(entry.assetPath,ImportAssetOptions.ForceUpdate|ImportAssetOptions.ForceSynchronousImport);
-                var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(entry.assetPath);
+                string displayPath=string.IsNullOrEmpty(entry.derivedAssetPath)?entry.assetPath:entry.derivedAssetPath;
+                AssetDatabase.ImportAsset(displayPath,ImportAssetOptions.ForceUpdate|ImportAssetOptions.ForceSynchronousImport);
+                var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(displayPath);
                 if(prefab==null)throw new Exception("glTF importer did not create model: "+entry.assetPath);
                 Placement plan=null;foreach(var candidate in layout.models)if(candidate.name==entry.name){plan=candidate;break;}
                 if(plan==null)throw new Exception("Unplaced supplied model: "+entry.name);
                 int instances=entry.pack=="Tree"?plan.treeIndices.Length:1;GameObject first=null;string calibration="manual height reference; visual validation pending";
                 for(int instance=0;instance<instances;instance++)
                 {
-                    var go=(GameObject)PrefabUtility.InstantiatePrefab(prefab);go.name=entry.name;go.transform.SetParent(district.transform,false);
+                    var go=InstantiateSource(prefab,!string.IsNullOrEmpty(entry.derivedAssetPath));go.name=entry.name;go.transform.SetParent(district.transform,false);
                     FullDetailOnly(go);
                     var sourceRotation=go.transform.localRotation;
                     var bounds=Bounds(go);float footprint=Mathf.Max(bounds.size.x,bounds.size.z);if(footprint<.001f)throw new Exception("Degenerate supplied model: "+entry.name);
                     float scale=plan.height/Mathf.Max(.001f,bounds.size.y);
-                    if(entry.pack=="Road") { scale=plan.width/bounds.size.x;calibration="uniform scale to4.2m street width, not85m blanket length"; }
+                    if(entry.pack=="Road") { scale=plan.width/bounds.size.x;calibration=string.IsNullOrEmpty(entry.derivedAssetPath)?"uniform scale to4.2m street width, not85m blanket length":"two full-detail cleaned half-width road cores; original texel/brick scale retained, scan debris/base cropped; originals intact"; }
                     if(entry.pack=="House")
                     {
                         var doors=new List<float>();
@@ -89,6 +93,7 @@ namespace Fpp.Editor
                     Vector3 location=new Vector3(plan.x,.02f,plan.z);float yaw=plan.yaw;
                     if(entry.pack=="Tree") {var anchor=layout.treeAnchors[plan.treeIndices[instance]];location=new Vector3(anchor.x,0,anchor.z);yaw=instance*47;}
                     go.transform.rotation=Quaternion.Euler(0,yaw,0)*sourceRotation;bounds=Bounds(go);
+                    if(!string.IsNullOrEmpty(entry.derivedAssetPath))location.y=.055f-bounds.size.y*entry.roadSurfaceReference01;
                     go.transform.position+=location-new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
                     foreach(var renderer in go.GetComponentsInChildren<Renderer>())
                     {
@@ -131,6 +136,21 @@ namespace Fpp.Editor
             Slab("Compact west perimeter",new Vector3(-60,1,0),new Vector3(1,2,120),ground,district.transform);
             Slab("Compact east perimeter",new Vector3(60,1,0),new Vector3(1,2,120),ground,district.transform);
             Directory.CreateDirectory("QA/runtime");File.WriteAllText("QA/runtime/village-placement.json",JsonUtility.ToJson(new Receipt{files=usage.ToArray()},true));
+        }
+        private static GameObject InstantiateSource(GameObject prefab,bool roadCore)
+        {
+            var first=(GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            if(!roadCore)return first;
+            // The cleaned core is HALF the original scan width. Pair two shared-mesh
+            // strips rather than enlarging every brick2x to fit a4.2m road.
+            var root=new GameObject("Cleaned road pair (original full-detail core)");
+            var bounds=Bounds(first);float width=bounds.size.x;
+            first.transform.position-=new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
+            first.transform.SetParent(root.transform,true);
+            var second=(GameObject)PrefabUtility.InstantiatePrefab(prefab);bounds=Bounds(second);
+            second.transform.position+=new Vector3(width-bounds.center.x,-bounds.min.y,-bounds.center.z);
+            second.transform.SetParent(root.transform,true);
+            return root;
         }
         private static void BindMissingVertexMaterial(Renderer renderer,string pack)
         {

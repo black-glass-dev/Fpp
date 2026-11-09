@@ -85,6 +85,8 @@ namespace Fpp.Editor
             PlayerSettings.productName = "FPP";
             PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "dev.blackglass.fpp");
             PlayerSettings.bundleVersion = "0.0.2";
+            // Opt-in diagnostic only: native GPU queries can add overhead on some APIs.
+            if(Argument("-fppProfile")=="1")PlayerSettings.enableFrameTimingStats=true;
             var version = Argument("-fppVersionCode") ?? Environment.GetEnvironmentVariable("ANDROID_VERSION_CODE");
             PlayerSettings.Android.bundleVersionCode = string.IsNullOrEmpty(version) ? 1 : int.Parse(version);
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
