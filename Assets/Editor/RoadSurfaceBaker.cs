@@ -48,6 +48,13 @@ namespace Fpp.Editor
             File.WriteAllText("QA/runtime/road-surface-bake.txt","Actual ORIGINAL cleaned scan projected to "+width+"x"+height+" albedo/smoothness + normal atlases; no lighting baked into albedo. Continuous rectangular96triangle tile replaces unsafe scan UV seam decimation. Texture projection, normal orientation/coverage and device appearance still require visual review; source images/assets retained. Additional atlas residency is not a memory optimization claim.");
             return result;
         }
+        private static void BlendEdges(Color32[] colors,int a,int b,float strength,int mode)
+        {
+            Color ca=colors[a],cb=colors[b],target;
+            if(mode==0){target=(ca.linear+cb.linear)*.5f;target=target.gamma;target.a=(ca.a+cb.a)*.5f;}
+            else {var normal=new Vector3(ca.r+cb.r-1,ca.g+cb.g-1,ca.b+cb.b-1).normalized;target=new Color(normal.x*.5f+.5f,normal.y*.5f+.5f,normal.z*.5f+.5f,1);}
+            colors[a]=Color.Lerp(ca,target,strength);colors[b]=Color.Lerp(cb,target,strength);
+        }
         private static void Capture(MeshFilter source,Mesh mesh,Material material,int mode,int width,int height,string path)
         {
             var old=RenderTexture.active;bool srgb=GL.sRGBWrite;
@@ -59,6 +66,12 @@ namespace Fpp.Editor
                 material.SetFloat("_Mode",mode);if(!material.SetPass(0))throw new Exception("Road bake pass failed");Graphics.DrawMeshNow(mesh,source.transform.localToWorldMatrix);
                 pixels=new Texture2D(width,height,TextureFormat.RGBA32,false,mode!=0);pixels.ReadPixels(new Rect(0,0,width,height),0,0);pixels.Apply();
                 if(mode==1){var data=pixels.GetPixels32();int covered=0;foreach(var p in data)if(p.a>127)covered++;float coverage=covered/(float)data.Length;File.WriteAllText("QA/runtime/road-bake-coverage.txt",coverage.ToString("R",System.Globalization.CultureInfo.InvariantCulture));if(coverage<.98f)throw new Exception("Road bake has holes: coverage="+coverage+"; do not publish corrupted atlas");}
+                // Make projected derivative repeatable without stretching the source image.
+                // Only a16pixel border is feathered; opposite edges become exactly equal.
+                var colors=pixels.GetPixels32();
+                for(int y=0;y<height;y++)for(int x=0;x<16;x++)BlendEdges(colors,y*width+x,y*width+width-1-x,1-x/16f,mode);
+                for(int x=0;x<width;x++)for(int y=0;y<16;y++)BlendEdges(colors,y*width+x,(height-1-y)*width+x,1-y/16f,mode);
+                pixels.SetPixels32(colors);pixels.Apply();
                 File.WriteAllBytes(path,pixels.EncodeToPNG());
             }
             finally{GL.sRGBWrite=srgb;RenderTexture.active=old;RenderTexture.ReleaseTemporary(rt);if(pixels!=null)UnityEngine.Object.DestroyImmediate(pixels);}
