@@ -89,7 +89,13 @@ jobs:
         run: |
           pip install numpy==2.2.6
           python QA/analysis/profile_road_geometry.py
-          python -m QA.analysis.clean_road_scan
+          python - <<'PYCLEAN'
+          import runpy
+          try:runpy.run_module('QA.analysis.clean_road_scan',run_name='__main__')
+          except Exception as error:
+              print('::error::Road crop verification: '+type(error).__name__+': '+str(error))
+              raise
+          PYCLEAN
           python -c "from QA.analysis.profile_road_geometry import main; main('.asset-staging/road-cleanup','QA/RoadGeometry/derived')"
       - name: Preserve unchanged sources outside Git
         uses: actions/upload-artifact@v4
