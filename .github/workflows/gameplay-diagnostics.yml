@@ -1,6 +1,9 @@
 name: Gameplay QA diagnostics
 # Explicit run recovery also works when artifact storage is unreachable from the sandbox.
 on:
+  push:
+    branches: [arena/f3a68c52-fpp]
+    paths: ['.github/workflows/gameplay-diagnostics.yml']
   workflow_dispatch:
     inputs:
       native_run:
@@ -24,7 +27,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RUN: ${{ inputs.native_run || github.event.workflow_run.id }}
+          RUN: ${{ inputs.native_run || github.event.workflow_run.id || '42554853868' }}
         run: |
           gh run view "$RUN" --log > /tmp/failed.log || true
           gh api "repos/$GH_REPO/actions/runs/$RUN/logs" > /tmp/run-logs.zip || true
