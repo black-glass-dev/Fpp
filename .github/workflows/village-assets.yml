@@ -89,6 +89,7 @@ jobs:
         run: |
           pip install numpy==2.2.6
           python QA/analysis/profile_road_geometry.py
+          python -m QA.analysis.clean_road_scan
       - name: Preserve unchanged sources outside Git
         uses: actions/upload-artifact@v4
         with:
