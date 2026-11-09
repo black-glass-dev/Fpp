@@ -178,6 +178,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
         with:
+          allowDirtyBuild: true
           cliVersion: v0.1.72
           unityVersion: 2022.3.62f1
           enableGpu: true
