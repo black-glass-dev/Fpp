@@ -26,17 +26,19 @@ namespace Fpp.Editor
             public string status="Generated geometry LOD, NOT measured device FPS or visual acceptance. Original near meshes, materials/textures and collision retained. All distant meshes stay available to frustum/occlusion culling; no distance disappearance. Unsupported dither shaders use hard transitions requiring visual review.";
             public float nearScreenHeight=NearScreenHeight,mediumScreenHeight=MediumScreenHeight;
             public int groups,generatedMeshes,cacheHits,unreducedMeshes;
+            public string[] rejectedDerivatives;
             public Row[] models;
         }
         private static readonly Dictionary<string,Mesh> Cache=new Dictionary<string,Mesh>();
         private static Report report;
+        private static readonly List<string> Rejected=new List<string>();
         public static long Triangles(Mesh mesh)
         {
             long n=0;for(int i=0;i<mesh.subMeshCount;i++)if(mesh.GetTopology(i)==MeshTopology.Triangles)n+=(long)mesh.GetIndexCount(i)/3;return n;
         }
         public static void Build()
         {
-            SmokeTest();Cache.Clear();report=new Report();var rows=new List<Row>();Directory.CreateDirectory(Folder);AssetDatabase.Refresh();
+            SmokeTest();Cache.Clear();Rejected.Clear();report=new Report();var rows=new List<Row>();Directory.CreateDirectory(Folder);AssetDatabase.Refresh();
             var names=new HashSet<string>();
             foreach(var entry in JsonUtility.FromJson<Catalog>(File.ReadAllText("Assets/Generated/Village/catalog.json")).models)names.Add(entry.name);
             var roots=new List<GameObject>();
@@ -98,7 +100,7 @@ namespace Fpp.Editor
                 rows.Add(row);report.groups++;
             }
             var main=GameObject.Find("Main Camera");if(main!=null)main.GetComponent<Camera>().useOcclusionCulling=true;
-            report.models=rows.ToArray();File.WriteAllText("QA/runtime/world-lod-audit.json",JsonUtility.ToJson(report,true));
+            report.models=rows.ToArray();report.rejectedDerivatives=Rejected.ToArray();File.WriteAllText("QA/runtime/world-lod-audit.json",JsonUtility.ToJson(report,true));
             File.AppendAllText("QA/runtime/build-progress.txt","DISTANCE LOD BUILD END groups="+report.groups+" meshes="+report.generatedMeshes+"\n");
             if(report.groups==0)throw new Exception("Expected heavy world geometry to have actual generated LODs");
             new GameObject("World LOD visual mesh residency").AddComponent<Fpp.WorldLodMeshResidency>();
@@ -130,7 +132,7 @@ namespace Fpp.Editor
             for(int sub=0;sub<source.subMeshCount;sub++)if(source.GetTopology(sub)!=MeshTopology.Triangles)return source;
             string asset=AssetDatabase.GetAssetPath(source);string guid;long id;
             if(!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(source,out guid,out id))throw new Exception("Missing stable source identity: "+source.name);
-            string key=Hash128.Compute("lod-v2-curvature-uv-border-preserved/"+guid+"/"+id+"/"+AssetDatabase.GetAssetDependencyHash(asset)+"/"+level).ToString();
+            string key=Hash128.Compute("lod-v3-validated-curvature-uv-border-preserved/"+guid+"/"+id+"/"+AssetDatabase.GetAssetDependencyHash(asset)+"/"+level).ToString();
             Mesh result;if(Cache.TryGetValue(key,out result)){report.cacheHits++;return result;}
             string path=Folder+"/"+key+".asset";result=AssetDatabase.LoadAssetAtPath<Mesh>(path);
             if(result==null)
@@ -145,7 +147,15 @@ namespace Fpp.Editor
                     simplifier.SimplifyMesh(level==1?.5f:.15f);result=simplifier.ToMesh();result.name=source.name+(level==1?" distance medium":" distance far");
                 }
                 finally {UnityEngine.Object.DestroyImmediate(readable);}
-                Validate(source,result);
+                try {Validate(source,result);}
+                catch(Exception exception)
+                {
+                    // A quadric solution can leave the original silhouette bounds. Never ship it,
+                    // clamp source geometry, or weaken validation just to hit a triangle target.
+                    string reason=source.name+" level="+level+": "+exception.Message;
+                    Rejected.Add(reason);Debug.LogWarning("Rejected visual LOD; retaining original: "+reason);
+                    UnityEngine.Object.DestroyImmediate(result);report.unreducedMeshes++;Cache.Add(key,source);return source;
+                }
                 if(Triangles(result)>=Triangles(source))
                 {UnityEngine.Object.DestroyImmediate(result);report.unreducedMeshes++;Cache.Add(key,source);return source;}
                 // Serialize complete geometry first. Runtime releases ONLY visual-LOD CPU copies.
