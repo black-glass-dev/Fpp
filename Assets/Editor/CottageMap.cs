@@ -125,7 +125,7 @@ namespace Fpp.Editor
             ViewmodelSetup.Attach(camera.transform, weapons);
             player.AddComponent<MobileHud>();
             GunplaySetup.Configure(player,weapons);
-            UrpPresentationSetup.Apply(weapons);VillageExpansion.Build(grass,road);PresentationAudioSetup.Apply();LosslessWorldOptimizer.Apply();
+            UrpPresentationSetup.Apply(weapons);VillageExpansion.Build(grass,road);PresentationAudioSetup.Apply();LosslessWorldOptimizer.Apply();WorldDetailLod.Build();
             EditorSceneManager.SaveScene(scene, ScenePath);
             LosslessWorldOptimizer.BakeVisibility();
             EditorSceneManager.SaveScene(scene, ScenePath);

@@ -10,7 +10,7 @@ namespace Fpp.Editor
     {
         [Serializable] private class Report
         {
-            public string status="Structural editor audit, NOT measured Android FPS. No mesh simplification, texture resizing, lighting/MSAA/shadow/resolution reduction or distance LOD applied.";
+            public string status="Pre-LOD full-detail material-sharing audit, NOT Android FPS/drawn geometry. Generated distance geometry is reported separately in world-lod-audit.json. Original near meshes and texture/lighting/MSAA/shadow/resolution settings retained.";
             public int renderers,uniqueMeshes,sharedMeshInstances,instancingEligibleRenderers,deduplicatedTextureReferences,rawPixelTexturesHashed,engineHashTextures;
             public long enabledTriangleInstances,uniqueMeshTriangles,editorTextureObjectBytesBefore,editorTextureObjectBytesAfter;
         }

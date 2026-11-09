@@ -338,6 +338,42 @@ namespace Fpp.Tests
             GunplayVisualTests.Save(Output+"/village-spawn.png",weapons);
             File.WriteAllText(Output+"/village-scene-check.txt","All13 named house/shop models exist, expanded district and pond exist, old north enclosure removed and triangle collisions present. All18-file placement receipt generated at build. Interior walkability/visual quality/device performance not certified by presence checks.");
         }
+        [UnityTest,Timeout(120000)] public IEnumerator WorldGeometryLodsPreserveNearDetailAndOriginalCollisions()
+        {
+            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            int checkedGroups=0;long near=0,medium=0,far=0;
+            foreach(var group in UnityEngine.Object.FindObjectsOfType<LODGroup>())
+            {
+                var levels=group.GetLODs();bool generated=false;
+                foreach(var renderer in group.GetComponentsInChildren<MeshRenderer>())if(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal))generated=true;
+                if(!generated)continue;
+                checkedGroups++;Assert.AreEqual(3,levels.Length);Assert.AreEqual(.24f,levels[0].screenRelativeTransitionHeight,.0001f);Assert.AreEqual(.09f,levels[1].screenRelativeTransitionHeight,.0001f);
+                Assert.AreEqual(0f,levels[2].screenRelativeTransitionHeight,"No distance-based disappearance of visible world geometry");
+                long[] triangles=new long[3];
+                for(int level=0;level<3;level++)foreach(var renderer in levels[level].renderers)
+                {
+                    Assert.NotNull(renderer);Assert.AreNotEqual(8,renderer.gameObject.layer,"No first-person hands/weapons in world LOD");
+                    var mesh=renderer.GetComponent<MeshFilter>().sharedMesh;Assert.NotNull(mesh);
+                    for(int sub=0;sub<mesh.subMeshCount;sub++)triangles[level]+=(long)mesh.GetIndexCount(sub)/3;
+                    if(level==0)
+                    {
+                        Assert.False(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal));
+                        var collider=renderer.GetComponent<MeshCollider>();if(collider!=null)Assert.AreSame(mesh,collider.sharedMesh,"Original collision must keep full-detail source mesh");
+                    }
+                    else if(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal))
+                    {
+                        Assert.IsNull(renderer.GetComponent<Collider>(),"Visual LOD must not replace original collision");
+                        var original=renderer.transform.parent.GetComponent<MeshRenderer>();Assert.NotNull(original);
+                        CollectionAssert.AreEqual(original.sharedMaterials,renderer.sharedMaterials,"LOD must keep source material/texture references");
+                    }
+                }
+                Assert.Less(triangles[1],triangles[0]);Assert.LessOrEqual(triangles[2],triangles[1]);
+                near+=triangles[0];medium+=triangles[1];far+=triangles[2];group.ForceLOD(-1);
+            }
+            Assert.GreaterOrEqual(checkedGroups,3,"Heavy supplied environment needs real generated LODs");
+            Assert.True(GameObject.Find("Main Camera").GetComponent<Camera>().useOcclusionCulling);
+            File.WriteAllText(Output+"/world-lod-native.txt","Actual Unity loaded LOD groups="+checkedGroups+"; near/medium/far TRIANGLE INSTANCES IF ALL GROUPS USE THAT LEVEL="+near+"/"+medium+"/"+far+". These are NOT camera draw counts/FPS or visual popping acceptance. Source near/collision and material identity checks passed.\n");
+        }
         private static IEnumerator RapidTurnElevationEvidence(WeaponController weapons)
         {
             var player=weapons.GetComponent<TestPlayer>();var cc=player.GetComponent<CharacterController>();var hub=GameplayInput.Instance;

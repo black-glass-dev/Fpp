@@ -77,6 +77,7 @@ namespace Fpp.Editor
                         Save(main,null,"Docs/Previews/unity-village-"+(modelIndex++).ToString("00")+".png");
                     }
                     if(modelIndex!=18)throw new Exception("Expected close-up review of all18 supplied models");
+                    CaptureLodComparison(main);
                     main.transform.position=new Vector3(32,5,28);main.transform.LookAt(new Vector3(46,-.3f,40));Save(main,null,"Docs/Previews/unity-village-pond.png");
                     foreach(var pickup in pickups)if(pickup.displayName.Contains("Glock"))
                     {
@@ -91,6 +92,23 @@ namespace Fpp.Editor
                 weapons.ReviewSmokeBurst();Save(main,overlay,"Docs/Previews/unity-smoke-burst.png");
             }
             finally {HudAudit.Cleanup();}
+        }
+        private static void CaptureLodComparison(Camera main)
+        {
+            var model=GameObject.Find("Bd house 1");var group=model!=null?model.GetComponent<LODGroup>():null;
+            if(group==null)throw new Exception("Missing real heavy-house LOD comparison target");
+            var levels=group.GetLODs();var bounds=levels[0].renderers[0].bounds;
+            foreach(var renderer in levels[0].renderers)bounds.Encapsulate(renderer.bounds);
+            main.transform.position=bounds.center+new Vector3(1.1f,.65f,-1.4f).normalized*bounds.size.magnitude*1.6f;
+            main.transform.LookAt(bounds.center);var fade=group.fadeMode;
+            try
+            {
+                // Exact same camera/material/light settings; force pure levels, not a blended composite.
+                group.fadeMode=LODFadeMode.None;
+                string[] names={"near","medium","far"};
+                for(int i=0;i<3;i++){group.ForceLOD(i);Save(main,null,"Docs/Previews/unity-lod-"+names[i]+".png");}
+            }
+            finally {group.fadeMode=fade;group.ForceLOD(-1);}
         }
         [Serializable] private class ReviewEntry { public string placement; }
         [Serializable] private class ReviewReceipt { public ReviewEntry[] files; }

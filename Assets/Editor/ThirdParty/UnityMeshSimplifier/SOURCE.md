@@ -1,0 +1,1 @@
+Editor-only MIT dependency from https://github.com/Whinarn/UnityMeshSimplifier pinned at 53fdb3122645bcd3ad2c258235200dff3dfbaa9b. Original sources unmodified. Generated meshes are baked; this code is not included in the Android player. LICENSE.md retained.

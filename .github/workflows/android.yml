@@ -72,7 +72,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-22.04
-    timeout-minutes: 300
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
         with:
@@ -170,7 +170,7 @@ jobs:
           gh release edit "diagnostic-map-$NUMBER" --draft=false
       - name: Capture complete full-quality scene gallery after signed APK is preserved
         continue-on-error: true
-        timeout-minutes: 120
+        timeout-minutes: 180
         uses: game-ci/unity-builder@v6.0.0
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -191,7 +191,7 @@ jobs:
           from pathlib import Path
           import struct
           progress=Path('QA/runtime/build-progress.txt').read_text()
-          names=['unity-spawn','unity-environment','unity-ground-detail','unity-mosque','unity-mosque-entry','unity-mosque-interior','unity-village-pond']+['unity-village-'+str(i).zfill(2) for i in range(18)]
+          names=['unity-lod-near','unity-lod-medium','unity-lod-far','unity-spawn','unity-environment','unity-ground-detail','unity-mosque','unity-mosque-entry','unity-mosque-interior','unity-village-pond']+['unity-village-'+str(i).zfill(2) for i in range(18)]
           for name in names:
               path=Path('Docs/Previews')/(name+'.png')
               assert 'CAPTURE END '+str(path) in progress, 'Missing FRESH capture completion: '+name
