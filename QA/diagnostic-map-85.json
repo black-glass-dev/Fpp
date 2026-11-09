@@ -1,0 +1,9 @@
+{
+  "run": "42612690359",
+  "source": "8c4216a177f7aafa6adac552a9bff24387c8df37",
+  "url": "https://github.com/black-glass-dev/Fpp/releases/download/diagnostic-map-85/Fpp.apk",
+  "bytes": 607455795,
+  "githubReleaseAssetSha256": "132e7b306063064d9524f58aa8b7545e29a58adb072df0767193021a6c789755",
+  "verification": "CI Unity ARM64 APK build, fresh APK/payload/signature verification and public release upload all passed. Geometry generation hard gates passed as part of BuildChecked. Digest retrieved from GitHub release asset API, not an independently downloaded local binary.",
+  "status": "Candidate only. Full gallery/native gameplay tests still running at publication. Actual achieved per-model triangle audit not yet retrieved; no measured phone FPS or artifact/UV-quality acceptance. Source textures/collision retained; visible near geometry reduced under explicit permission. APK is larger due additional derivative/batch data; APK bytes are not runtime frame-time evidence."
+}

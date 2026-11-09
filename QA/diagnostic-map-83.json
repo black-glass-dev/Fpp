@@ -5,5 +5,5 @@
   "bytes": 550511510,
   "githubReleaseAssetSha256": "44368eaafa224b89f3adbbf128c6a89efd8ada72e568f78e6b6e672d9f2547e8",
   "verification": "CI fresh APK/payload/signature verification and release upload steps passed. Digest retrieved from GitHub release asset API; sandbox download redirected to a blocked host, so no independent local binary check is claimed.",
-  "status": "Phone-test candidate with geometry LOD; complete gallery/native gameplay tests and physical Galaxy F23 performance acceptance still pending at publication. Not the rejected77 binary."
+  "status": "USER REJECTED: Galaxy F23/SM-E236B, Adreno619 Vulkan; preliminary3.5FPS,1693drawcalls/5,084,948trianglesAcrossPasses and striped artifacts. Reproduction only, not optimized/accepted."
 }
