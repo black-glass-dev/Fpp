@@ -157,6 +157,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Publish verified phone-test APK, explicitly not gameplay acceptance
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
