@@ -17,8 +17,14 @@ class RoadCrop(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             source=Path(folder)/'original.glb';target=Path(folder)/'clean.glb';source.write_bytes(raw);report=clean(source,target)
             self.assertEqual(raw,source.read_bytes());self.assertTrue(report['originalImageBinaryPrefixExact']);self.assertTrue(report['retainedAttributesExact']);self.assertEqual(1,report['untouchedInteriorTriangles']);self.assertGreater(report['boundaryVertexCount'],0)
+            self.assertTrue(report['rigidLeveling'])
             result=target.read_bytes();n=struct.unpack_from('<I',result,12)[0];d=json.loads(result[20:20+n]);b=result[28+n:];p=d['meshes'][0]['primitives'][0];pos=accessor(d,b,p['attributes']['POSITION'])
             np.testing.assert_array_equal(pos[:3],xyz[2:5])
+            rotation=np.array(d['nodes'][-1]['matrix']).reshape(4,4).T[:3,:3]
+            np.testing.assert_allclose(rotation.T@rotation,np.eye(3),atol=1e-12)
+            self.assertAlmostEqual(1.,np.linalg.det(rotation))
+            np.testing.assert_array_equal(accessor(d,b,p['attributes']['NORMAL'])[:3],normal[2:5])
+            np.testing.assert_array_equal(accessor(d,b,p['attributes']['TEXCOORD_0'])[:3],uv[2:5])
             for axis,(lo,hi) in enumerate(CROP):self.assertGreaterEqual(pos[:,axis].min()+1e-6,lo);self.assertLessEqual(pos[:,axis].max()-1e-6,hi)
             self.assertFalse((pos[:,1]>.43+1e-6).any());self.assertEqual(0,accessor(d,b,p['indices']).size%3)
 if __name__=='__main__':unittest.main()

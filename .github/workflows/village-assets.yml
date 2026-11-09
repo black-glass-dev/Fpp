@@ -85,7 +85,7 @@ jobs:
           output={'status':'Original source topology/image metadata only; estimates are NOT Android GPU memory or FPS. No source changed.','models':report,'duplicateEncodedImages':{k:v for k,v in images_by_digest.items() if len(v)>1}}
           Path('QA/village-source-workload.json').write_text(json.dumps(output,ensure_ascii=False,indent=2)+'\n')
           PYPROFILE
-      - name: Inspect original road geometry and attached scan debris without modifying any model
+      - name: Inspect original and derived road geometry, clipping and rigid-leveling invariants
         run: |
           pip install numpy==2.2.6
           python -m unittest QA.analysis.test_clean_road_scan

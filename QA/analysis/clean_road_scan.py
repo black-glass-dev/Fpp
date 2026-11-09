@@ -62,6 +62,26 @@ def clean(source,target):
     p['attributes']={name:append(np.ascontiguousarray(vertices[:,start:end]),kind) for name,start,end,kind in [('POSITION',0,3,'VEC3'),('NORMAL',3,6,'VEC3'),('TEXCOORD_0',6,8,'VEC2')]}
     p['indices']=append(np.array(indices,dtype='<u4'),'SCALAR');newdoc['buffers'][0]['byteLength']=len(payload)
     report={'source':source.name,'sourceSha256':hashlib.sha256(raw).hexdigest(),'status':'Derived road-only crop, not lossless full-scene optimization. Removed debris and scan base are explicitly authorized content deletion. Retained interior road positions/normals/UVs exact; only cut-boundary vertices interpolated. No decimation, texture edit or shader change.','normalizedWorldCrop':CROP,'originalTriangles':len(tris),'untouchedInteriorTriangles':int(inside.sum()),'derivedTriangles':len(indices)//3,'boundaryVertexCount':len(extras),'retainedAttributesExact':True,'originalImageBinaryPrefixExact':bytes(payload[:len(binary)])==binary}
+    # Level the dominant scanned road plane with ONE rigid parent rotation.
+    # No vertex positions, normals, UVs or bumps are flattened/decimated.
+    placed=vertices[:,:3]@transforms[0][:3,:3].T+transforms[0][:3,3]
+    sample=placed[::max(1,len(placed)//20000)]
+    design=np.column_stack([sample[:,0],sample[:,2],np.ones(len(sample))])
+    selected=np.ones(len(sample),bool)
+    for _ in range(4):
+        plane=np.linalg.lstsq(design[selected],sample[selected,1],rcond=None)[0]
+        error=sample[:,1]-design@plane;median=np.median(error);mad=np.median(abs(error-median))
+        selected=abs(error-median)<max(3*mad,float(span[1])*.003)
+        if selected.sum()<3:raise ValueError('No reliable road plane; manual review required')
+    normal=np.array([-plane[0],1.,-plane[1]]);normal/=np.linalg.norm(normal);axis=np.cross(normal,[0.,1.,0.]);c=float(normal[1]);squared=float(axis@axis)
+    k=np.array([[0.,-axis[2],axis[1]],[axis[2],0.,-axis[0]],[-axis[1],axis[0],0.]])
+    rotation=np.eye(3) if squared<1e-20 else np.eye(3)+k+k@k*((1-c)/squared)
+    leveled=placed@rotation.T;level=np.eye(4);level[:3,:3]=rotation
+    roots=list(newdoc['scenes'][newdoc.get('scene',0)]['nodes']);rootIndex=len(newdoc['nodes'])
+    newdoc['nodes'].append({'name':'Fpp road scan rigid leveling (no mesh deformation)','matrix':level.T.reshape(-1).tolist(),'children':roots})
+    newdoc['scenes'][newdoc.get('scene',0)]['nodes']=[rootIndex]
+    height=float(np.ptp(leveled[:,1]));reference=float(np.median(leveled[:,1]));metreScale=4.2/span[0]
+    report.update(rigidLeveling=True,sourcePlaneSlopeXZ=plane[:2].tolist(),surfaceReference01=(reference-float(leveled[:,1].min()))/max(height,1e-12),levelledSizeInOriginalMetres=(np.ptp(leveled,axis=0)*metreScale).tolist(),surfaceResidualP95Metres=float(np.percentile(abs((sample@rotation.T)[:,1]-np.median((sample[selected]@rotation.T)[:,1])),95)*metreScale))
     newdoc.setdefault('extras',{})['FppRoadDerivative']=report
     encoded=json.dumps(newdoc,separators=(',',':')).encode();encoded+=b' '*((-len(encoded))%4);payload+=b'\0'*((-len(payload))%4)
     target.parent.mkdir(parents=True,exist_ok=True)
