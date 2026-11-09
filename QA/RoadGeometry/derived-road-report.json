@@ -1,0 +1,25 @@
+{
+  "source": "Road(ready to use).glb",
+  "sourceSha256": "d7f2ce8306501d974e142fab63af404f15c8425353c2e9d152c0e6f32dfd0bbd",
+  "status": "Derived road-only crop, not lossless full-scene optimization. Removed debris and scan base are explicitly authorized content deletion. Retained interior road positions/normals/UVs exact; only cut-boundary vertices interpolated. No decimation, texture edit or shader change.",
+  "normalizedWorldCrop": [
+    [
+      0.24,
+      0.74
+    ],
+    [
+      0.16,
+      0.43
+    ],
+    [
+      0.05,
+      0.95
+    ]
+  ],
+  "originalTriangles": 500000,
+  "untouchedInteriorTriangles": 95578,
+  "derivedTriangles": 99054,
+  "boundaryVertexCount": 10428,
+  "retainedAttributesExact": true,
+  "originalImageBinaryPrefixExact": true
+}

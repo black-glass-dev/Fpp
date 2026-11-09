@@ -1,0 +1,44 @@
+[
+  {
+    "source": "Road-clean-core.glb",
+    "status": "READ-ONLY geometry diagnostic. Red=high, green=low; black=unsampled. Not gameplay rendering. No cleanup/crop applied.",
+    "parts": [
+      {
+        "node": "part_1",
+        "primitive": 0,
+        "vertices": 66067,
+        "indices": 297162,
+        "material": 0,
+        "attributes": [
+          "POSITION",
+          "NORMAL",
+          "TEXCOORD_0"
+        ]
+      }
+    ],
+    "sizeAt4_2mWidth": [
+      4.2,
+      0.5086352342222817,
+      13.479284240499092
+    ],
+    "allVertexHeightPercentiles": [
+      0.0,
+      0.024773154324226117,
+      0.17049841886173758,
+      0.26835143495671,
+      0.3705554023582491,
+      0.4510996093916977,
+      0.5086352342222816
+    ],
+    "centralVertexHeightPercentiles": [
+      0.23002057263936868,
+      0.2503797532388621,
+      0.2774674586420047,
+      0.31242632448744934,
+      0.3437247193743387,
+      0.3757159512192189,
+      0.39201677473732216
+    ],
+    "heightMap": "ready-road-height.png"
+  }
+]
