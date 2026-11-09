@@ -60,6 +60,9 @@ namespace UnityMeshSimplifier
         /// </summary>
         [Tooltip("If the border edges should be preserved.")]
         public bool PreserveBorderEdges;
+        // Fpp opt-in: restrict collapses to their edge segment. Prevents unconstrained
+        // QEM spikes leaving the original bounds when aggressively reducing scans.
+        public bool ConstrainToEdgeSegment;
         /// <summary>
         /// If the UV seam edges should be preserved.
         /// Default value: false

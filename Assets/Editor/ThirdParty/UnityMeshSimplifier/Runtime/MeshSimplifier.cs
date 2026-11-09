@@ -538,6 +538,17 @@ namespace UnityMeshSimplifier
             SymmetricMatrix q = (vert0.q + vert1.q);
             bool borderEdge = (vert0.borderEdge && vert1.borderEdge);
             double error = 0.0;
+            if (simplificationOptions.ConstrainToEdgeSegment)
+            {
+                var p0=vert0.p;var p1=vert1.p;var midpoint=(p0+p1)*0.5;
+                double e0=VertexError(ref q,p0.x,p0.y,p0.z);
+                double e1=VertexError(ref q,p1.x,p1.y,p1.z);
+                double em=VertexError(ref q,midpoint.x,midpoint.y,midpoint.z);
+                double a=2*(e0+e1-2*em),b=e1-e0-a;
+                double t=a>1e-20?Math.Max(0,Math.Min(1,-b/(2*a))):(e0<=e1?0:1);
+                result=p0+(p1-p0)*t;
+                return VertexError(ref q,result.x,result.y,result.z);
+            }
             double det = q.Determinant1();
             if (det != 0.0 && !borderEdge)
             {

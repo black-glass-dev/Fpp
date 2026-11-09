@@ -12,18 +12,18 @@ namespace Fpp.Editor
     public static class WorldDetailLod
     {
         public const float NearScreenHeight=.24f, MediumScreenHeight=.09f;
-        private const int MinimumTriangles=12000;
+        private const int MinimumTriangles=2000;
         private const string Folder="Assets/Generated/Village/DistanceMeshes";
         [Serializable] private class Catalog { public Entry[] models; }
         [Serializable] private class Entry { public string name; }
         [Serializable] private class Row
         {
-            public string model; public long nearTriangles,mediumTriangles,farTriangles;
+            public string model; public long sourceTriangles,nearTriangles,mediumTriangles,farTriangles;
             public bool crossFade; public string fadeNote;
         }
         [Serializable] private class Report
         {
-            public string status="Generated geometry LOD, NOT measured device FPS or visual acceptance. Original near meshes, materials/textures and collision retained. All distant meshes stay available to frustum/occlusion culling; no distance disappearance. Unsupported dither shaders use hard transitions requiring visual review.";
+            public string status="Generated geometry LOD, NOT measured device FPS or visual acceptance. Original source assets/materials/textures/collision retained; visible near geometry now reduced under explicit user permission. All distant meshes stay available to frustum/occlusion culling; no distance disappearance. Unsupported dither shaders use hard transitions requiring visual review.";
             public float nearScreenHeight=NearScreenHeight,mediumScreenHeight=MediumScreenHeight;
             public int groups,generatedMeshes,cacheHits,unreducedMeshes;
             public string[] rejectedDerivatives;
@@ -39,6 +39,7 @@ namespace Fpp.Editor
         public static void Build()
         {
             SmokeTest();Cache.Clear();Rejected.Clear();report=new Report();var rows=new List<Row>();Directory.CreateDirectory(Folder);AssetDatabase.Refresh();
+            CleanRoadNetwork.Build();
             var names=new HashSet<string>();
             foreach(var entry in JsonUtility.FromJson<Catalog>(File.ReadAllText("Assets/Generated/Village/catalog.json")).models)names.Add(entry.name);
             var roots=new List<GameObject>();
@@ -59,16 +60,26 @@ namespace Fpp.Editor
                 {
                     if(!source.enabled||source.gameObject.layer==8||source.GetComponentInParent<LODGroup>()!=null||source.additionalVertexStreams!=null)continue;
                     var filter=source.GetComponent<MeshFilter>();if(filter==null||filter.sharedMesh==null)continue;
-                    var original=filter.sharedMesh;levels[0].Add(source);row.nearTriangles+=Triangles(original);
+                    var original=filter.sharedMesh;long sourceTriangles=Triangles(original);row.sourceTriangles+=sourceTriangles;
+                    bool tree=root.name.IndexOf("tree",StringComparison.OrdinalIgnoreCase)>=0||root.name.StartsWith("Mango",StringComparison.Ordinal);
+                    bool road=root.name.StartsWith("Road",StringComparison.Ordinal)||root.name.StartsWith("Cleaned network",StringComparison.Ordinal);
+                    int budget=road?1600:tree?8000:30000;
+                    Mesh near=sourceTriangles>=MinimumTriangles?Derivative(original,0,budget):original;
+                    if(near!=original)
+                    {
+                        var identity=source.gameObject.AddComponent<Fpp.WorldVisualSource>();identity.originalMesh=original;
+                        filter.sharedMesh=near;changed=true;
+                    }
+                    levels[0].Add(source);row.nearTriangles+=Triangles(near);
                     foreach(var material in source.sharedMaterials)
                         if(material==null||!material.shader.keywordSpace.FindKeyword("LOD_FADE_CROSSFADE").isValid)fade=false;
-                    Mesh previous=original;
+                    Mesh previous=near;
                     for(int level=1;level<3;level++)
                     {
-                        Mesh mesh=Triangles(original)>=MinimumTriangles?Derivative(original,level):original;
+                        Mesh mesh=Triangles(original)>=MinimumTriangles?Derivative(original,level,budget):original;
                         if(Triangles(mesh)>Triangles(previous))mesh=previous;previous=mesh;
                         Renderer selected=source;
-                        if(mesh!=original)
+                        if(mesh!=near)
                         {
                             var child=new GameObject(level==1?"Generated distance medium":"Generated distance far");child.layer=source.gameObject.layer;
                             child.transform.SetParent(source.transform,false);child.AddComponent<MeshFilter>().sharedMesh=mesh;
@@ -100,7 +111,10 @@ namespace Fpp.Editor
                 rows.Add(row);report.groups++;
             }
             var main=GameObject.Find("Main Camera");if(main!=null)main.GetComponent<Camera>().useOcclusionCulling=true;
+            long nearTotal=0,sourceTotal=0;foreach(var row in rows){nearTotal+=row.nearTriangles;sourceTotal+=row.sourceTriangles;}
             report.models=rows.ToArray();report.rejectedDerivatives=Rejected.ToArray();File.WriteAllText("QA/runtime/world-lod-audit.json",JsonUtility.ToJson(report,true));
+            if(nearTotal>900000||nearTotal>=sourceTotal*.4)throw new Exception("Near geometry budget NOT achieved: "+nearTotal+" vs source "+sourceTotal+"; do not ship a nominal LOD-only optimization");
+
             File.AppendAllText("QA/runtime/build-progress.txt","DISTANCE LOD BUILD END groups="+report.groups+" meshes="+report.generatedMeshes+"\n");
             if(report.groups==0)throw new Exception("Expected heavy world geometry to have actual generated LODs");
             new GameObject("World LOD visual mesh residency").AddComponent<Fpp.WorldLodMeshResidency>();
@@ -118,21 +132,21 @@ namespace Fpp.Editor
             try
             {
                 copy=ReadableCopy(source);var simplifier=new MeshSimplifier(copy);var options=SimplificationOptions.Default;
-                options.PreserveBorderEdges=true;options.PreserveUVSeamEdges=true;options.PreserveUVFoldoverEdges=true;simplifier.SimplificationOptions=options;
+                options.PreserveBorderEdges=true;options.PreserveUVSeamEdges=true;options.PreserveUVFoldoverEdges=true;options.ConstrainToEdgeSegment=true;simplifier.SimplificationOptions=options;
                 simplifier.SimplifyMesh(.35f);reduced=simplifier.ToMesh();Validate(source,reduced);
                 if(Triangles(reduced)>=Triangles(source))throw new Exception("LOD smoke test failed to reduce planar grid");
                 if(source.isReadable)throw new Exception("LOD generator unexpectedly enabled source CPU readability");
             }
             finally {if(copy!=null)UnityEngine.Object.DestroyImmediate(copy);if(reduced!=null)UnityEngine.Object.DestroyImmediate(reduced);UnityEngine.Object.DestroyImmediate(source);}
         }
-        private static Mesh Derivative(Mesh source,int level)
+        public static Mesh Derivative(Mesh source,int level,int budget)
         {
             // Never silently generate LODs for animated/blendshape or non-triangle topology.
             if(source.blendShapeCount!=0)return source;
             for(int sub=0;sub<source.subMeshCount;sub++)if(source.GetTopology(sub)!=MeshTopology.Triangles)return source;
             string asset=AssetDatabase.GetAssetPath(source);string guid;long id;
             if(!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(source,out guid,out id))throw new Exception("Missing stable source identity: "+source.name);
-            string key=Hash128.Compute("lod-v3-validated-curvature-uv-border-preserved/"+guid+"/"+id+"/"+AssetDatabase.GetAssetDependencyHash(asset)+"/"+level).ToString();
+            string key=Hash128.Compute("lod-v4-edge-constrained-near-budget/"+guid+"/"+id+"/"+AssetDatabase.GetAssetDependencyHash(asset)+"/"+level+"/"+budget).ToString();
             Mesh result;if(Cache.TryGetValue(key,out result)){report.cacheHits++;return result;}
             string path=Folder+"/"+key+".asset";result=AssetDatabase.LoadAssetAtPath<Mesh>(path);
             if(result==null)
@@ -141,10 +155,11 @@ namespace Fpp.Editor
                 try
                 {
                     var simplifier=new MeshSimplifier();var options=SimplificationOptions.Default;
-                    options.PreserveBorderEdges=true;options.PreserveUVSeamEdges=true;options.PreserveUVFoldoverEdges=true;
-                    options.PreserveSurfaceCurvature=true;options.EnableSmartLink=true;options.MaxIterationCount=100;
+                    options.PreserveBorderEdges=budget>1600;options.PreserveUVSeamEdges=budget>1600;options.PreserveUVFoldoverEdges=true;
+                    options.PreserveSurfaceCurvature=false;options.ConstrainToEdgeSegment=true;options.EnableSmartLink=true;options.MaxIterationCount=100;
                     simplifier.SimplificationOptions=options;simplifier.Initialize(readable);
-                    simplifier.SimplifyMesh(level==1?.5f:.15f);result=simplifier.ToMesh();result.name=source.name+(level==1?" distance medium":" distance far");
+                    float fraction=Mathf.Min(1f,budget/(float)Triangles(source))*(level==0?1:level==1?.45f:.15f);
+                    simplifier.SimplifyMesh(fraction);result=simplifier.ToMesh();result.name=source.name+(level==0?" budget near":level==1?" distance medium":" distance far");
                 }
                 finally {UnityEngine.Object.DestroyImmediate(readable);}
                 try {Validate(source,result);}
@@ -163,7 +178,7 @@ namespace Fpp.Editor
             }
             Validate(source,result);Cache.Add(key,result);return result;
         }
-        private static Mesh ReadableCopy(Mesh source)
+        public static Mesh ReadableCopy(Mesh source)
         {
             // Editor read-only API also supports non-readable imported meshes. Never change importer flags.
             var copy=new Mesh{name=source.name+" (temporary simplification input)"};

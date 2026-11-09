@@ -30,7 +30,7 @@ namespace Fpp
                     renderer.motionVectorGenerationMode=MotionVectorGenerationMode.ForceNoMotion;
                     var skin=renderer as SkinnedMeshRenderer;if(skin!=null){skin.skinnedMotionVectors=false;skin.updateWhenOffscreen=true;skin.forceMatrixRecalculationPerRender=true;}
                 }
-                overlay.allowHDR=true;overlay.allowMSAA=true;var data=overlay.GetUniversalAdditionalCameraData();data.renderType=CameraRenderType.Overlay;data.renderPostProcessing=true; // URP14 clearDepth is read-only, defaults true.
+                overlay.allowHDR=true;overlay.allowMSAA=true;var data=overlay.GetUniversalAdditionalCameraData();data.renderType=CameraRenderType.Overlay;data.SetRenderer(2);data.renderPostProcessing=true; // URP14 clearDepth is read-only, defaults true.
                 if(!baseData.cameraStack.Contains(overlay))baseData.cameraStack.Add(overlay);
             }
         }
@@ -64,11 +64,11 @@ namespace Fpp
             pipeline.upscalingFilter=UpscalingFilterSelection.FSR;
             // URP14 TAA explicitly does not support camera stacks. PC uses documented SMAA fallback.
             // Forward+ requires a capable API; GLES3 gets the Forward renderer as an explicit fallback.
-            bool plus=SystemInfo.supportsComputeShaders&&SystemInfo.graphicsDeviceType!=GraphicsDeviceType.OpenGLES3;
+            bool plus=!Application.isMobilePlatform&&SystemInfo.supportsComputeShaders&&SystemInfo.graphicsDeviceType!=GraphicsDeviceType.OpenGLES3;
             if(owner!=null)
             {
                 int renderer=(tier>=PresentationTier.High&&plus)?1:0;
-                owner.view.GetComponent<Camera>().GetUniversalAdditionalCameraData().SetRenderer(renderer);owner.weaponCamera.GetUniversalAdditionalCameraData().SetRenderer(renderer);
+                owner.view.GetComponent<Camera>().GetUniversalAdditionalCameraData().SetRenderer(renderer);owner.weaponCamera.GetUniversalAdditionalCameraData().SetRenderer(2);
                 owner.weaponCamera.GetUniversalAdditionalCameraData().antialiasing=tier==PresentationTier.PCUltra?AntialiasingMode.SubpixelMorphologicalAntiAliasing:AntialiasingMode.None;
             }
             ApplyEffectToggles();

@@ -14,12 +14,12 @@ namespace Fpp.Editor
         public static void Apply(WeaponController owner)
         {
             System.IO.Directory.CreateDirectory(Root);AssetDatabase.Refresh();
-            var mobile=Renderer("MobileRenderer",false,true);var pc=Renderer("PCRenderer",true,true);var low=Renderer("LowRenderer",false,false);
+            var fpv=Renderer("FPVRenderer",false,false);var mobile=Renderer("MobileRenderer",false,true);var pc=Renderer("PCRenderer",true,true);var low=Renderer("LowRenderer",false,false);
             foreach(PresentationTier tier in Enum.GetValues(typeof(PresentationTier)))
             {
                 string path=Root+"/"+tier+".asset";var asset=AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(path);
                 if(asset==null){asset=UniversalRenderPipelineAsset.Create(tier==PresentationTier.Low?low:mobile);AssetDatabase.CreateAsset(asset,path);}
-                var serialized=new SerializedObject(asset);var list=serialized.FindProperty("m_RendererDataList");list.arraySize=2;list.GetArrayElementAtIndex(0).objectReferenceValue=tier==PresentationTier.Low?low:mobile;list.GetArrayElementAtIndex(1).objectReferenceValue=pc;
+                var serialized=new SerializedObject(asset);var list=serialized.FindProperty("m_RendererDataList");list.arraySize=3;list.GetArrayElementAtIndex(0).objectReferenceValue=tier==PresentationTier.Low?low:mobile;list.GetArrayElementAtIndex(1).objectReferenceValue=pc;list.GetArrayElementAtIndex(2).objectReferenceValue=fpv;
                 serialized.FindProperty("m_SoftShadowsSupported").boolValue=tier!=PresentationTier.Low;serialized.FindProperty("m_MainLightShadowsSupported").boolValue=true;serialized.FindProperty("m_AdditionalLightShadowsSupported").boolValue=false;serialized.ApplyModifiedPropertiesWithoutUndo();
                 asset.msaaSampleCount=tier==PresentationTier.PCUltra?Visual.pcMsaa:Visual.mobileMsaa;asset.supportsHDR=tier!=PresentationTier.Low;asset.supportsCameraDepthTexture=true;asset.supportsCameraOpaqueTexture=tier>=PresentationTier.High;asset.useSRPBatcher=true;asset.shadowDistance=tier==PresentationTier.PCUltra?Visual.pcShadowDistance:Visual.mobileShadowDistance;asset.shadowCascadeCount=tier==PresentationTier.PCUltra?Visual.pcCascades:Visual.mobileCascades;asset.renderScale=1;EditorUtility.SetDirty(asset);
             }

@@ -358,7 +358,7 @@ namespace Fpp.Tests
                     if(level==0)
                     {
                         Assert.False(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal));
-                        var collider=renderer.GetComponent<MeshCollider>();if(collider!=null)Assert.AreSame(mesh,collider.sharedMesh,"Original collision must keep full-detail source mesh");
+                        var collider=renderer.GetComponent<MeshCollider>();if(collider!=null){var identity=renderer.GetComponent<WorldVisualSource>();Assert.AreSame(identity!=null?identity.originalMesh:mesh,collider.sharedMesh,"Collision retains original source even when visible near mesh is reduced");}
                     }
                     else if(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal))
                     {
@@ -370,9 +370,20 @@ namespace Fpp.Tests
                 Assert.Less(triangles[1],triangles[0]);Assert.LessOrEqual(triangles[2],triangles[1]);
                 near+=triangles[0];medium+=triangles[1];far+=triangles[2];group.ForceLOD(-1);
             }
+            foreach(var identity in UnityEngine.Object.FindObjectsOfType<WorldVisualSource>())
+            {
+                Assert.NotNull(identity.originalMesh);var collider=identity.GetComponent<MeshCollider>();
+                if(collider!=null)Assert.AreSame(identity.originalMesh,collider.sharedMesh);
+                var visual=identity.GetComponent<MeshFilter>().sharedMesh;
+                Assert.AreNotSame(identity.originalMesh,visual,"Source asset must be separate from budget derivative");
+            }
+            var district=GameObject.Find("Bangladesh compact para (120 x 120m)");int networkChunks=0;long networkTriangles=0;
+            foreach(Transform child in district.transform)if(child.name.StartsWith("Cleaned network",StringComparison.Ordinal))
+            {networkChunks++;var mesh=child.GetComponent<MeshFilter>().sharedMesh;for(int sub=0;sub<mesh.subMeshCount;sub++)networkTriangles+=(long)mesh.GetIndexCount(sub)/3;Assert.IsNull(child.GetComponent<MeshCollider>(),"No per-tile heavy scan collision");}
+            Assert.Greater(networkChunks,10);Assert.LessOrEqual(networkTriangles,600000);
             Assert.GreaterOrEqual(checkedGroups,3,"Heavy supplied environment needs real generated LODs");
             Assert.True(GameObject.Find("Main Camera").GetComponent<Camera>().useOcclusionCulling);
-            File.WriteAllText(Output+"/world-lod-native.txt","Actual Unity loaded LOD groups="+checkedGroups+"; near/medium/far TRIANGLE INSTANCES IF ALL GROUPS USE THAT LEVEL="+near+"/"+medium+"/"+far+". These are NOT camera draw counts/FPS or visual popping acceptance. Source near/collision and material identity checks passed.\n");
+            File.WriteAllText(Output+"/world-lod-native.txt","Actual Unity loaded LOD groups="+checkedGroups+"; near/medium/far TRIANGLE INSTANCES IF ALL GROUPS USE THAT LEVEL="+near+"/"+medium+"/"+far+". These are NOT camera draw counts/FPS or visual popping acceptance. Original source/collision references retained; visible near budget geometry and original material identities checked.\n");
         }
         private static IEnumerator RapidTurnElevationEvidence(WeaponController weapons)
         {
@@ -417,6 +428,7 @@ namespace Fpp.Tests
             var worldData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(world);
             var overlayData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(overlay);
             Assert.False(overlay.useOcclusionCulling,"FPV must never use world occlusion at elevation");
+            Assert.AreNotSame(worldData.scriptableRenderer,overlayData.scriptableRenderer,"World SSAO must not be replayed on clear-depth FPV overlay");
             foreach(var renderer in overlay.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
                 Assert.AreEqual(UnityEngine.MotionVectorGenerationMode.ForceNoMotion,renderer.motionVectorGenerationMode);

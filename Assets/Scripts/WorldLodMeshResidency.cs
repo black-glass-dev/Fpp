@@ -13,9 +13,9 @@ namespace Fpp
             foreach(var group in FindObjectsOfType<LODGroup>())
             {
                 var levels=group.GetLODs();
-                for(int level=1;level<levels.Length;level++)foreach(var renderer in levels[level].renderers)
+                for(int level=0;level<levels.Length;level++)foreach(var renderer in levels[level].renderers)
                 {
-                    if(renderer==null||renderer.gameObject.layer==8||!renderer.name.StartsWith("Generated distance",System.StringComparison.Ordinal))continue;
+                    if(renderer==null||renderer.gameObject.layer==8||(!renderer.name.StartsWith("Generated distance",System.StringComparison.Ordinal)&&!renderer.name.StartsWith("Batched geometry",System.StringComparison.Ordinal)&&renderer.GetComponent<WorldVisualSource>()==null))continue;
                     var filter=renderer.GetComponent<MeshFilter>();if(filter==null||filter.sharedMesh==null)continue;
                     var mesh=filter.sharedMesh;if(collision.Contains(mesh)||!done.Add(mesh)||!mesh.isReadable)continue;
                     mesh.UploadMeshData(true);ReleasedMeshCount++;
