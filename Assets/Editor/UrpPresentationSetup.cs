@@ -14,12 +14,12 @@ namespace Fpp.Editor
         public static void Apply(WeaponController owner)
         {
             System.IO.Directory.CreateDirectory(Root);AssetDatabase.Refresh();
-            var fpv=Renderer("FPVRenderer",false,false);var mobile=Renderer("MobileRenderer",false,true);var pc=Renderer("PCRenderer",true,true);var low=Renderer("LowRenderer",false,false);
+            var noAO=Renderer("DiagnosticNoAO",false,false);var fpv=Renderer("FPVRenderer",false,false);var mobile=Renderer("MobileRenderer",false,true);var pc=Renderer("PCRenderer",true,true);var low=Renderer("LowRenderer",false,false);
             foreach(PresentationTier tier in Enum.GetValues(typeof(PresentationTier)))
             {
                 string path=Root+"/"+tier+".asset";var asset=AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(path);
                 if(asset==null){asset=UniversalRenderPipelineAsset.Create(tier==PresentationTier.Low?low:mobile);AssetDatabase.CreateAsset(asset,path);}
-                var serialized=new SerializedObject(asset);var list=serialized.FindProperty("m_RendererDataList");list.arraySize=3;list.GetArrayElementAtIndex(0).objectReferenceValue=tier==PresentationTier.Low?low:mobile;list.GetArrayElementAtIndex(1).objectReferenceValue=pc;list.GetArrayElementAtIndex(2).objectReferenceValue=fpv;
+                var serialized=new SerializedObject(asset);var list=serialized.FindProperty("m_RendererDataList");list.arraySize=4;list.GetArrayElementAtIndex(0).objectReferenceValue=tier==PresentationTier.Low?low:mobile;list.GetArrayElementAtIndex(1).objectReferenceValue=pc;list.GetArrayElementAtIndex(2).objectReferenceValue=fpv;list.GetArrayElementAtIndex(3).objectReferenceValue=noAO;
                 serialized.FindProperty("m_SoftShadowsSupported").boolValue=tier!=PresentationTier.Low;serialized.FindProperty("m_MainLightShadowsSupported").boolValue=true;serialized.FindProperty("m_AdditionalLightShadowsSupported").boolValue=false;serialized.ApplyModifiedPropertiesWithoutUndo();
                 asset.msaaSampleCount=tier==PresentationTier.PCUltra?Visual.pcMsaa:Visual.mobileMsaa;asset.supportsHDR=tier!=PresentationTier.Low;asset.supportsCameraDepthTexture=true;asset.supportsCameraOpaqueTexture=tier>=PresentationTier.High;asset.useSRPBatcher=true;asset.shadowDistance=tier==PresentationTier.PCUltra?Visual.pcShadowDistance:Visual.mobileShadowDistance;asset.shadowCascadeCount=tier==PresentationTier.PCUltra?Visual.pcCascades:Visual.mobileCascades;asset.renderScale=1;EditorUtility.SetDirty(asset);
             }
@@ -50,6 +50,13 @@ namespace Fpp.Editor
                 var feature=(ScriptableRendererFeature)ScriptableObject.CreateInstance(type);feature.name="Mobile downsampled SSAO";AssetDatabase.AddObjectToAsset(feature,data);
                 var settings=new SerializedObject(feature);settings.FindProperty("m_Settings.Radius").floatValue=Visual.ssaoRadius;settings.FindProperty("m_Settings.Intensity").floatValue=Visual.ssaoIntensity;settings.FindProperty("m_Settings.Downsample").boolValue=true;settings.FindProperty("m_Settings.Source").intValue=0;settings.ApplyModifiedPropertiesWithoutUndo();
                 ResourceReloader.ReloadAllNullIn(feature,UniversalRenderPipelineAsset.packagePath);data.rendererFeatures.Add(feature);feature.Create();
+            }
+            // URP14 enum: Depth=0 reconstructs normals from depth; DepthNormals=1
+            // consumes actual mesh normals. Update existing features too, not creation only.
+            if(ao)foreach(var feature in data.rendererFeatures)
+            {
+                var serialized=new SerializedObject(feature);var source=serialized.FindProperty("m_Settings.Source");
+                if(source!=null){source.intValue=1;serialized.ApplyModifiedPropertiesWithoutUndo();}
             }
             EditorUtility.SetDirty(data);return data;
         }

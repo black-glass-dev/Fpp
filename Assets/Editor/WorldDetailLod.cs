@@ -63,7 +63,7 @@ namespace Fpp.Editor
                     var original=filter.sharedMesh;long sourceTriangles=Triangles(original);row.sourceTriangles+=sourceTriangles;
                     bool tree=root.name.IndexOf("tree",StringComparison.OrdinalIgnoreCase)>=0||root.name.StartsWith("Mango",StringComparison.Ordinal);
                     bool road=root.name.StartsWith("Road",StringComparison.Ordinal)||root.name.StartsWith("Cleaned network",StringComparison.Ordinal);
-                    int budget=road?1600:tree?8000:30000;
+                    int budget=road?(int)sourceTriangles:tree?8000:30000; // Off-network reference patch keeps original near UV topology.
                     Mesh near=sourceTriangles>=MinimumTriangles?Derivative(original,0,budget):original;
                     if(near!=original)
                     {

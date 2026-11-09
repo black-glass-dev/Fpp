@@ -443,6 +443,19 @@ namespace Fpp.Tests
                 Assert.AreEqual(tier==PresentationTier.PCUltra?1:4,pipeline.msaaSampleCount);Assert.AreEqual(tier==PresentationTier.PCUltra?200:80,pipeline.shadowDistance);Assert.AreEqual(tier==PresentationTier.PCUltra?4:2,pipeline.shadowCascadeCount);
             }
             presentation.SetTier(PresentationTier.High);yield return null;
+            var originalRenderer=worldData.scriptableRenderer;
+            presentation.CycleArtifactTest();yield return null;
+            Assert.AreEqual(PresentationRenderer.ArtifactTest.NoAO,presentation.ArtifactMode);
+            Assert.AreNotSame(originalRenderer,worldData.scriptableRenderer);
+            Assert.AreEqual(LightShadows.Soft,RenderSettings.sun.shadows,"AO test must retain shadows");
+            presentation.CycleArtifactTest();yield return null;
+            Assert.AreEqual(PresentationRenderer.ArtifactTest.NoShadows,presentation.ArtifactMode);
+            Assert.AreEqual(LightShadows.None,RenderSettings.sun.shadows);
+            presentation.CycleArtifactTest();yield return null;
+            Assert.AreEqual(PresentationRenderer.ArtifactTest.Neither,presentation.ArtifactMode);
+            presentation.CycleArtifactTest();yield return null;
+            Assert.AreEqual(PresentationRenderer.ArtifactTest.Normal,presentation.ArtifactMode);
+            Assert.AreEqual(LightShadows.Soft,RenderSettings.sun.shadows);
             var pipelineBefore=UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline;
             presentation.ToggleGrain();presentation.ToggleGrain();presentation.ToggleBlur();presentation.ToggleBlur();
             Assert.AreSame(pipelineBefore,UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline,"effect-only toggles must not rebuild pipeline");

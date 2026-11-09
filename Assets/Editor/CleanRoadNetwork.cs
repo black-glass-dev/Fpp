@@ -18,12 +18,10 @@ namespace Fpp.Editor
         {
             var model=GameObject.Find("Road(ready to use)");if(model==null)throw new Exception("Missing cleaned scan source");
             var filters=model.GetComponentsInChildren<MeshFilter>();if(filters.Length==0)throw new Exception("Missing cleaned core mesh");
-            var filter=filters[0];var reduced=WorldDetailLod.Derivative(filter.sharedMesh,0,800);
-            if(WorldDetailLod.Triangles(reduced)>2000)throw new Exception("Network scan exceeds per-core geometry budget: "+WorldDetailLod.Triangles(reduced)+" from "+WorldDetailLod.Triangles(filter.sharedMesh)+"; do not replicate heavy scan");
-            var mesh=WorldDetailLod.ReadableCopy(reduced);var points=mesh.vertices;var normals=mesh.normals;var uv=mesh.uv;var indices=mesh.triangles;
-            if(uv.Length!=points.Length||normals.Length!=points.Length)throw new Exception("Road scan lost normals/UV");
-            var b=new Bounds(filter.transform.TransformPoint(points[0]),Vector3.zero);
-            for(int i=0;i<points.Length;i++){points[i]=filter.transform.TransformPoint(points[i]);b.Encapsulate(points[i]);normals[i]=filter.transform.TransformDirection(normals[i]).normalized;}
+            var filter=filters[0];var mesh=RoadSurfaceBaker.Build(filter,out var surfaceMaterial);
+            var points=mesh.vertices;var normals=mesh.normals;var uv=mesh.uv;var indices=mesh.triangles;
+            if(uv.Length!=points.Length||normals.Length!=points.Length)throw new Exception("Road surface lost normals/UV");
+            var b=new Bounds(points[0],Vector3.zero);foreach(var point in points)b.Encapsulate(point);
             float w=b.size.x,d=b.size.z;if(w<1||d<1)throw new Exception("Invalid scan dimensions");
             for(int i=0;i<points.Length;i++)points[i]-=new Vector3(b.min.x,b.min.y-.035f,b.min.z);
             var lanes=JsonUtility.FromJson<Layout>(File.ReadAllText("Assets/Editor/VillageLayout.json")).lanes;
@@ -66,12 +64,12 @@ namespace Fpp.Editor
                 combined.SetVertices(c.p);combined.SetNormals(c.n);combined.SetUVs(0,c.uv);combined.SetTriangles(c.ix,0);combined.RecalculateBounds();combined.RecalculateTangents();
                 string path="Assets/Generated/Village/Network_"+pair.Key.x+"_"+pair.Key.y+".asset";AssetDatabase.DeleteAsset(path);AssetDatabase.CreateAsset(combined,path);
                 var go=new GameObject(combined.name,typeof(MeshFilter),typeof(MeshRenderer));go.transform.SetParent(district.transform,false);
-                go.GetComponent<MeshFilter>().sharedMesh=combined;go.GetComponent<MeshRenderer>().sharedMaterials=filter.GetComponent<MeshRenderer>().sharedMaterials;
+                go.GetComponent<MeshFilter>().sharedMesh=combined;go.GetComponent<MeshRenderer>().sharedMaterial=surfaceMaterial;
                 // Ground/legacy lane COLLIDERS remain. The visual scan never adds million-triangle collision copies.
                 GameObjectUtility.SetStaticEditorFlags(go,StaticEditorFlags.OccludeeStatic|StaticEditorFlags.BatchingStatic);triangles+=c.ix.Count/3;
             }
             foreach(var lane in lanes){var old=GameObject.Find(lane.name);if(old!=null){var r=old.GetComponent<Renderer>();if(r!=null)r.enabled=false;}}
-            File.WriteAllText("QA/runtime/road-network.txt","Actual cleaned scan clipped over UNION of all "+lanes.Length+" lane/courtyard rectangles; no duplicated intersection surfaces. Chunks="+chunks.Count+"; partition rectangles="+rectangles+"; near triangles="+triangles+"; source textures/UV metre scale retained; original model intact. Render/route acceptance pending.");
+            File.WriteAllText("QA/runtime/road-network.txt","Actual cleaned scan clipped over UNION of all "+lanes.Length+" lane/courtyard rectangles; no duplicated intersection surfaces. Chunks="+chunks.Count+"; partition rectangles="+rectangles+"; near triangles="+triangles+"; source scan baked before reduction, continuous rectangular topology, metre scale retained; original model intact. Render/route acceptance pending.");
             if(triangles>600000)throw new Exception("Network geometry budget exceeded");
         }
         private static List<V> Clip(List<V> input,int axis,float bound,bool greater)

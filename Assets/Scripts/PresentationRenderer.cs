@@ -12,6 +12,17 @@ namespace Fpp
         public PresentationTier Tier {get;private set;}
         public DayPreset Day {get;private set;}
         public bool DynamicResolution {get;private set;}
+        public enum ArtifactTest {Normal,NoAO,NoShadows,Neither}
+        public ArtifactTest ArtifactMode {get;private set;}
+        public void CycleArtifactTest(){ArtifactMode=(ArtifactTest)(((int)ArtifactMode+1)%4);ApplyArtifactTest();var evidence=GetComponent<FrameTimeEvidence>();if(evidence!=null)evidence.ResetSamples();}
+        private void ApplyArtifactTest()
+        {
+            if(owner!=null){bool plus=!Application.isMobilePlatform&&SystemInfo.supportsComputeShaders&&SystemInfo.graphicsDeviceType!=GraphicsDeviceType.OpenGLES3;
+            int renderer=ArtifactMode==ArtifactTest.NoAO||ArtifactMode==ArtifactTest.Neither?3:Tier>=PresentationTier.High&&plus?1:0;
+            owner.view.GetComponent<Camera>().GetUniversalAdditionalCameraData().SetRenderer(renderer);}
+            if(sun!=null)sun.shadows=ArtifactMode==ArtifactTest.NoShadows||ArtifactMode==ArtifactTest.Neither?LightShadows.None:LightShadows.Soft;
+        }
+
         public float ResolutionScale=>pipeline!=null?pipeline.renderScale:1;
         private UniversalRenderPipelineAsset pipeline;
         private PresentationVisualSettings visual;private VolumeProfile profile;private ColorAdjustments grade;private Bloom bloom;
@@ -71,7 +82,7 @@ namespace Fpp
                 owner.view.GetComponent<Camera>().GetUniversalAdditionalCameraData().SetRenderer(renderer);owner.weaponCamera.GetUniversalAdditionalCameraData().SetRenderer(2);
                 owner.weaponCamera.GetUniversalAdditionalCameraData().antialiasing=tier==PresentationTier.PCUltra?AntialiasingMode.SubpixelMorphologicalAntiAliasing:AntialiasingMode.None;
             }
-            ApplyEffectToggles();
+            ApplyArtifactTest();ApplyEffectToggles();
             if(bloom!=null)bloom.active=tier!=PresentationTier.Low;
             PlayerPrefs.SetInt("fpp.visual.tier",(int)tier);slowFrames=fastFrames=0;
         }
@@ -92,7 +103,7 @@ namespace Fpp
                 sun.transform.rotation=Quaternion.Euler(visual.sunElevation[(int)day],visual.sunAzimuth,0);sun.intensity=visual.sunIntensity[(int)day];sun.shadows=LightShadows.Soft;
             }
             RenderSettings.fog=true;RenderSettings.fogMode=FogMode.ExponentialSquared;RenderSettings.fogDensity=visual.fogDensity;RenderSettings.fogColor=day==DayPreset.Dusk?visual.duskFog:visual.daylightFog;
-            PlayerPrefs.SetInt("fpp.visual.day",(int)day);
+            ApplyArtifactTest();PlayerPrefs.SetInt("fpp.visual.day",(int)day);
         }
         private void Update()
         {

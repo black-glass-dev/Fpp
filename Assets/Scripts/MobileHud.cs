@@ -209,7 +209,7 @@ namespace Fpp
         private void RefreshVisualTitle()
         {
             var r=PresentationRenderer.Active;if(visualTitle==null||r==null)return;
-            visualTitle.text=r.Tier+"  /  "+r.Day+"\nDRS "+(r.DynamicResolution?"ON":"OFF")+" | GRAIN "+(PlayerPrefs.GetInt("fpp.visual.grain",1)!=0?"ON":"OFF")+" | BLUR "+(PlayerPrefs.GetInt("fpp.visual.blur",0)!=0?"ON":"OFF")+" | HAPTICS "+(UiHaptics.Enabled?"ON":"OFF")+" | STICK "+(FloatingJoystick?"FLOAT":"FIXED");
+            visualTitle.text=r.Tier+"  /  "+r.Day+" / TEST "+r.ArtifactMode+"\nDRS "+(r.DynamicResolution?"ON":"OFF")+" | GRAIN "+(PlayerPrefs.GetInt("fpp.visual.grain",1)!=0?"ON":"OFF")+" | BLUR "+(PlayerPrefs.GetInt("fpp.visual.blur",0)!=0?"ON":"OFF")+" | HAPTICS "+(UiHaptics.Enabled?"ON":"OFF")+" | STICK "+(FloatingJoystick?"FLOAT":"FIXED");
         }
         private void CreateVisualSettings()
         {
@@ -221,6 +221,7 @@ namespace Fpp
                 int option=i;float x=.02f+i*.195f;
                 SmallButton(root,options[i],new Vector2(x,.73f),new Vector2(x+.18f,.85f),()=>{var r=PresentationRenderer.Active;if(r==null)return;switch(option){case 0:r.SetTier((PresentationTier)(((int)r.Tier+1)%4));break;case 1:r.SetDay((DayPreset)(((int)r.Day+1)%3));break;case 2:r.ToggleGrain();break;case 3:r.ToggleBlur();break;default:r.ToggleDynamicResolution();break;}RefreshVisualTitle();});
             }
+            SmallButton(root,"ARTIFACT TEST: NORMAL / NO AO / NO SHADOW / NEITHER",new Vector2(.02f,.675f),new Vector2(.98f,.725f),()=>{if(PresentationRenderer.Active!=null)PresentationRenderer.Active.CycleArtifactTest();RefreshVisualTitle();});
             string[] names={"MASTER","WEAPONS","FOLEY","AMBIENCE","UI","MUSIC STUB"};
             for(int i=0;i<names.Length;i++)
             {
