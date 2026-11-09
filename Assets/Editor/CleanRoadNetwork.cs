@@ -19,7 +19,7 @@ namespace Fpp.Editor
             var model=GameObject.Find("Road(ready to use)");if(model==null)throw new Exception("Missing cleaned scan source");
             var filters=model.GetComponentsInChildren<MeshFilter>();if(filters.Length==0)throw new Exception("Missing cleaned core mesh");
             var filter=filters[0];var reduced=WorldDetailLod.Derivative(filter.sharedMesh,0,800);
-            if(WorldDetailLod.Triangles(reduced)>2000)throw new Exception("Network scan exceeds per-core geometry budget; do not replicate heavy scan");
+            if(WorldDetailLod.Triangles(reduced)>2000)throw new Exception("Network scan exceeds per-core geometry budget: "+WorldDetailLod.Triangles(reduced)+" from "+WorldDetailLod.Triangles(filter.sharedMesh)+"; do not replicate heavy scan");
             var mesh=WorldDetailLod.ReadableCopy(reduced);var points=mesh.vertices;var normals=mesh.normals;var uv=mesh.uv;var indices=mesh.triangles;
             if(uv.Length!=points.Length||normals.Length!=points.Length)throw new Exception("Road scan lost normals/UV");
             var b=new Bounds(filter.transform.TransformPoint(points[0]),Vector3.zero);

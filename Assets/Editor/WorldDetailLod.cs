@@ -8,7 +8,7 @@ using UnityMeshSimplifier;
 
 namespace Fpp.Editor
 {
-    // Editor-only derivatives. LOD0 and all original collision meshes stay untouched.
+    // Editor-only budget derivatives. Original source assets/collision remain untouched; visible LOD0 is now reduced.
     public static class WorldDetailLod
     {
         public const float NearScreenHeight=.24f, MediumScreenHeight=.09f;
@@ -155,7 +155,7 @@ namespace Fpp.Editor
                 try
                 {
                     var simplifier=new MeshSimplifier();var options=SimplificationOptions.Default;
-                    options.PreserveBorderEdges=budget>1600;options.PreserveUVSeamEdges=budget>1600;options.PreserveUVFoldoverEdges=true;
+                    options.PreserveBorderEdges=budget>1600;options.PreserveUVSeamEdges=budget>1600;options.PreserveUVFoldoverEdges=budget>1600;
                     options.PreserveSurfaceCurvature=false;options.ConstrainToEdgeSegment=true;options.EnableSmartLink=true;options.MaxIterationCount=100;
                     simplifier.SimplificationOptions=options;simplifier.Initialize(readable);
                     float fraction=Mathf.Min(1f,budget/(float)Triangles(source))*(level==0?1:level==1?.45f:.15f);
