@@ -27,7 +27,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RUN: ${{ inputs.native_run || github.event.workflow_run.id || '42554853868' }}
+          RUN: ${{ inputs.native_run || github.event.workflow_run.id || '42556734680' }}
         run: |
           gh run view "$RUN" --log > /tmp/failed.log || true
           gh api "repos/$GH_REPO/actions/runs/$RUN/logs" > /tmp/run-logs.zip || true
