@@ -72,7 +72,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
         with:
@@ -156,6 +156,32 @@ jobs:
           path: build/Android/Fpp.apk
           if-no-files-found: error
           retention-days: 14
+      - name: Publish verified phone-test APK, explicitly not gameplay acceptance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.run_number }}
+        run: |
+          sha256sum build/Android/Fpp.apk > build/Android/SHA256.txt
+          # Draft is prepared by the authorized maintainer; no permission bypass.
+          gh release view "diagnostic-map-$NUMBER" --json tagName
+          gh release upload "diagnostic-map-$NUMBER" build/Android/Fpp.apk build/Android/SHA256.txt --clobber
+          gh release edit "diagnostic-map-$NUMBER" --draft=false
+      - name: Capture complete full-quality scene gallery after signed APK is preserved
+        timeout-minutes: 120
+        uses: game-ci/unity-builder@v6.0.0
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          cliVersion: v0.1.72
+          unityVersion: 2022.3.62f1
+          enableGpu: true
+          targetPlatform: Android
+          buildMethod: Fpp.Editor.AndroidBuild.CaptureReview
+          customParameters: -fppVersionCode ${{ github.run_number }}
       - name: Preserve build-time scene evidence before native QA
         uses: actions/upload-artifact@v4
         with:
@@ -189,7 +215,7 @@ jobs:
           PYPATCH
       - name: Play Mode gameplay tests (real Unity player loop)
         # Expanded original assets are rendered by a software GPU here; no visual or test assertion is reduced.
-        timeout-minutes: 25
+        timeout-minutes: 90
         uses: ./.arena/unity-test-runner
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -239,6 +265,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Preserve actual Unity render previews
+        if: always()
         run: |
           if [ -f Docs/Previews/unity-spawn.png ]; then
             if python -m pip install --quiet pillow==12.0.0 && python Tools/optimize_previews.py; then

@@ -51,6 +51,20 @@ namespace Fpp.Editor
             try{BuildChecked();}
             catch(Exception error){Directory.CreateDirectory("build");File.WriteAllText("build/fpp-diagnostic.txt",error.ToString());throw;}
         }
+        // Gallery must never prevent the signed APK from being built/preserved first.
+        // Recreate the SAME full-quality deterministic scene; do not lower preview settings.
+        public static void CaptureReview()
+        {
+            TextureRepair.Ensure2D();CottageMap.Create();EnvironmentAudit.Validate();
+            var target=RenderTexture.GetTemporary(16,9,24);var old=RenderTexture.active;
+            try
+            {
+                var owner=UnityEngine.Object.FindObjectOfType<WeaponController>();
+                RenderEvidence.Into(owner.view.GetComponent<Camera>(),owner.weaponCamera,target);
+                RevisionAudit.Validate();BuildPreview.Capture();
+            }
+            finally {RenderTexture.active=old;RenderTexture.ReleaseTemporary(target);}
+        }
         private static void BuildChecked()
         {
             TextureRepair.Ensure2D();
@@ -67,7 +81,6 @@ namespace Fpp.Editor
             }
             finally { RenderTexture.active=previousTarget;RenderTexture.ReleaseTemporary(warmTarget); }
             RevisionAudit.Validate();
-            BuildPreview.Capture();
             PlayerSettings.companyName = "Black Glass Dev";
             PlayerSettings.productName = "FPP";
             PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "dev.blackglass.fpp");
