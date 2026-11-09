@@ -85,6 +85,10 @@ jobs:
           output={'status':'Original source topology/image metadata only; estimates are NOT Android GPU memory or FPS. No source changed.','models':report,'duplicateEncodedImages':{k:v for k,v in images_by_digest.items() if len(v)>1}}
           Path('QA/village-source-workload.json').write_text(json.dumps(output,ensure_ascii=False,indent=2)+'\n')
           PYPROFILE
+      - name: Inspect original road geometry and attached scan debris without modifying any model
+        run: |
+          pip install numpy==2.2.6
+          python QA/analysis/profile_road_geometry.py
       - name: Preserve unchanged sources outside Git
         uses: actions/upload-artifact@v4
         with:
@@ -94,7 +98,7 @@ jobs:
           if-no-files-found: error
       - name: Save full inventory to session branch
         run: |
-          git add QA/village-source-workload.json QA/village-source-inventory.json QA/village-texture-inspection.json QA/VillageTexturePreviews
+          git add QA/RoadGeometry QA/village-source-workload.json QA/village-source-inventory.json QA/village-texture-inspection.json QA/VillageTexturePreviews
           if ! git diff --cached --quiet; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
