@@ -21,5 +21,17 @@
   "derivedTriangles": 99054,
   "boundaryVertexCount": 10428,
   "retainedAttributesExact": true,
-  "originalImageBinaryPrefixExact": true
+  "originalImageBinaryPrefixExact": true,
+  "rigidLeveling": true,
+  "sourcePlaneSlopeXZ": [
+    0.09170242797614656,
+    -0.004985215020909074
+  ],
+  "surfaceReference01": 0.6566469040829748,
+  "levelledSizeInOriginalMetres": [
+    2.113637880484833,
+    0.16026005756334344,
+    6.740351458116702
+  ],
+  "surfaceResidualP95Metres": 0.04787864023875466
 }
