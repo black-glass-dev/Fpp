@@ -389,9 +389,19 @@ namespace Fpp.Tests
                 yield return null;yield return null;
                 Assert.AreEqual(0,UnityEngine.Object.FindObjectsOfType<WorldVisualSource>().Length,"No full-source debug references in payload");
                 Assert.AreEqual(0,UnityEngine.Object.FindObjectsOfType<WorldLodMeshResidency>().Length,"No synchronous startup GPU mesh mutation");
-                Assert.True(Physics.Raycast(new Vector3(0,3,-36),Vector3.down,out var floor,5,~(1<<8),QueryTriggerInteraction.Ignore));
-                Assert.Less(Mathf.Abs(floor.point.y),1,"Spawn floor remains walkable");
-                var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();Assert.NotNull(weapons.view.GetComponent<Camera>());
+                var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();Assert.NotNull(weapons);
+                // A ray from above the spawn also intersects the player's 1.73m capsule.
+                // Exclude only that hierarchy; do not weaken the authored ground-height check.
+                bool foundFloor=false;RaycastHit floor=default(RaycastHit);float nearest=float.PositiveInfinity;
+                foreach(var hit in Physics.RaycastAll(new Vector3(0,3,-36),Vector3.down,5,~(1<<8),QueryTriggerInteraction.Ignore))
+                {
+                    if(hit.collider.transform.IsChildOf(weapons.transform))continue;
+                    if(hit.distance<nearest){nearest=hit.distance;floor=hit;foundFloor=true;}
+                }
+                Assert.True(foundFloor,"Spawn must have a non-player supporting collider");
+                Assert.Less(Mathf.Abs(floor.point.y),1,"Spawn floor remains walkable: "+floor.collider.name);
+                Assert.Greater(floor.normal.y,.7f,"Spawn support must be walkable, not a wall");
+                Assert.NotNull(weapons.view.GetComponent<Camera>());
                 GunplayVisualTests.Save(Output+"/android-payload-spawn.png",weapons);
                 File.WriteAllText(Output+"/android-payload-boot.txt","Actual serialized prepared Android scene loaded via real startup menu; source refs removed, spawn floor present, URP frame captured. This is editor player-loop validation, NOT physical Android startup, ASTC hardware, memory or crash acceptance.");
             }

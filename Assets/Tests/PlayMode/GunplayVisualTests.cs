@@ -70,7 +70,9 @@ namespace Fpp.Tests
             }
             finally{active=false;GunplayEvents.Raised-=listener;input.BeforePoll=null;}
         }
-        [UnityTest,Timeout(120000)] public IEnumerator CapturePoseAndReloadEvidence_NotFingerContactAcceptance()
+        // Full 1280x720 world+FPV captures run on CI's software GPU. This wall-clock
+        // allowance is not an Android frame-time budget; all poses/images remain required.
+        [UnityTest,Timeout(1800000)] public IEnumerator CapturePoseAndReloadEvidence_NotFingerContactAcceptance()
         {
             yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;

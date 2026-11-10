@@ -19,3 +19,20 @@ APK must be<500,000,000bytes (87 was631,625,961). Independent workflow verifier 
 All gameplay cases now load the ACTUAL prepared Android payload scene explicitly, rather than testing the full editor/source scene. The old source-reference LOD case is superseded by a prepared-mesh/actual-ASTC/position-only-collision case; startup-menu-to-prepared-world smoke test added (24 required cases total). Major-axis silhouette bounds must retain>=90% span and<=5% centre shift; this is a conservative structural check, NOT full mesh error/visual acceptance. UV-island seams and authored open boundaries remain protected. No source-scene fallback if preparation is missing.
 
 Native QA runs before the slow full gallery; public candidate publication is moved AFTER the named native gate. Complete gallery remains required for overall workflow release. No more phone-test public APK merely because a signature succeeded when native checks never executed.
+
+## Candidate 88 actual CI result (42770984114)
+
+- Signed APK budget receipt: 234,948,972 bytes (87: 631,625,961); not device acceptance.
+- Actual prepared-scene native tests: 22/24 passed. Public release correctly blocked.
+- Prepared visual mesh / ASTC / position-only collision case passed: 35 LOD groups,
+  32 reducing groups, 592,827 all-near group triangle instances (not visible GPU triangles).
+- Payload receipt: 100 textures, 248,898,800 raw compressed bytes; unchanged dimensions/mips,
+  lossy ASTC. Collision instances 2,914,598 -> 372,064 triangles.
+- Boot scene activated, but floor check hit height 1.73m consistent with player capsule.
+  Follow-up excludes only player hierarchy, retaining ground height and adding normal check.
+  This is a test correction, not evidence of a device-crash fix.
+- Full pose/reload capture exceeded its 120-second software-GPU test allowance
+  (reported duration 689s). Follow-up allows 30 minutes without dropping poses,
+  resolution, assertions or any required case. This is not a phone performance pass.
+- Physical SM-E236B launch, texture/road/shape review, rapid-turn acceptance and FPS
+  remain unverified. Candidate 88 must not be presented as gameplay accepted.
