@@ -21,7 +21,7 @@ namespace Fpp.Tests
         [UnityTest,Timeout(120000)] public IEnumerator AudioMixerRoutesVorbisClipsAndExportsActualStereoPCM()
         {
             var previous=AudioSettings.GetConfiguration();var configuration=previous;configuration.speakerMode=AudioSpeakerMode.Stereo;configuration.sampleRate=48000;configuration.numRealVoices=32;configuration.numVirtualVoices=32;Assert.True(AudioSettings.Reset(configuration));
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var audio=PresentationAudio.Active;Assert.NotNull(audio);Assert.NotNull(audio.Mixer);Assert.AreEqual(32,audio.VoiceCapacity);
             foreach(string bus in new[]{"Master","Weapons","Foley","Ambience","UI","MusicStub"})Assert.Greater(audio.Mixer.FindMatchingGroups(bus).Length,0,bus);
             foreach(var source in audio.GetComponentsInChildren<AudioSource>())if(source.clip!=null)

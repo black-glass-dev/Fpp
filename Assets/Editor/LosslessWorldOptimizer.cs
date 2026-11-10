@@ -16,7 +16,8 @@ namespace Fpp.Editor
         }
         public static void BakeVisibility()
         {
-            var area=new GameObject("Compact para conservative visibility bake").AddComponent<OcclusionArea>();
+            var existing=GameObject.Find("Compact para conservative visibility bake");
+            var area=existing!=null?existing.GetComponent<OcclusionArea>():new GameObject("Compact para conservative visibility bake").AddComponent<OcclusionArea>();
             area.center=new Vector3(0,10,0);area.size=new Vector3(120,40,120);
             StaticOcclusionCulling.smallestOccluder=2;StaticOcclusionCulling.smallestHole=.25f;StaticOcclusionCulling.backfaceThreshold=100;
             Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/build-progress.txt","VISIBILITY BAKE START\n");

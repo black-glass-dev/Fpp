@@ -36,7 +36,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator ActualADS30RoundWallPatternAt15m()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var cc=motor.GetComponent<CharacterController>();
             var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.name="QA flat floor";floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
@@ -72,7 +72,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator CapturePoseAndReloadEvidence_NotFingerContactAcceptance()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var choices=new WeaponPickup[4];int index=1;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())choices[index++]=p;
             foreach(var choice in choices)

@@ -32,6 +32,7 @@ namespace Fpp.Editor
         private static readonly Dictionary<string,Mesh> Cache=new Dictionary<string,Mesh>();
         private static Report report;
         private static readonly List<string> Rejected=new List<string>();
+        public static void ClearEditorCaches(){Cache.Clear();}
         public static long Triangles(Mesh mesh)
         {
             long n=0;for(int i=0;i<mesh.subMeshCount;i++)if(mesh.GetTopology(i)==MeshTopology.Triangles)n+=(long)mesh.GetIndexCount(i)/3;return n;
@@ -63,7 +64,7 @@ namespace Fpp.Editor
                     var original=filter.sharedMesh;long sourceTriangles=Triangles(original);row.sourceTriangles+=sourceTriangles;
                     bool tree=root.name.IndexOf("tree",StringComparison.OrdinalIgnoreCase)>=0||root.name.StartsWith("Mango",StringComparison.Ordinal);
                     bool road=root.name.StartsWith("Road",StringComparison.Ordinal)||root.name.StartsWith("Cleaned network",StringComparison.Ordinal);
-                    int budget=road?(int)sourceTriangles:tree?8000:30000; // Off-network reference patch keeps original near UV topology.
+                    int budget=road?(int)sourceTriangles:tree?4000:6000; // Off-network reference patch keeps original near UV topology.
                     Mesh near=sourceTriangles>=MinimumTriangles?Derivative(original,0,budget):original;
                     if(near!=original)
                     {
@@ -146,7 +147,7 @@ namespace Fpp.Editor
             for(int sub=0;sub<source.subMeshCount;sub++)if(source.GetTopology(sub)!=MeshTopology.Triangles)return source;
             string asset=AssetDatabase.GetAssetPath(source);string guid;long id;
             if(!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(source,out guid,out id))throw new Exception("Missing stable source identity: "+source.name);
-            string key=Hash128.Compute("lod-v4-edge-constrained-near-budget/"+guid+"/"+id+"/"+AssetDatabase.GetAssetDependencyHash(asset)+"/"+level+"/"+budget).ToString();
+            string key=Hash128.Compute("lod-v5-same-uv-folds-relaxed/"+guid+"/"+id+"/"+AssetDatabase.GetAssetDependencyHash(asset)+"/"+level+"/"+budget).ToString();
             Mesh result;if(Cache.TryGetValue(key,out result)){report.cacheHits++;return result;}
             string path=Folder+"/"+key+".asset";result=AssetDatabase.LoadAssetAtPath<Mesh>(path);
             if(result==null)
@@ -155,7 +156,7 @@ namespace Fpp.Editor
                 try
                 {
                     var simplifier=new MeshSimplifier();var options=SimplificationOptions.Default;
-                    options.PreserveBorderEdges=budget>1600;options.PreserveUVSeamEdges=budget>1600;options.PreserveUVFoldoverEdges=budget>1600;
+                    options.PreserveBorderEdges=budget>1600;options.PreserveUVSeamEdges=budget>1600;options.PreserveUVFoldoverEdges=false;
                     options.PreserveSurfaceCurvature=false;options.ConstrainToEdgeSegment=true;options.EnableSmartLink=true;options.MaxIterationCount=100;
                     simplifier.SimplificationOptions=options;simplifier.Initialize(readable);
                     float fraction=Mathf.Min(1f,budget/(float)Triangles(source))*(level==0?1:level==1?.45f:.15f);
@@ -199,6 +200,9 @@ namespace Fpp.Editor
             if(result.vertexCount==0||Triangles(result)==0||result.subMeshCount!=source.subMeshCount)throw new Exception("Invalid LOD/submesh layout: "+source.name);
             foreach(var attribute in new[]{VertexAttribute.Normal,VertexAttribute.Tangent,VertexAttribute.Color,VertexAttribute.TexCoord0,VertexAttribute.TexCoord1})
                 if(source.HasVertexAttribute(attribute)&&!result.HasVertexAttribute(attribute))throw new Exception("LOD lost original attribute "+attribute+": "+source.name);
+            for(int axis=0;axis<3;axis++)if(source.bounds.size[axis]>source.bounds.size.magnitude*.1f)
+                if(result.bounds.size[axis]<source.bounds.size[axis]*.9f||Mathf.Abs(result.bounds.center[axis]-source.bounds.center[axis])>source.bounds.size[axis]*.05f)
+                    throw new Exception("LOD changed major silhouette bounds: "+source.name);
             var bounds=source.bounds;bounds.Expand(Mathf.Max(.001f,source.bounds.size.magnitude*.002f));
             if(!bounds.Contains(result.bounds.min)||!bounds.Contains(result.bounds.max))throw new Exception("LOD escaped original bounds: "+source.name);
         }

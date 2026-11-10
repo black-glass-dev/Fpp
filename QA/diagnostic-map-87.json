@@ -5,5 +5,5 @@
   "bytes": 631625961,
   "githubReleaseAssetSha256": "0c4a3babf99db01aaf00a0a8146cfda1678189e6d6def24e4f0c46fbf1549990",
   "verification": "Unity ARM64 build, fresh APK/payload/signature verification and release upload PASS. Build executes original-scan GPU atlas bake with >=98% pre-feather coverage gate plus scene geometry budgets. Exact coverage/images not yet retrieved. Digest from release asset API, not independent local binary download.",
-  "status": "Candidate only: fixes intended for rejected85 visual artifacts. Full gallery/native gameplay still running, phone road/normal orientation/striping/FPS acceptance NOT established. AO retained using actual normals, temporary diagnostic modes do not persist. Original source images retained; derived16px atlas border explicitly blended; atlas memory tradeoff not a memory/FPS claim."
+  "status": "USER REJECTED: black screen before gameplay and crash/hang. No new performance trace or native Android crash log, cause unconfirmed. Reproduction only, not startup/playability accepted."
 }

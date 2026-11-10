@@ -135,6 +135,10 @@ jobs:
           p=pathlib.Path('build/Android/Fpp.apk')
           if not p.is_file():
               raise SystemExit('No APK produced. See Unity build diagnostics; build is not successful.')
+          import json
+          from Tools.verify_android_payload import verify_payload
+          payload=json.loads(pathlib.Path('QA/runtime/android-payload.json').read_text())
+          verify_payload(payload,p.stat().st_size,pathlib.Path('QA/runtime/android-apk-budget.txt').is_file())
           with zipfile.ZipFile(p) as apk:
               required={'AndroidManifest.xml','classes.dex','lib/arm64-v8a/libunity.so','lib/arm64-v8a/libil2cpp.so'}
               missing=required-set(apk.namelist())
@@ -155,58 +159,6 @@ jobs:
           name: diagnostic-APK-${{ github.run_number }}-NOT-QA-ACCEPTED
           path: build/Android/Fpp.apk
           if-no-files-found: error
-          retention-days: 14
-      - name: Publish verified phone-test APK, explicitly not gameplay acceptance
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          NUMBER: ${{ github.run_number }}
-        run: |
-          sha256sum build/Android/Fpp.apk > SHA256.txt
-          # Draft is prepared by the authorized maintainer; no permission bypass.
-          gh release view "diagnostic-map-$NUMBER" --json tagName
-          gh release upload "diagnostic-map-$NUMBER" build/Android/Fpp.apk SHA256.txt --clobber
-          gh release edit "diagnostic-map-$NUMBER" --draft=false
-      - name: Capture complete full-quality scene gallery after signed APK is preserved
-        continue-on-error: true
-        timeout-minutes: 180
-        uses: game-ci/unity-builder@v6.0.0
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
-        with:
-          allowDirtyBuild: true
-          cliVersion: v0.1.72
-          unityVersion: 2022.3.62f1
-          enableGpu: true
-          targetPlatform: Android
-          buildMethod: Fpp.Editor.AndroidBuild.CaptureReview
-          customParameters: -fppVersionCode ${{ github.run_number }}
-      - name: Independently require complete fresh full-quality18-model gallery
-        run: |
-          python - <<'PYGALLERY'
-          from pathlib import Path
-          import struct
-          progress=Path('QA/runtime/build-progress.txt').read_text()
-          names=['unity-lod-near','unity-lod-medium','unity-lod-far','unity-spawn','unity-environment','unity-ground-detail','unity-mosque','unity-mosque-entry','unity-mosque-interior','unity-village-pond']+['unity-village-'+str(i).zfill(2) for i in range(18)]
-          for name in names:
-              path=Path('Docs/Previews')/(name+'.png')
-              assert 'CAPTURE END '+str(path) in progress, 'Missing FRESH capture completion: '+name
-              with path.open('rb') as f:header=f.read(24)
-              assert header[:8]==b'\x89PNG\r\n\x1a\n' and struct.unpack('>II',header[16:24])==(1280,720), 'Invalid full-resolution PNG: '+name
-          print('Fresh full-resolution world/pond/all18 model capture completions verified; human visual acceptance remains separate.')
-          PYGALLERY
-      - name: Preserve build-time scene evidence before native QA
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-scene-evidence-${{ github.run_number }}
-          path: |
-            Docs/Previews/unity-*.png
-            QA/runtime/village-placement.json
-          if-no-files-found: warn
           retention-days: 14
       - name: Preserve successfully built Unity cache before native QA
         if: steps.unityCache.outputs.cache-hit != 'true'
@@ -274,6 +226,58 @@ jobs:
       - name: Reject missing, empty, failed or skipped gameplay test runs
         if: always()
         run: python Tools/require_gameplay_qa.py
+      - name: Publish verified phone-test APK, explicitly not gameplay acceptance
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.run_number }}
+        run: |
+          sha256sum build/Android/Fpp.apk > SHA256.txt
+          # Draft is prepared by the authorized maintainer; no permission bypass.
+          gh release view "diagnostic-map-$NUMBER" --json tagName
+          gh release upload "diagnostic-map-$NUMBER" build/Android/Fpp.apk SHA256.txt --clobber
+          gh release edit "diagnostic-map-$NUMBER" --draft=false
+      - name: Capture complete full-quality scene gallery after signed APK is preserved
+        continue-on-error: true
+        timeout-minutes: 180
+        uses: game-ci/unity-builder@v6.0.0
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          allowDirtyBuild: true
+          cliVersion: v0.1.72
+          unityVersion: 2022.3.62f1
+          enableGpu: true
+          targetPlatform: Android
+          buildMethod: Fpp.Editor.AndroidBuild.CaptureReview
+          customParameters: -fppVersionCode ${{ github.run_number }}
+      - name: Independently require complete fresh full-quality18-model gallery
+        run: |
+          python - <<'PYGALLERY'
+          from pathlib import Path
+          import struct
+          progress=Path('QA/runtime/build-progress.txt').read_text()
+          names=['unity-lod-near','unity-lod-medium','unity-lod-far','unity-spawn','unity-environment','unity-ground-detail','unity-mosque','unity-mosque-entry','unity-mosque-interior','unity-village-pond']+['unity-village-'+str(i).zfill(2) for i in range(18)]
+          for name in names:
+              path=Path('Docs/Previews')/(name+'.png')
+              assert 'CAPTURE END '+str(path) in progress, 'Missing FRESH capture completion: '+name
+              with path.open('rb') as f:header=f.read(24)
+              assert header[:8]==b'\x89PNG\r\n\x1a\n' and struct.unpack('>II',header[16:24])==(1280,720), 'Invalid full-resolution PNG: '+name
+          print('Fresh full-resolution world/pond/all18 model capture completions verified; human visual acceptance remains separate.')
+          PYGALLERY
+      - name: Preserve build-time scene evidence before native QA
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-scene-evidence-${{ github.run_number }}
+          path: |
+            Docs/Previews/unity-*.png
+            QA/runtime/village-placement.json
+          if-no-files-found: warn
+          retention-days: 14
       - name: Preserve Play Mode evidence
         if: always()
         uses: actions/upload-artifact@v4

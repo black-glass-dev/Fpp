@@ -57,6 +57,12 @@ namespace Fpp.Editor
                     }
                 }
             }
+            // Reuse projected geometry for the off-network reference patch too, not a198ktri near exception.
+            var reference=UnityEngine.Object.Instantiate(mesh);var referencePoints=reference.vertices;var referenceNormals=reference.normals;
+            for(int i=0;i<referencePoints.Length;i++){referencePoints[i]=filter.transform.InverseTransformPoint(referencePoints[i]);referenceNormals[i]=filter.transform.InverseTransformDirection(referenceNormals[i]).normalized;}
+            reference.vertices=referencePoints;reference.normals=referenceNormals;reference.RecalculateTangents();reference.RecalculateBounds();
+            const string referencePath="Assets/Generated/Village/RoadSurface/Reference.asset";AssetDatabase.DeleteAsset(referencePath);AssetDatabase.CreateAsset(reference,referencePath);
+            foreach(var originalFilter in filters){var marker=originalFilter.gameObject.AddComponent<Fpp.WorldVisualSource>();marker.originalMesh=originalFilter.sharedMesh;originalFilter.sharedMesh=reference;originalFilter.GetComponent<MeshRenderer>().sharedMaterial=surfaceMaterial;}
             UnityEngine.Object.DestroyImmediate(mesh);var district=GameObject.Find("Bangladesh compact para (120 x 120m)");long triangles=0;
             foreach(var pair in chunks)
             {

@@ -97,19 +97,32 @@ namespace Fpp.Editor
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
-            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
             EditorUserBuildSettings.buildAppBundle = false;
+            // Build an isolated payload copy; never serialize source/debug references into APK.
+            var world=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            AndroidWorldPayload.Prepare(world);
+            const string payloadWorld="Assets/Generated/AndroidPayload/CottageTest.unity";
+            EditorSceneManager.SaveScene(world,payloadWorld,true);
+            AssetDatabase.SaveAssets();AndroidWorldPayload.PruneUnusedResourceMaterials(payloadWorld);
+            var payloadScene=EditorSceneManager.OpenScene(payloadWorld,OpenSceneMode.Single);
+            WorldDetailLod.ClearEditorCaches();EditorUtility.UnloadUnusedAssetsImmediate();
+            LosslessWorldOptimizer.BakeVisibility();EditorSceneManager.SaveScene(payloadScene);
+            StartupSceneBuilder.Create(payloadWorld);
             var output = Environment.GetEnvironmentVariable("APK_OUTPUT") ?? "build/Android/Fpp.apk";
             Directory.CreateDirectory(Path.GetDirectoryName(output));
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = new[] { CottageMap.ScenePath },
+                scenes = new[] { StartupSceneBuilder.Path, "Assets/Generated/AndroidPayload/CottageTest.unity" },
                 locationPathName = output,
                 target = BuildTarget.Android,
-                options = BuildOptions.None
+                options = BuildOptions.CompressWithLz4HC
             });
             if (report.summary.result != BuildResult.Succeeded)
                 throw new Exception("Android build failed: " + report.summary.result);
+            var bytes=new FileInfo(output).Length;
+            File.WriteAllText("QA/runtime/android-apk-budget.txt","bytes="+bytes+"; maximum=500000000; source87=631625961; ASTC retains image dimensions/mips, is not lossless pixel compression; phone startup still requires validation.");
+            if(bytes>=500000000)throw new Exception("APK exceeds reduced-size gate: "+bytes+"; do not publish another larger APK");
         }
     }
 }

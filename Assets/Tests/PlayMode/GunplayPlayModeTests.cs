@@ -53,7 +53,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator SameFrameSemiFireAndActualADSTimingAllWeapons()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var hub=GameplayInput.Instance;var input=new ScriptedInputProvider();hub.OverrideProvider=input;
             yield return new WaitForSeconds(Weapon("mark23").drawSec);
             var pickups=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();var csv=new StringBuilder("weapon,targetSec,measuredSec,frameToleranceSec\n");
@@ -83,7 +83,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator ReloadCancellationConservationAndDroppedAmmo()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             WeaponPickup ak=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="ak47")ak=p;
             weapons.QAEquip(ak);weapons.QAAmmo(7,73);int total=weapons.Ammo+weapons.Reserve;
@@ -97,7 +97,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator MovementSlideDiveAndMantleOnRealController()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
             cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
@@ -126,7 +126,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(420000)] public IEnumerator FiveMinuteCombatSoak500Shots50Reloads()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var pickups=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();float start=Time.realtimeSinceStartup;int shots=0,reloads=0,swaps=0,cycleShots=0;float firstInCycle=0;
             var cadence=new StringBuilder("weapon,cycle,shot,timeSec,rpmCap\n");
@@ -161,7 +161,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator SprintOutDelayAndADSCancellationUseActualInputLoop()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
             var cc=motor.GetComponent<CharacterController>();cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
@@ -179,7 +179,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator PhysicalMountLocksMovementAndReducesActualShotImpulseRMS()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var motor=weapons.GetComponent<TestPlayer>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
             var cc=motor.GetComponent<CharacterController>();cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
@@ -205,7 +205,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator DefaultPistolDropsAsTexturedGunOnlyAndRestoresAuthoredSlot()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();GameplayInput.Instance.OverrideProvider=new ScriptedInputProvider();
             weapons.QAAmmo(5,65);WeaponPickup secondary=null;foreach(var p in UnityEngine.Object.FindObjectsOfType<WeaponPickup>())if(p.Asset.id=="ak47")secondary=p;
             weapons.QAEquip(secondary);weapons.QAEquip(null);weapons.DropActiveWeapon();yield return null;
@@ -221,7 +221,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator TouchIconsPressedStatesAndLayoutDragPreserveSafeBounds()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;Canvas.ForceUpdateCanvases();
+            yield return NativeScenes.Gameplay();yield return null;yield return null;Canvas.ForceUpdateCanvases();
             var hud=MobileHud.Instance;var controls=UnityEngine.Object.FindObjectsOfType<HudControl>(true);Assert.AreEqual(11,controls.Length);
             var data=new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current){pointerId=72};
             HudControl move=null;
@@ -247,7 +247,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator PresentationAudioLayersAreAudibleAndPoolIsBounded()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var audio=PresentationAudio.Active;Assert.NotNull(audio);Assert.AreEqual(32,audio.VoiceCapacity);
             int before=audio.ShotLayersPlayed;
             GunplayEvents.Emit(new GunplayEvent{Kind=GunplayEventKind.ShotFired,Position=audio.transform.position,Weapon=Weapon("mark23")});
@@ -291,7 +291,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator GraphicsAudioMenuChangesRealSettingsAndBlocksGameplay()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var hud=MobileHud.Instance;var audio=PresentationAudio.Active;var renderer=PresentationRenderer.Active;float master=audio.BusVolume(0);var tier=renderer.Tier;var day=renderer.Day;bool drs=renderer.DynamicResolution;bool haptics=UiHaptics.Enabled;bool floating=hud.FloatingJoystick;
             PressMenuButton("SETTINGS");yield return null;PressMenuButton("VISUAL/AUDIO");yield return null;
             var panel=GameObject.Find("Graphics and audio mix");Assert.NotNull(panel);Assert.True(hud.Modal);hud.Press("fire",true);Assert.False(hud.FireHeld);
@@ -314,7 +314,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator SuppliedVillageModelsPondAndExpandedRoutesExist()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var district=GameObject.Find("Bangladesh compact para (120 x 120m)");Assert.NotNull(district);
             Assert.NotNull(GameObject.Find("Village pond water (placeholder surface)"));
             Assert.IsNull(GameObject.Find("North boundary"),"old enclosure must not block the expansion");
@@ -338,52 +338,64 @@ namespace Fpp.Tests
             GunplayVisualTests.Save(Output+"/village-spawn.png",weapons);
             File.WriteAllText(Output+"/village-scene-check.txt","All13 named house/shop models exist, expanded district and pond exist, old north enclosure removed and triangle collisions present. All18-file placement receipt generated at build. Interior walkability/visual quality/device performance not certified by presence checks.");
         }
-        [UnityTest,Timeout(120000)] public IEnumerator WorldGeometryLodsPreserveNearDetailAndOriginalCollisions()
+        [UnityTest,Timeout(120000)] public IEnumerator WorldGeometryLodsUsePreparedMeshesAndCompressedTextures()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
-            int checkedGroups=0;long near=0,medium=0,far=0;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
+            int groups=0,reduced=0,textures=0;long near=0;
             foreach(var group in UnityEngine.Object.FindObjectsOfType<LODGroup>())
             {
-                var levels=group.GetLODs();bool generated=false;
-                foreach(var renderer in group.GetComponentsInChildren<MeshRenderer>())if(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal))generated=true;
-                if(!generated)continue;
-                checkedGroups++;Assert.AreEqual(3,levels.Length);Assert.AreEqual(.24f,levels[0].screenRelativeTransitionHeight,.0001f);Assert.AreEqual(.09f,levels[1].screenRelativeTransitionHeight,.0001f);
-                Assert.AreEqual(0f,levels[2].screenRelativeTransitionHeight,"No distance-based disappearance of visible world geometry");
-                long[] triangles=new long[3];
+                var levels=group.GetLODs();groups++;Assert.AreEqual(3,levels.Length);
+                Assert.AreEqual(.24f,levels[0].screenRelativeTransitionHeight,.0001f);Assert.AreEqual(.09f,levels[1].screenRelativeTransitionHeight,.0001f);Assert.AreEqual(0,levels[2].screenRelativeTransitionHeight);
+                var triangles=new long[3];
                 for(int level=0;level<3;level++)foreach(var renderer in levels[level].renderers)
                 {
-                    Assert.NotNull(renderer);Assert.AreNotEqual(8,renderer.gameObject.layer,"No first-person hands/weapons in world LOD");
+                    Assert.NotNull(renderer);Assert.AreNotEqual(8,renderer.gameObject.layer);
                     var mesh=renderer.GetComponent<MeshFilter>().sharedMesh;Assert.NotNull(mesh);
+                    Assert.True(UnityEditor.AssetDatabase.GetAssetPath(mesh).StartsWith("Assets/Generated/AndroidPayload/",StringComparison.Ordinal));
+                    Assert.False(mesh.isReadable,"No unused visual CPU vertex copy in Android payload");
                     for(int sub=0;sub<mesh.subMeshCount;sub++)triangles[level]+=(long)mesh.GetIndexCount(sub)/3;
-                    if(level==0)
+                    foreach(var material in renderer.sharedMaterials)foreach(var property in material.GetTexturePropertyNames())
                     {
-                        Assert.False(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal));
-                        var collider=renderer.GetComponent<MeshCollider>();if(collider!=null){var identity=renderer.GetComponent<WorldVisualSource>();Assert.AreSame(identity!=null?identity.originalMesh:mesh,collider.sharedMesh,"Collision retains original source even when visible near mesh is reduced");}
-                    }
-                    else if(renderer.name.StartsWith("Generated distance",StringComparison.Ordinal))
-                    {
-                        Assert.IsNull(renderer.GetComponent<Collider>(),"Visual LOD must not replace original collision");
-                        var original=renderer.transform.parent.GetComponent<MeshRenderer>();Assert.NotNull(original);
-                        CollectionAssert.AreEqual(original.sharedMaterials,renderer.sharedMaterials,"LOD must keep source material/texture references");
+                        var image=material.GetTexture(property) as Texture2D;if(image==null||image.width<128||image.height<128)continue;
+                        Assert.True(image.format==TextureFormat.ASTC_4x4||image.format==TextureFormat.ASTC_6x6,"World texture must actually be GPU-native ASTC: "+image.name);
+                        Assert.False(image.isReadable);textures++;
                     }
                 }
-                Assert.Less(triangles[1],triangles[0]);Assert.LessOrEqual(triangles[2],triangles[1]);
-                near+=triangles[0];medium+=triangles[1];far+=triangles[2];group.ForceLOD(-1);
+                Assert.LessOrEqual(triangles[1],triangles[0]);Assert.LessOrEqual(triangles[2],triangles[1]);if(triangles[2]<triangles[0])reduced++;near+=triangles[0];
             }
-            foreach(var identity in UnityEngine.Object.FindObjectsOfType<WorldVisualSource>())
+            Assert.GreaterOrEqual(groups,3);Assert.GreaterOrEqual(reduced,3);Assert.LessOrEqual(near,900000);Assert.Greater(textures,0);
+            Assert.AreEqual(0,UnityEngine.Object.FindObjectsOfType<WorldVisualSource>().Length);
+            var district=GameObject.Find("Bangladesh compact para (120 x 120m)");
+            foreach(var collider in district.GetComponentsInChildren<MeshCollider>())if(collider.sharedMesh!=null)
             {
-                Assert.NotNull(identity.originalMesh);var collider=identity.GetComponent<MeshCollider>();
-                if(collider!=null)Assert.AreSame(identity.originalMesh,collider.sharedMesh);
-                var visual=identity.GetComponent<MeshFilter>().sharedMesh;
-                Assert.AreNotSame(identity.originalMesh,visual,"Source asset must be separate from budget derivative");
+                Assert.True(UnityEditor.AssetDatabase.GetAssetPath(collider.sharedMesh).StartsWith("Assets/Generated/AndroidPayload/",StringComparison.Ordinal));
+                Assert.False(collider.sharedMesh.HasVertexAttribute(UnityEngine.Rendering.VertexAttribute.TexCoord0),"Collision payload must not retain visual UV data");
             }
-            var district=GameObject.Find("Bangladesh compact para (120 x 120m)");int networkChunks=0;long networkTriangles=0;
-            foreach(Transform child in district.transform)if(child.name.StartsWith("Cleaned network",StringComparison.Ordinal))
-            {networkChunks++;var mesh=child.GetComponent<MeshFilter>().sharedMesh;for(int sub=0;sub<mesh.subMeshCount;sub++)networkTriangles+=(long)mesh.GetIndexCount(sub)/3;Assert.IsNull(child.GetComponent<MeshCollider>(),"No per-tile heavy scan collision");}
-            Assert.Greater(networkChunks,10);Assert.LessOrEqual(networkTriangles,600000);
-            Assert.GreaterOrEqual(checkedGroups,3,"Heavy supplied environment needs real generated LODs");
-            Assert.True(GameObject.Find("Main Camera").GetComponent<Camera>().useOcclusionCulling);
-            File.WriteAllText(Output+"/world-lod-native.txt","Actual Unity loaded LOD groups="+checkedGroups+"; near/medium/far TRIANGLE INSTANCES IF ALL GROUPS USE THAT LEVEL="+near+"/"+medium+"/"+far+". These are NOT camera draw counts/FPS or visual popping acceptance. Original source/collision references retained; visible near budget geometry and original material identities checked.\n");
+            File.WriteAllText(Output+"/world-lod-native.txt","Actual PREPARED Android scene: LOD groups="+groups+"; reducing groups="+reduced+"; all-near group triangle instances="+near+"; ASTC texture references="+textures+". No original-source debug refs; collision position-only. This is editor player-loop validation, not phone startup/FPS or visual shape acceptance.");
+        }
+        [UnityTest,Timeout(180000)] public IEnumerator AndroidPayloadBootMenuLoadsPreparedWorldWithoutSourceReferences()
+        {
+            Assert.True(File.Exists(NativeScenes.Payload));
+            var previous=UnityEditor.EditorBuildSettings.scenes;
+            UnityEditor.EditorBuildSettings.scenes=new[]{new UnityEditor.EditorBuildSettingsScene("Assets/Scenes/Startup.unity",true),new UnityEditor.EditorBuildSettingsScene(NativeScenes.Payload,true)};
+            StartupGate gate=null;
+            try
+            {
+                yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Scenes/Startup.unity",new LoadSceneParameters(LoadSceneMode.Single));yield return null;
+                gate=UnityEngine.Object.FindObjectOfType<StartupGate>();Assert.NotNull(gate);Assert.NotNull(gate.menu);Assert.True(gate.menu.enabled);
+                Assert.IsNull(UnityEngine.Object.FindObjectOfType<WeaponController>(),"World is not loaded before START GAME");
+                gate.Begin();var timer=System.Diagnostics.Stopwatch.StartNew();
+                while(UnityEngine.Object.FindObjectOfType<WeaponController>()==null){Assert.Less(timer.Elapsed.TotalSeconds,150,"Prepared world did not activate");yield return null;}
+                yield return null;yield return null;
+                Assert.AreEqual(0,UnityEngine.Object.FindObjectsOfType<WorldVisualSource>().Length,"No full-source debug references in payload");
+                Assert.AreEqual(0,UnityEngine.Object.FindObjectsOfType<WorldLodMeshResidency>().Length,"No synchronous startup GPU mesh mutation");
+                Assert.True(Physics.Raycast(new Vector3(0,3,-36),Vector3.down,out var floor,5,~(1<<8),QueryTriggerInteraction.Ignore));
+                Assert.Less(Mathf.Abs(floor.point.y),1,"Spawn floor remains walkable");
+                var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();Assert.NotNull(weapons.view.GetComponent<Camera>());
+                GunplayVisualTests.Save(Output+"/android-payload-spawn.png",weapons);
+                File.WriteAllText(Output+"/android-payload-boot.txt","Actual serialized prepared Android scene loaded via real startup menu; source refs removed, spawn floor present, URP frame captured. This is editor player-loop validation, NOT physical Android startup, ASTC hardware, memory or crash acceptance.");
+            }
+            finally{UnityEditor.EditorBuildSettings.scenes=previous;if(gate!=null)UnityEngine.Object.Destroy(gate.gameObject);}
         }
         private static IEnumerator RapidTurnElevationEvidence(WeaponController weapons)
         {
@@ -422,7 +434,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator UrpStackTierFallbacksAndMaterialShadersRenderWithoutErrors()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var presentation=PresentationRenderer.Active;Assert.NotNull(presentation);
             var world=weapons.view.GetComponent<Camera>();var overlay=weapons.weaponCamera;
             var worldData=UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(world);
@@ -467,7 +479,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator CollectedWeaponsCycleAwayFromPickupsWithoutLosingAmmo()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var weapons=UnityEngine.Object.FindObjectOfType<WeaponController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             weapons.QAAmmo(5,65);var items=UnityEngine.Object.FindObjectsOfType<WeaponPickup>();
             Assert.AreEqual(1,weapons.InventoryCount);
@@ -493,7 +505,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator CeilingImpactCancelsUpwardVelocityWithoutHeadSticking()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(10,1,10);
             var roof=GameObject.CreatePrimitive(PrimitiveType.Cube);roof.transform.position=new Vector3(1000,2.2f,1000);roof.transform.localScale=new Vector3(5,.4f,5);
@@ -506,7 +518,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator MovementDoesNotRunAgainstWallsOrAutoMantleWithoutJump()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;
+            yield return NativeScenes.Gameplay();yield return null;
             var motor=UnityEngine.Object.FindObjectOfType<TestPlayer>();var cc=motor.GetComponent<CharacterController>();var input=new ScriptedInputProvider();GameplayInput.Instance.OverrideProvider=input;
             var floor=GameObject.CreatePrimitive(PrimitiveType.Cube);floor.transform.position=new Vector3(1000,-.5f,1000);floor.transform.localScale=new Vector3(100,1,100);
             cc.enabled=false;motor.transform.SetPositionAndRotation(new Vector3(1000,.05f,1000),Quaternion.identity);cc.enabled=true;
@@ -521,7 +533,7 @@ namespace Fpp.Tests
         }
         [UnityTest,Timeout(120000)] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {
-            yield return SceneManager.LoadSceneAsync("CottageTest");yield return null;yield return null;
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
             var target=UnityEngine.Object.FindObjectOfType<TestTarget>();target.ResetTarget();int markers=0;string kind=null;
             Action<GunplayEvent> listener=e=>{if(e.Kind==GunplayEventKind.Hitmarker){markers++;kind=e.Context;}};GunplayEvents.Raised+=listener;
             try
