@@ -55,6 +55,19 @@ namespace Fpp.Editor
         // Recreate the SAME full-quality deterministic scene; do not lower preview settings.
         public static void CaptureReview()
         {
+            // Stale lines must never satisfy the fresh-capture requirement.
+            Directory.CreateDirectory("QA/runtime");
+            const string status="QA/runtime/gallery-status.txt";
+            if(File.Exists(status))File.Delete(status);
+            try{CaptureReviewChecked();}
+            catch(Exception error)
+            {
+                File.AppendAllText(status,"FATAL "+error.GetType().Name+": "+(error.Message??string.Empty).Replace("\r"," ").Replace("\n"," ")+"\n");
+                throw;
+            }
+        }
+        private static void CaptureReviewChecked()
+        {
             TextureRepair.Ensure2D();CottageMap.Create();EnvironmentAudit.Validate();
             var target=RenderTexture.GetTemporary(16,9,24);var old=RenderTexture.active;
             try

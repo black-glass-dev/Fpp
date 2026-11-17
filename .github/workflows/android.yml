@@ -240,7 +240,9 @@ jobs:
           gh release edit "diagnostic-map-$NUMBER" --draft=false
       - name: Capture complete full-quality scene gallery after signed APK is preserved
         continue-on-error: true
-        timeout-minutes: 180
+        # Software-GPU rendering of the original full-detail scene is slow; the previous
+        # 180-minute allowance ran out with four of the 28 required captures unfinished.
+        timeout-minutes: 270
         uses: game-ci/unity-builder@v6.0.0
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -255,18 +257,46 @@ jobs:
           targetPlatform: Android
           buildMethod: Fpp.Editor.AndroidBuild.CaptureReview
           customParameters: -fppVersionCode ${{ github.run_number }}
+      - name: Preserve actual gallery capture status even when the run stops early
+        if: always()
+        run: |
+          python - <<'PYSTATUS'
+          from pathlib import Path
+          p=Path('QA/runtime/gallery-status.txt')
+          lines=p.read_text().splitlines() if p.is_file() else ['MISSING gallery-status.txt: Unity recorded no capture at all.']
+          tail='\n'.join(lines[-40:]).replace('%','%25').replace('\r','%0D').replace('\n','%0A')
+          print('::notice::Gallery capture status (last 40 lines):%0A'+tail)
+          PYSTATUS
+          if [ -f QA/runtime/gallery-status.txt ]; then
+            git add QA/runtime/gallery-status.txt
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            if ! git diff --cached --quiet; then
+              git commit -m 'Preserve actual gallery capture status'
+              git restore --worktree --staged Assets Packages ProjectSettings
+              git -c rebase.autoStash=true pull --rebase origin arena/f3a68c52-fpp
+              git push origin HEAD:arena/f3a68c52-fpp
+            fi
+          fi
       - name: Independently require complete fresh full-quality18-model gallery
         run: |
           python - <<'PYGALLERY'
           from pathlib import Path
           import struct
-          progress=Path('QA/runtime/build-progress.txt').read_text()
+          status=Path('QA/runtime/gallery-status.txt')
+          text=status.read_text() if status.is_file() else ''
           names=['unity-lod-near','unity-lod-medium','unity-lod-far','unity-spawn','unity-environment','unity-ground-detail','unity-mosque','unity-mosque-entry','unity-mosque-interior','unity-village-pond']+['unity-village-'+str(i).zfill(2) for i in range(18)]
+          missing=[];invalid=[]
           for name in names:
               path=Path('Docs/Previews')/(name+'.png')
-              assert 'CAPTURE END '+str(path) in progress, 'Missing FRESH capture completion: '+name
+              if 'OK '+str(path) not in text:
+                  missing.append(name);continue
               with path.open('rb') as f:header=f.read(24)
-              assert header[:8]==b'\x89PNG\r\n\x1a\n' and struct.unpack('>II',header[16:24])==(1280,720), 'Invalid full-resolution PNG: '+name
+              if header[:8]!=b'\x89PNG\r\n\x1a\n' or struct.unpack('>II',header[16:24])!=(1280,720):
+                  invalid.append(name)
+          failures=[l for l in text.splitlines() if l.startswith('FAIL ') or l.startswith('FATAL ')]
+          if missing or invalid or failures:
+              raise SystemExit('Incomplete fresh full-resolution gallery. missing=%s invalid=%s failures=%s'%(missing,invalid,failures[:5]))
           print('Fresh full-resolution world/pond/all18 model capture completions verified; human visual acceptance remains separate.')
           PYGALLERY
       - name: Preserve build-time scene evidence before native QA

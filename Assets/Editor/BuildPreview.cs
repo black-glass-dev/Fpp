@@ -112,16 +112,50 @@ namespace Fpp.Editor
         }
         [Serializable] private class ReviewEntry { public string placement; }
         [Serializable] private class ReviewReceipt { public ReviewEntry[] files; }
+        // Every capture is recorded line by line so an incomplete gallery can be diagnosed
+        // instead of silently losing minutes of software-GPU rendering.
+        private static void Record(string line)
+        {
+            Directory.CreateDirectory("QA/runtime");
+            File.AppendAllText("QA/runtime/gallery-status.txt",line+"\n");
+        }
+        private static string OneLine(Exception error)
+        {
+            return error.GetType().Name+": "+(error.Message??string.Empty).Replace("\r"," ").Replace("\n"," ");
+        }
         private static void Save(Camera world,Camera overlay,string path)
         {
             Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/build-progress.txt","CAPTURE START "+path+"\n");
-            var rt=RenderTexture.GetTemporary(1280,720,24,RenderTextureFormat.ARGB32);
-            RenderEvidence.Into(world,overlay,rt,GameObject.Find("Mobile HUD").GetComponent<Canvas>());
-            var old=RenderTexture.active;RenderTexture.active=rt;
-            var texture=new Texture2D(1280,720,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1280,720),0,0);texture.Apply();
-            File.WriteAllBytes(path,texture.EncodeToPNG());UnityEngine.Object.DestroyImmediate(texture);
-            world.targetTexture=null;RenderTexture.active=old;RenderTexture.ReleaseTemporary(rt);
-            File.AppendAllText("QA/runtime/build-progress.txt","CAPTURE END "+path+"\n");
+            var watch=System.Diagnostics.Stopwatch.StartNew();
+            var old=RenderTexture.active;RenderTexture rt=null;Texture2D texture=null;
+            try
+            {
+                rt=RenderTexture.GetTemporary(1280,720,24,RenderTextureFormat.ARGB32);
+                RenderEvidence.Into(world,overlay,rt,GameObject.Find("Mobile HUD").GetComponent<Canvas>());
+                RenderTexture.active=rt;
+                texture=new Texture2D(1280,720,TextureFormat.RGB24,false);texture.ReadPixels(new Rect(0,0,1280,720),0,0);texture.Apply();
+                var bytes=texture.EncodeToPNG();
+                if(bytes==null||bytes.Length==0)throw new Exception("Empty PNG encode");
+                // A partially written file must never be mistaken for a finished full-resolution capture.
+                var temporary=path+".part";File.WriteAllBytes(temporary,bytes);
+                if(File.Exists(path))File.Delete(path);
+                File.Move(temporary,path);
+                File.AppendAllText("QA/runtime/build-progress.txt","CAPTURE END "+path+"\n");
+                Record("OK "+path+" seconds="+watch.Elapsed.TotalSeconds.ToString("0.0"));
+            }
+            catch(Exception error)
+            {
+                // Keep capturing the remaining images so one failure does not hide the rest.
+                Record("FAIL "+path+" seconds="+watch.Elapsed.TotalSeconds.ToString("0.0")+" error="+OneLine(error));
+                Debug.LogError("Full-quality preview capture failed for "+path+": "+error);
+            }
+            finally
+            {
+                if(texture!=null)UnityEngine.Object.DestroyImmediate(texture);
+                RenderTexture.active=old;
+                if(rt!=null)RenderTexture.ReleaseTemporary(rt);
+                if(world!=null)world.targetTexture=null;
+            }
         }
     }
 }
