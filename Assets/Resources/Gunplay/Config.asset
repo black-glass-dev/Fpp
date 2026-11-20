@@ -107,6 +107,8 @@ MonoBehaviour:
   resolutionStep: .05
   resolutionHysteresis: 1.12
   dynamicResolution: 0
+  mobileMsaaSampleCount: 2
+  mobileMaxRenderScale: 1
   landingPitch: 1.2
   flinchDegrees: .8
   gunProbeHalf: .04

@@ -1,32 +1,43 @@
-# Candidate 89 — phone test build (NOT accepted gameplay)
+# Candidate 89 (installed) → what was fixed after your report
 
-Published for your device test: https://github.com/black-glass-dev/Fpp/releases/tag/diagnostic-map-89
-- File: Fpp.apk, size 234,965,172 bytes (87 was 631,625,961; about 62.8% smaller)
-- Source: fa3c3d40bed15f9903e75e9fd1d754dcfa28604a, CI run 42778238592
-- Signing verified by apksigner in CI; SHA256.txt is attached to the same release.
+## What your report changed
 
-## What actually passed (CI, not your phone)
-- Unity Play Mode suite on the prepared Android scene: 24/24 cases, 0 failures
-  (includes the two cases that failed in 88: spawn floor probe and full pose/reload capture).
-- APK budget gate: 234,965,172 bytes, below the 500,000,000 byte limit.
-- Independent APK verification: ARM64 manifest/classes/libunity/libil2cpp present, ZIP integrity, apksigner.
-- Payload checks: ASTC block compression with unchanged image dimensions and mip counts,
-  position-only collision meshes, 35 LOD groups / 32 reducing groups, no source/debug scene references.
+1. **Crash found and fixed in code.**
+   `ArgumentNullException: Value cannot be null. Parameter name: shader` at `Fpp.GunplayFeedback.Awake()`
+   was `new Material(Shader.Find("Standard"))` returning a null shader in the player.
+   `Shader.Find("Sprites/Default")` in the same method had the same flaw. Both now go through
+   `RuntimeShader`, which falls back to a URP shader that is always present and never throws.
+   A new build gate (`RequiredShaderGate`) puts every runtime-by-name shader into
+   Always Included Shaders and **fails the build** if one is still missing, so this class of
+   crash cannot be shipped again. A Play Mode test (`FeedbackEffectShadersResolveInPreparedPayload`)
+   rebuilds the pools inside the prepared payload.
+   Your report's `build=6e1e7e54…` is not any build in this repository, so I cannot prove that
+   build was produced from this branch — but the code path is identical and is now fixed.
+2. **Fog + shorter draw distance (your request).**
+   The game was drawing to **700 m** in a 120 m village. Now: linear fog 40 m → fully opaque at
+   130 m, camera far clip **145 m**, LOD medium at 55 m and far at 95 m, and a distance-band
+   component that stops drawing world renderers past the fog point and puts them back when you
+   walk closer. First-person, LOD-group members and anything with collision are never hidden.
+   A Play Mode test asserts fog, far clip and LOD bands agree, so this cannot silently regress.
+3. **"Some houses changed / pictures missing" — now measured, not guessed.**
+   Some supplied GLBs genuinely contain materials with **no base-colour image**
+   (`materialsWithoutBaseColorImage`): `Bd house 3, 4, 5, 8, 9, oo` (and several props/`Iron`).
+   Those render as flat paint — that is the white/blank look in your screenshots, not a broken
+   import. A new build-time `ModelTextureAudit` records, per house and per material, exactly which
+   image is bound, and counts materials that are untextured *and* plain white, so the next build
+   tells us precisely which house needs work instead of me guessing.
+   I have not invented replacement textures for supplied art.
+4. **Fill-rate cost on the phone.**
+   Mobile builds now default to 2× MSAA instead of 4× (4× remains selectable in Settings → QUALITY).
+   This is the cheapest correct saving for an Adreno 619-class GPU at native resolution.
+5. **Texture residency measured, not assumed.**
+   The build now writes `QA/runtime/texture-budget.txt` with the actual bytes bound by world
+   materials, binned by texture size, so the next step is chosen from data. No texture was
+   resized or downgraded in this round.
 
-## What is still unknown and needs your phone
-- Real startup on SM-E236B / Galaxy F23 (Adreno 619, Vulkan, Android 14). 87 crashed before
-  gameplay; that cause was never confirmed from device logs, so 89 is a candidate, not a fix proof.
-- Whether the black screen / crash is gone.
-- Measured FPS during actual play (83 measured 3.5 FPS; no newer device measurement exists).
-- Road appearance, texture quality after ASTC, model silhouettes at distance, seams.
-- Rapid turns, elevated camera, hand/viewmodel overlap.
-
-## Known limitation of this run
-- The full-quality 28-image review gallery ran out of its 180 minute allowance; LOD medium/far and
-  pond captures were not finished. Fixed by raising the allowance and recording per-image status.
-- CI therefore reported failure overall. That failure is review evidence, not the APK you install.
-
-## Please report back
-1. Does it install and reach the menu, then gameplay?
-2. If it stops: black screen, freeze, or crash to home? Immediately or after START?
-3. FPS feel and whether the road/houses/textures look right.
+## Honest status
+- Nothing here is phone acceptance. Startup, FPS and the visual result still need your device.
+- The 89 APK remains the only downloadable build. A new build is running now; I will only hand it
+  to you once its native Play Mode suite is green.
+- The road still looked near-black in the gallery (mean RGB ≈ 40,42,30 against grass 50,62,30).
+  That is a real defect and is queued as the next visual fix; it is not fixed in this commit.

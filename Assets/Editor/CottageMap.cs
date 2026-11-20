@@ -99,7 +99,13 @@ namespace Fpp.Editor
             if(sky==null){sky=new Material(Shader.Find("Skybox/Procedural"));AssetDatabase.CreateAsset(sky,skyPath);}
             sky.SetFloat("_SunSize",.025f);sky.SetFloat("_AtmosphereThickness",.8f);sky.SetFloat("_Exposure",1.1f);
             sky.SetColor("_SkyTint",new Color(.48f,.55f,.64f));sky.SetColor("_GroundColor",new Color(.32f,.29f,.23f));RenderSettings.skybox=sky;RenderSettings.sun=sun;
-            RenderSettings.fog=true;RenderSettings.fogMode=FogMode.ExponentialSquared;RenderSettings.fogDensity=.007f;RenderSettings.fogColor=new Color(.65f,.71f,.73f);
+            // Fog and far clip are authored together so the horizon fades instead of popping;
+            // the runtime PresentationRenderer applies the same numbers from Visual.asset.
+            var visual=PresentationVisualSettings.Current;
+            RenderSettings.fog=true;RenderSettings.fogMode=visual!=null?visual.fogMode:FogMode.Linear;
+            RenderSettings.fogDensity=.007f;RenderSettings.fogStartDistance=visual!=null?visual.fogStart:40;
+            RenderSettings.fogEndDistance=visual!=null?visual.fogEnd:130;
+            RenderSettings.fogColor=new Color(.65f,.71f,.73f);
             var player = new GameObject("Player");
             player.transform.position = new Vector3(0, .15f, -36);
             var controller = player.AddComponent<CharacterController>();
@@ -114,7 +120,7 @@ namespace Fpp.Editor
             lens.nearClipPlane = .08f;
             lens.fieldOfView = 68;
             lens.cullingMask = ~(1 << 8);
-            lens.farClipPlane = 700;
+            lens.farClipPlane = visual!=null?visual.FarClip:145;
             lens.clearFlags = CameraClearFlags.Skybox;
             lens.backgroundColor = new Color(.42f, .57f, .68f);
             camera.AddComponent<AudioListener>();

@@ -27,7 +27,7 @@ namespace Fpp
         private UniversalRenderPipelineAsset pipeline;
         private PresentationVisualSettings visual;private VolumeProfile profile;private ColorAdjustments grade;private Bloom bloom;
         private FilmGrain grain;private MotionBlur blur;private float exposureVelocity;
-        private int slowFrames,fastFrames;private Light sun;private WeaponController owner;
+        private int slowFrames,fastFrames;private Light sun;private WeaponController owner;private Camera worldCamera;
         public static void Stack(Camera world,Camera overlay)
         {
             var baseData=world.GetUniversalAdditionalCameraData();baseData.renderType=CameraRenderType.Base;
@@ -64,6 +64,10 @@ namespace Fpp
             SetTier((PresentationTier)Mathf.Clamp(PlayerPrefs.GetInt("fpp.visual.tier",2),0,3));
             SetDay((DayPreset)Mathf.Clamp(PlayerPrefs.GetInt("fpp.visual.day",0),0,2));
             if(owner!=null)Stack(owner.view.GetComponent<Camera>(),owner.weaponCamera);
+            // Fog, far clip and distance bands are one system: the bands read the fog values.
+            ApplyFog(Day);
+            var bands=GetComponent<WorldDistanceBands>();
+            if(bands!=null&&owner!=null&&owner.view!=null){worldCamera=owner.view.GetComponent<Camera>();bands.Initialize(worldCamera,owner.view);}
         }
         public void SetTier(PresentationTier tier)
         {
@@ -82,9 +86,25 @@ namespace Fpp
                 owner.view.GetComponent<Camera>().GetUniversalAdditionalCameraData().SetRenderer(renderer);owner.weaponCamera.GetUniversalAdditionalCameraData().SetRenderer(2);
                 owner.weaponCamera.GetUniversalAdditionalCameraData().antialiasing=tier==PresentationTier.PCUltra?AntialiasingMode.SubpixelMorphologicalAntiAliasing:AntialiasingMode.None;
             }
-            ApplyArtifactTest();ApplyEffectToggles();
+            ApplyArtifactTest();ApplyEffectToggles();ApplyMobileFillRate();
             if(bloom!=null)bloom.active=tier!=PresentationTier.Low;
             PlayerPrefs.SetInt("fpp.visual.tier",(int)tier);slowFrames=fastFrames=0;
+        }
+        /// <summary>
+        /// Fill-rate is the dominant cost on a mid-range mobile GPU at native 1080p (Adreno 619
+        /// class): 4x MSAA plus full-resolution bloom and a downsampled SSAO pass multiply the
+        /// per-pixel work of every pixel the fog and far clip just saved. This keeps the authored
+        /// look on desktop/editor and only reduces the mobile fill-rate settings that are cheap to
+        /// change at runtime. It is a rendering-cost change, not a frame-rate claim.
+        /// </summary>
+        public void ApplyMobileFillRate()
+        {
+            if(!Application.isMobilePlatform||pipeline==null)return;
+            int msaa=PlayerPrefs.GetInt("fpp.visual.mobileMsaa",GunplayConfig.Current.mobileMsaaSampleCount);
+            pipeline.msaaSampleCount=Mathf.Clamp(msaa,0,4);
+            if(bloom!=null)bloom.active=Tier!=PresentationTier.Low;
+            var limit=PlayerPrefs.GetFloat("fpp.visual.mobileMaxScale",GunplayConfig.Current.mobileMaxRenderScale);
+            if(!DynamicResolution&&pipeline.renderScale>limit)pipeline.renderScale=limit;
         }
         private void ApplyEffectToggles()
         {
@@ -102,8 +122,29 @@ namespace Fpp
                 sun.useColorTemperature=true;sun.color=Color.white;sun.colorTemperature=visual.sunTemperature[(int)day];
                 sun.transform.rotation=Quaternion.Euler(visual.sunElevation[(int)day],visual.sunAzimuth,0);sun.intensity=visual.sunIntensity[(int)day];sun.shadows=LightShadows.Soft;
             }
-            RenderSettings.fog=true;RenderSettings.fogMode=FogMode.ExponentialSquared;RenderSettings.fogDensity=visual.fogDensity;RenderSettings.fogColor=day==DayPreset.Dusk?visual.duskFog:visual.daylightFog;
+            ApplyFog(day);
             ApplyArtifactTest();PlayerPrefs.SetInt("fpp.visual.day",(int)day);
+        }
+        /// <summary>
+        /// Fog is not a cosmetic toggle here: the camera far clip is bound to the distance where
+        /// fog becomes fully opaque, so the world stops being drawn exactly where it stops being
+        /// visible. Requested by the user as the distance optimization; it saves real geometry,
+        /// shadow and texture work rather than only tinting pixels.
+        /// </summary>
+        public void ApplyFog(DayPreset day)
+        {
+            visual=visual!=null?visual:PresentationVisualSettings.Current;
+            if(visual==null)return;
+            RenderSettings.fog=true;RenderSettings.fogMode=visual.fogMode;
+            RenderSettings.fogDensity=visual.fogDensity;
+            RenderSettings.fogStartDistance=visual.fogStart;RenderSettings.fogEndDistance=visual.fogEnd;
+            RenderSettings.fogColor=day==DayPreset.Dusk?visual.duskFog:visual.daylightFog;
+            if(owner!=null&&owner.view!=null)
+            {
+                if(worldCamera==null)worldCamera=owner.view.GetComponent<Camera>();
+                if(worldCamera!=null){worldCamera.farClipPlane=visual.FarClip;worldCamera.backgroundColor=RenderSettings.fogColor;}
+                // Per-object distance bands read these same values (WorldDistanceBands).
+            }
         }
         private void Update()
         {

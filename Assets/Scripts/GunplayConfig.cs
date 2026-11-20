@@ -39,6 +39,10 @@ namespace Fpp
         public int targetFPS=60, baseWidth=1920, baseHeight=1080, resolutionSampleFrames=60;
         public float minResolutionScale=.6f, maxResolutionScale=1, resolutionStep=.05f, resolutionHysteresis=1.12f;
         public bool dynamicResolution=false;
+        // Mobile fill-rate cost: MSAA samples and the maximum render scale used on a phone.
+        // 2x is the authored mobile default; 4x stays available through the settings menu.
+        public int mobileMsaaSampleCount=2;
+        public float mobileMaxRenderScale=1f;
         public static GunplayConfig Current { get { if(current==null)current=Resources.Load<GunplayConfig>("Gunplay/Config"); if(current==null)throw new System.InvalidOperationException("Missing Resources/Gunplay/Config");return current; } }
         private static GunplayConfig current;
     }

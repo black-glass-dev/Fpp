@@ -40,7 +40,7 @@ namespace Fpp
                 for(int i=0;i<transforms.Length;i++){layers[i]=transforms[i].gameObject.layer;transforms[i].gameObject.layer=uiLayer;}
                 canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=.08f;Canvas.ForceUpdateCanvases();
                 RenderPipeline.SubmitRenderRequest(camera,new UniversalRenderPipeline.SingleCameraRequest{destination=ui});
-                var shader=Shader.Find("Hidden/FPP/Actual Canvas Composite");if(shader==null)throw new System.InvalidOperationException("Actual Canvas composite shader missing");
+                var shader=RuntimeShader.Find("Hidden/FPP/Actual Canvas Composite");if(shader==null)throw new System.InvalidOperationException("Actual Canvas composite shader missing");
                 blend=new Material(shader){hideFlags=HideFlags.HideAndDontSave};
                 GL.sRGBWrite=QualitySettings.activeColorSpace==ColorSpace.Linear;Graphics.Blit(ui,destination,blend);
             }

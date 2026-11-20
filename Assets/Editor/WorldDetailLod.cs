@@ -12,6 +12,14 @@ namespace Fpp.Editor
     public static class WorldDetailLod
     {
         public const float NearScreenHeight=.24f, MediumScreenHeight=.09f;
+        // Screen-relative LOD heights are only meaningful against a known far clip. With the old
+        // 700 m clip a .09 height meant ~63 m; with the fog-bound far clip it would drift. The
+        // bands below are the distance-design contract and the Play Mode gate asserts them.
+        public static float BandDistance(PresentationVisualSettings visual,int level)
+        {
+            if(visual==null)return level==1?55:95;
+            return level==1?visual.mediumBand:visual.farBand;
+        }
         private const int MinimumTriangles=2000;
         private const string Folder="Assets/Generated/Village/DistanceMeshes";
         [Serializable] private class Catalog { public Entry[] models; }
@@ -31,6 +39,8 @@ namespace Fpp.Editor
         }
         private static readonly Dictionary<string,Mesh> Cache=new Dictionary<string,Mesh>();
         private static Report report;
+        private struct Band{public string model;public float height,near,medium;}
+        private static readonly List<Band> Bands=new List<Band>();
         private static readonly List<string> Rejected=new List<string>();
         public static void ClearEditorCaches(){Cache.Clear();}
         public static long Triangles(Mesh mesh)
@@ -39,7 +49,7 @@ namespace Fpp.Editor
         }
         public static void Build()
         {
-            SmokeTest();Cache.Clear();Rejected.Clear();report=new Report();var rows=new List<Row>();Directory.CreateDirectory(Folder);AssetDatabase.Refresh();
+            SmokeTest();Cache.Clear();Rejected.Clear();Bands.Clear();report=new Report();var rows=new List<Row>();Directory.CreateDirectory(Folder);AssetDatabase.Refresh();
             CleanRoadNetwork.Build();
             var names=new HashSet<string>();
             foreach(var entry in JsonUtility.FromJson<Catalog>(File.ReadAllText("Assets/Generated/Village/catalog.json")).models)names.Add(entry.name);
@@ -51,9 +61,15 @@ namespace Fpp.Editor
                     foreach(Transform child in sceneRoot.transform)if(names.Contains(child.name))roots.Add(child.gameObject);
             }
             Directory.CreateDirectory("QA/runtime");File.AppendAllText("QA/runtime/build-progress.txt","DISTANCE LOD BUILD START\n");
+            var visual=PresentationVisualSettings.Current;
+            float fov=GunplayConfig.Current.worldFOV;
+            float mediumDistance=BandDistance(visual,1),farDistance=BandDistance(visual,2);
             foreach(var root in roots)
             {
                 foreach(var old in root.GetComponentsInChildren<LODGroup>())if(!old.enabled)UnityEngine.Object.DestroyImmediate(old);
+                var rootBounds=default(Bounds);bool haveBounds=false;
+                foreach(var renderer in root.GetComponentsInChildren<Renderer>()){if(!renderer.enabled)continue;if(!haveBounds){rootBounds=renderer.bounds;haveBounds=true;}else rootBounds.Encapsulate(renderer.bounds);}
+                if(!haveBounds)continue;
                 var levels=new[]{new List<Renderer>(),new List<Renderer>(),new List<Renderer>()};bool changed=false;
                 var row=new Row{model=root.name};bool fade=true;
                 // Snapshot before creating derivative renderers; never recurse over our new children.
@@ -103,7 +119,14 @@ namespace Fpp.Editor
                 if(!changed)continue;
                 var group=root.AddComponent<LODGroup>();
                 group.fadeMode=fade?LODFadeMode.CrossFade:LODFadeMode.None;group.animateCrossFading=fade;
-                var lods=new[]{new LOD(NearScreenHeight,levels[0].ToArray()),new LOD(MediumScreenHeight,levels[1].ToArray()),new LOD(0f,levels[2].ToArray())};
+                // Bands are authored in metres against the fog far clip, then converted to the
+                // screen-relative heights Unity's LODGroup actually evaluates.
+                float height=Mathf.Max(.05f,rootBounds.size.y);
+                float nearHeight=ScreenHeight(height,mediumDistance,fov),mediumHeight=ScreenHeight(height,farDistance,fov);
+                // A tiny object far away would otherwise round to 0 and skip its far level.
+                if(mediumHeight>=nearHeight){nearHeight=Mathf.Min(.99f,Mathf.Max(nearHeight,mediumHeight+.01f));}
+                var lods=new[]{new LOD(nearHeight,levels[0].ToArray()),new LOD(mediumHeight,levels[1].ToArray()),new LOD(0f,levels[2].ToArray())};
+                Bands.Add(new Band{model=root.name,height=height,near=nearHeight,medium=mediumHeight});
                 for(int i=0;i<lods.Length;i++)lods[i].fadeTransitionWidth=.12f;
                 group.SetLODs(lods);group.RecalculateBounds();group.ForceLOD(-1);
                 foreach(var level in levels)foreach(var renderer in level)
@@ -114,6 +137,10 @@ namespace Fpp.Editor
             var main=GameObject.Find("Main Camera");if(main!=null)main.GetComponent<Camera>().useOcclusionCulling=true;
             long nearTotal=0,sourceTotal=0;foreach(var row in rows){nearTotal+=row.nearTriangles;sourceTotal+=row.sourceTriangles;}
             report.models=rows.ToArray();report.rejectedDerivatives=Rejected.ToArray();File.WriteAllText("QA/runtime/world-lod-audit.json",JsonUtility.ToJson(report,true));
+            var bands=new System.Text.StringBuilder();
+            bands.Append("Authored distance design, not measured phone FPS. Fog mode="+(visual!=null?visual.fogMode.ToString():"Linear")+" start="+(visual!=null?visual.fogStart:40)+"m fully opaque at="+(visual!=null?visual.fogEnd:130)+"m; camera far clip="+(visual!=null?visual.FarClip:145)+"m; geometry past the far clip is not drawn at all; world FOV="+fov+" (used to convert metre bands to screen height). Medium band="+mediumDistance+"m, far band="+farDistance+"m."+Environment.NewLine);
+            foreach(var band in Bands)bands.Append(band.model+": height="+band.height.ToString("0.00")+"m nearScreenHeight="+band.near.ToString("0.0000")+" mediumScreenHeight="+band.medium.ToString("0.0000")+Environment.NewLine);
+            File.WriteAllText("QA/runtime/distance-bands.txt",bands.ToString());
             if(nearTotal>900000||nearTotal>=sourceTotal*.4)throw new Exception("Near geometry budget NOT achieved: "+nearTotal+" vs source "+sourceTotal+"; do not ship a nominal LOD-only optimization");
 
             File.AppendAllText("QA/runtime/build-progress.txt","DISTANCE LOD BUILD END groups="+report.groups+" meshes="+report.generatedMeshes+"\n");
@@ -139,6 +166,16 @@ namespace Fpp.Editor
                 if(source.isReadable)throw new Exception("LOD generator unexpectedly enabled source CPU readability");
             }
             finally {if(copy!=null)UnityEngine.Object.DestroyImmediate(copy);if(reduced!=null)UnityEngine.Object.DestroyImmediate(reduced);UnityEngine.Object.DestroyImmediate(source);}
+        }
+        /// <summary>
+        /// Unity's LODGroup switches on the object's screen-height fraction, so a metre band is a
+        /// projection: fraction = objectHeight / (2 * tan(fov/2) * distance). Dividing metres by
+        /// the far clip (an easy mistake) would silently put every house in the far level.
+        /// </summary>
+        public static float ScreenHeight(float objectHeight,float distance,float fovDegrees)
+        {
+            float halfTan=Mathf.Tan(fovDegrees*Mathf.Deg2Rad*.5f);
+            return Mathf.Clamp(objectHeight/Mathf.Max(.001f,2f*halfTan*Mathf.Max(1f,distance)),0f,1f);
         }
         public static Mesh Derivative(Mesh source,int level,int budget)
         {

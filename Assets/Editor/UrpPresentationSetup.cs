@@ -25,7 +25,8 @@ namespace Fpp.Editor
             }
             var high=AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(Root+"/High.asset");GraphicsSettings.defaultRenderPipeline=high;QualitySettings.renderPipeline=high;
             var sun=RenderSettings.sun;if(sun!=null){sun.useColorTemperature=true;sun.colorTemperature=Visual.sunTemperature.x;sun.color=Color.white;sun.intensity=Visual.sunIntensity.x;sun.transform.rotation=Quaternion.Euler(Visual.sunElevation.x,Visual.sunAzimuth,0);sun.shadows=LightShadows.Soft;}
-            RenderSettings.fog=true;RenderSettings.fogMode=FogMode.ExponentialSquared;RenderSettings.fogDensity=Visual.fogDensity;RenderSettings.fogColor=Visual.daylightFog;
+            RenderSettings.fog=true;RenderSettings.fogMode=Visual.fogMode;RenderSettings.fogDensity=Visual.fogDensity;
+            RenderSettings.fogStartDistance=Visual.fogStart;RenderSettings.fogEndDistance=Visual.fogEnd;RenderSettings.fogColor=Visual.daylightFog;
             ConvertMaterials();PresentationRenderer.Stack(owner.view.GetComponent<Camera>(),owner.weaponCamera);
             // Editor review uses a deterministic fixed profile; runtime creates a private adaptive clone.
             var volume=new GameObject("Authored presentation volume").AddComponent<Volume>();volume.isGlobal=true;

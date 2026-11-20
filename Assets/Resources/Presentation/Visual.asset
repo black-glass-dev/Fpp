@@ -47,5 +47,11 @@ MonoBehaviour:
   sunIntensity: {x: 1.1, y: 1.1, z: 0.65}
   sunAzimuth: -36
   fogDensity: 0.008
+  fogMode: 1
+  fogStart: 40
+  fogEnd: 130
+  farClipMargin: 15
+  mediumBand: 55
+  farBand: 95
   daylightFog: {r: 0.65, g: 0.69, b: 0.7, a: 1}
   duskFog: {r: 0.37, g: 0.4, b: 0.48, a: 1}

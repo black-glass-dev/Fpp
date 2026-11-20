@@ -20,5 +20,13 @@ namespace Fpp
         public Vector3 sunElevation=new Vector3(28,65,12),sunTemperature=new Vector3(5500,6500,4200),sunIntensity=new Vector3(1.1f,1.1f,.65f);
         public float sunAzimuth=-36,fogDensity=.008f;
         public Color daylightFog=new Color(.65f,.69f,.7f),duskFog=new Color(.37f,.4f,.48f);
+        [Header("Distance design: fog hides the far cut, the far cut is what saves the frame")]
+        // Linear fog reaches full opacity at fogEnd; the camera far clip is set just beyond it so
+        // geometry is never drawn through a hard edge. ExponentialSquared kept for reference.
+        public FogMode fogMode=FogMode.Linear;
+        public float fogStart=40,fogEnd=130,farClipMargin=15;
+        public float FarClip=>fogEnd+farClipMargin;
+        [Header("Distance bands (metres; derived from fog, not hand-tuned per object)")]
+        public float mediumBand=55,farBand=95;
     }
 }

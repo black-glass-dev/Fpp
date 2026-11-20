@@ -12,6 +12,7 @@ namespace Fpp
             if(GetComponent<UiHaptics>()==null)gameObject.AddComponent<UiHaptics>();
             if(GetComponent<PresentationRenderer>()==null)gameObject.AddComponent<PresentationRenderer>();
             if(GetComponent<FrameTimeEvidence>()==null)gameObject.AddComponent<FrameTimeEvidence>();
+            if(GetComponent<WorldDistanceBands>()==null)gameObject.AddComponent<WorldDistanceBands>();
             var c=GunplayConfig.Current;Application.targetFrameRate=c.targetFPS;
             QualitySettings.vSyncCount=0;
             if(UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline==null)

@@ -267,7 +267,8 @@ jobs:
           tail='\n'.join(lines[-40:]).replace('%','%25').replace('\r','%0D').replace('\n','%0A')
           print('::notice::Gallery capture status (last 40 lines):%0A'+tail)
           PYSTATUS
-          if [ -f QA/runtime/gallery-status.txt ]; then
+          # Only when Unity actually ran the gallery; a failed build must not create a commit.
+          if [ -f QA/runtime/gallery-status.txt ] && [ -f Docs/Previews/unity-spawn.png ]; then
             git add QA/runtime/gallery-status.txt
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -299,6 +300,30 @@ jobs:
               raise SystemExit('Incomplete fresh full-resolution gallery. missing=%s invalid=%s failures=%s'%(missing,invalid,failures[:5]))
           print('Fresh full-resolution world/pond/all18 model capture completions verified; human visual acceptance remains separate.')
           PYGALLERY
+      - name: Require the distance design, texture audit and shader fix to be real
+        run: |
+          python - <<'PYPERF'
+          from pathlib import Path
+          import json, re
+          # 1. Fog and the far clip must be one authored system, not a cosmetic toggle.
+          bands = Path('QA/runtime/distance-bands.txt').read_text()
+          far = float(re.search(r'camera far clip=([0-9.]+)m', bands).group(1))
+          fog = float(re.search(r'fully opaque at=([0-9.]+)m', bands).group(1))
+          assert far > fog, 'camera far clip must sit beyond full fog, got far=%s fog=%s' % (far, fog)
+          assert far <= 200, 'far clip must actually be reduced for the phone, got %sm' % far
+          assert len(bands.splitlines()) > 1, 'distance bands must be reported per model'
+          # 2. Every runtime-by-name shader must be present, or Material(null) throws on the phone.
+          shaders = Path('QA/runtime/required-shaders.txt').read_text()
+          assert 'missing=none' in shaders, 'a required runtime shader is missing: ' + shaders
+          # 3. Missing supplied textures must be reported, never silently repainted.
+          audit = json.loads(Path('QA/runtime/model-texture-audit.json').read_text())
+          assert audit['materials'] > 0, 'no world materials were audited'
+          assert 'plainWhiteUnattributed' in Path('QA/runtime/model-texture-audit.txt').read_text()
+          # 4. A residency report must exist so the next step is chosen from bytes, not guesses.
+          budget = Path('QA/runtime/texture-budget.txt').read_text()
+          assert 'Actual texture bytes' in budget
+          print('Distance design far=%sm fog=%sm; required shaders present; %s materials audited (%s without image); texture budget recorded.' % (far, fog, audit['materials'], audit['withoutImage']))
+          PYPERF
       - name: Preserve build-time scene evidence before native QA
         uses: actions/upload-artifact@v4
         with:
@@ -306,6 +331,11 @@ jobs:
           path: |
             Docs/Previews/unity-*.png
             QA/runtime/village-placement.json
+            QA/runtime/distance-bands.txt
+            QA/runtime/required-shaders.txt
+            QA/runtime/model-texture-audit.json
+            QA/runtime/model-texture-audit.txt
+            QA/runtime/texture-budget.txt
           if-no-files-found: warn
           retention-days: 14
       - name: Preserve Play Mode evidence

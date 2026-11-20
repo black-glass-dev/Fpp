@@ -80,6 +80,9 @@ namespace Fpp.Editor
         }
         private static void BuildChecked()
         {
+            // Fail fast if a runtime Shader.Find target is stripped; the phone crash in the
+            // candidate-89 report was Material(null) from exactly this class of miss.
+            RequiredShaderGate.AddToAlwaysIncluded();
             TextureRepair.Ensure2D();
             CottageMap.Create();
             EnvironmentAudit.Validate();
@@ -121,6 +124,8 @@ namespace Fpp.Editor
             var payloadScene=EditorSceneManager.OpenScene(payloadWorld,OpenSceneMode.Single);
             WorldDetailLod.ClearEditorCaches();EditorUtility.UnloadUnusedAssetsImmediate();
             LosslessWorldOptimizer.BakeVisibility();EditorSceneManager.SaveScene(payloadScene);
+            ModelTextureAudit.Validate();
+            TextureBudgetReport(payloadScene);
             StartupSceneBuilder.Create(payloadWorld);
             var output = Environment.GetEnvironmentVariable("APK_OUTPUT") ?? "build/Android/Fpp.apk";
             Directory.CreateDirectory(Path.GetDirectoryName(output));
@@ -136,6 +141,34 @@ namespace Fpp.Editor
             var bytes=new FileInfo(output).Length;
             File.WriteAllText("QA/runtime/android-apk-budget.txt","bytes="+bytes+"; maximum=500000000; source87=631625961; ASTC retains image dimensions/mips, is not lossless pixel compression; phone startup still requires validation.");
             if(bytes>=500000000)throw new Exception("APK exceeds reduced-size gate: "+bytes+"; do not publish another larger APK");
+        }
+        /// <summary>
+        /// Reports where the remaining GPU bytes are, per texture size bucket, so the next
+        /// optimization step is chosen from data instead of a guess. It never resizes a texture
+        /// by itself: a resolution or residency change needs its own reviewed decision.
+        /// </summary>
+        private static void TextureBudgetReport(UnityEngine.SceneManagement.Scene scene)
+        {
+            var seen=new HashSet<Texture2D>();long total=0;var buckets=new SortedDictionary<int,long>();
+            foreach(var root in scene.GetRootGameObjects())foreach(var renderer in root.GetComponentsInChildren<Renderer>(true))
+            foreach(var material in renderer.sharedMaterials)
+            {
+                if(material==null)continue;
+                foreach(var property in material.GetTexturePropertyNames())
+                {
+                    var texture=material.GetTexture(property) as Texture2D;
+                    if(texture==null||!seen.Add(texture))continue;
+                    long size=texture.GetRawTextureData<byte>().Length;total+=size;
+                    int bucket=Mathf.NextPowerOfTwo(Mathf.Max(texture.width,texture.height));
+                    if(!buckets.ContainsKey(bucket))buckets[bucket]=0;buckets[bucket]+=size;
+                }
+            }
+            var text=new System.Text.StringBuilder();
+            text.Append("Actual texture bytes bound by world materials in the prepared Android scene=").Append(total)
+                .Append(" across ").Append(seen.Count).Append(" unique textures. Binned by longest dimension: ");
+            foreach(var pair in buckets)text.Append(pair.Key).Append("px=").Append(pair.Value).Append("B; ");
+            text.Append("This is a residency report, not a phone PSS measurement and not a compression claim.");
+            File.WriteAllText("QA/runtime/texture-budget.txt",text.ToString());
         }
     }
 }

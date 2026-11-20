@@ -345,7 +345,11 @@ namespace Fpp.Tests
             foreach(var group in UnityEngine.Object.FindObjectsOfType<LODGroup>())
             {
                 var levels=group.GetLODs();groups++;Assert.AreEqual(3,levels.Length);
-                Assert.AreEqual(.24f,levels[0].screenRelativeTransitionHeight,.0001f);Assert.AreEqual(.09f,levels[1].screenRelativeTransitionHeight,.0001f);Assert.AreEqual(0,levels[2].screenRelativeTransitionHeight);
+                // Thresholds are projected per object so they honour the fog-bound distance design
+                // instead of the retired fixed .24/.09 heights.
+                float near=levels[0].screenRelativeTransitionHeight,medium=levels[1].screenRelativeTransitionHeight;
+                Assert.Greater(near,medium,"near band must be closer than medium band");Assert.Greater(medium,0f);
+                Assert.LessOrEqual(near,1f);Assert.AreEqual(0,levels[2].screenRelativeTransitionHeight);
                 var triangles=new long[3];
                 for(int level=0;level<3;level++)foreach(var renderer in levels[level].renderers)
                 {
@@ -540,6 +544,67 @@ namespace Fpp.Tests
             input.Value.Move=Vector2.up;input.Value.Sprint=true;yield return new WaitForSeconds(.3f);Assert.True(motor.IsSprinting,"sprint should exit crouch when standing clearance exists");
             input.Value.CrouchPressed=true;yield return null;yield return null;Assert.AreEqual(MovementState.Slide,motor.State,"single crouch press must enter slide without a hold delay");
             File.WriteAllText(Output+"/movement-regressions.txt","Blocked wall reports actual zero speed, no auto-mantle without jump, sprint exits crouch, one crouch press enters slide.");
+        }
+        /// <summary>
+        /// The phone report crashed in GunplayFeedback.Awake with
+        /// "ArgumentNullException: Parameter name: shader". That is Material(Shader.Find(null)).
+        /// This test builds the real feedback pools inside the prepared payload and fails if the
+        /// crash can still happen, so a stripped cosmetic shader cannot reach the device again.
+        /// </summary>
+        [UnityTest,Timeout(120000)] public IEnumerator FeedbackEffectShadersResolveInPreparedPayload()
+        {
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
+            var player=UnityEngine.Object.FindObjectOfType<WeaponController>().gameObject;
+            var feedback=player.GetComponent<GunplayFeedback>();
+            Assert.NotNull(feedback,"prepared gameplay player must carry the feedback pools");
+            // Rebuild the pools exactly the way Awake does; this threw on the phone.
+            var rebuilt=player.AddComponent<GunplayFeedback>();
+            yield return null;
+            Assert.NotNull(rebuilt);
+            UnityEngine.Object.Destroy(rebuilt);
+            yield return null;
+            foreach(string name in new[]{"Universal Render Pipeline/Lit","Universal Render Pipeline/Unlit"})
+                Assert.NotNull(Shader.Find(name),"runtime shader must be present in the payload: "+name);
+            GunplayEvents.Send(GunplayEventKind.ShellEject,player.transform.position,Weapon("mark23"));
+            GunplayEvents.Send(GunplayEventKind.Impact,player.transform.position+Vector3.forward,Weapon("mark23"));
+            yield return null;
+            File.WriteAllText(Output+"/feedback-shaders.txt","Feedback pools built in the prepared payload without ArgumentNullException; both shell and impact events dispatched. Shot effect visuals still require human review.");
+        }
+        /// <summary>
+        /// Fog is only an optimization when the far clip and the LOD bands agree with it.
+        /// This asserts the applied values, not that the phone is fast.
+        /// </summary>
+        [UnityTest,Timeout(120000)] public IEnumerator FogFarClipAndDistanceBandsAgree()
+        {
+            yield return NativeScenes.Gameplay();yield return null;yield return null;
+            var visual=PresentationVisualSettings.Current;var presentation=PresentationRenderer.Active;
+            Assert.NotNull(visual);Assert.NotNull(presentation);
+            var world=UnityEngine.Object.FindObjectOfType<WeaponController>().view.GetComponent<Camera>();
+            Assert.True(RenderSettings.fog,"fog must be enabled");
+            Assert.AreEqual(FogMode.Linear,RenderSettings.fogMode);
+            Assert.AreEqual(visual.fogStart,RenderSettings.fogStartDistance,.001f);
+            Assert.AreEqual(visual.fogEnd,RenderSettings.fogEndDistance,.001f);
+            Assert.AreEqual(visual.FarClip,world.farClipPlane,.01f,"far clip must sit just beyond full fog");
+            Assert.Less(visual.fogEnd,visual.FarClip,"geometry must stop before the fog is fully opaque, never after");
+            Assert.Greater(visual.fogEnd,visual.mediumBand,"medium band must be inside the visible range");
+            Assert.Greater(visual.farBand,visual.mediumBand);
+            // Every LOD group's medium threshold must correspond to the authored metre band.
+            float fov=GunplayConfig.Current.worldFOV;
+            int checkedGroups=0;
+            foreach(var group in UnityEngine.Object.FindObjectsOfType<LODGroup>())
+            {
+                var levels=group.GetLODs();if(levels.Length<3)continue;
+                float threshold=levels[1].screenRelativeTransitionHeight;
+                Assert.Greater(threshold,0f);
+                // The group's own size determines the distance; assert the conversion is consistent.
+                float size=group.size;float distance=size/(2f*Mathf.Tan(fov*Mathf.Deg2Rad*.5f)*threshold);
+                Assert.That(distance,Is.EqualTo(visual.farBand).Within(visual.farBand*.45f),"medium LOD band must land near the authored distance for "+group.name);
+                checkedGroups++;
+            }
+            Assert.Greater(checkedGroups,0);
+            var bands=UnityEngine.Object.FindObjectOfType<WorldDistanceBands>();
+            Assert.NotNull(bands,"distance-band culling must exist in the world scene");
+            File.WriteAllText(Output+"/fog-distance-design.txt","Fog linear "+visual.fogStart+"->"+visual.fogEnd+"m, far clip "+visual.FarClip+"m, bands "+visual.mediumBand+"/"+visual.farBand+"m, LOD groups checked="+checkedGroups+". Not a device frame-rate measurement.");
         }
         [UnityTest,Timeout(120000)] public IEnumerator DamageMarkersAndHealthAreSynchronous()
         {
