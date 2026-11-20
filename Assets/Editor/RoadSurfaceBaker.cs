@@ -73,6 +73,21 @@ namespace Fpp.Editor
                 for(int x=0;x<width;x++)for(int y=0;y<16;y++)BlendEdges(colors,y*width+x,(height-1-y)*width+x,1-y/16f,mode);
                 pixels.SetPixels32(colors);pixels.Apply();
                 File.WriteAllBytes(path,pixels.EncodeToPNG());
+                if(mode==0)
+                {
+                    // The phone shows a near-black road. Report the projected source albedo's own
+                    // statistics so the next step is chosen from data: if the source scan is
+                    // genuinely dark this is an art/source problem, not a lighting or bake bug.
+                    var data=pixels.GetPixels32();double r=0,g=0,b=0;int n=0;
+                    foreach(var c in data){if(c.a<128)continue;r+=c.r;g+=c.g;b+=c.b;n++;}
+                    if(n==0)throw new Exception("Road albedo atlas has no covered texels");
+                    Directory.CreateDirectory("QA/runtime");
+                    File.WriteAllText("QA/runtime/road-albedo-stats.txt",
+                        "Projected ORIGINAL road scan albedo: coveredTexels="+n+" meanR="+(r/n).ToString("0.0")+
+                        " meanG="+(g/n).ToString("0.0")+" meanB="+(b/n).ToString("0.0")+
+                        " (0-255, sRGB storage). A dark mean here means the supplied scan itself is dark; "+
+                        "a bright mean with a dark road on screen means shading, not source art. Diagnostics only, not visual acceptance.");
+                }
             }
             finally{GL.sRGBWrite=srgb;RenderTexture.active=old;RenderTexture.ReleaseTemporary(rt);if(pixels!=null)UnityEngine.Object.DestroyImmediate(pixels);}
         }
