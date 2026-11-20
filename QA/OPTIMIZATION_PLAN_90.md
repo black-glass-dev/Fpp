@@ -126,3 +126,29 @@ Fog + a shorter far clip is therefore the single largest correct lever, exactly 
 is a visible defect you reported) → 5 (road) → 3 (residency) → 6 (device measurement), with the
 CI Play Mode suite and gallery re-run at each step and no release published until the crash fix
 is confirmed by a green native run.
+
+## Progress after the first implementation commit (a4ab3ec)
+
+Done in code, awaiting native CI + your phone:
+- Step 0: `RuntimeShader` replaces both unguarded `Shader.Find` calls in `GunplayFeedback`;
+  `RequiredShaderGate` forces every runtime-by-name shader into Always Included Shaders and fails
+  the build if one is missing; new Play Mode test `FeedbackEffectShadersResolveInPreparedPayload`.
+- Step 1: linear fog 40 m → fully opaque 130 m, camera far clip 145 m (was 700 m), authored in
+  `PresentationVisualSettings` and mirrored in the build scene and the URP authoring step.
+- Step 2: LOD bands authored in metres (55 m / 95 m) and converted to screen-relative height per
+  object using the real FOV projection — the naive metres÷far-clip version was wrong and was
+  replaced before shipping. `WorldDistanceBands` stops drawing world renderers past the fog point
+  and restores them on approach, while never hiding FPV, LOD-group or collider-bearing geometry.
+  New Play Mode test `FogFarClipAndDistanceBandsAgree`.
+- Step 1b (fill-rate): mobile MSAA defaults to 2× (4× still selectable), because 4× MSAA at
+  native 1080p on an Adreno 619-class GPU is a large per-pixel cost.
+- Step 4 (partly): `ModelTextureAudit` records, per house and per material, which image is bound
+  and counts untextured plain-white materials. Six supplied houses genuinely have no base-colour
+  image in their GLB; the audit names them instead of inventing art.
+- Step 3 (measurement only): `texture-budget.txt` records actual bytes bound by world materials.
+- Step 5 (diagnostics only): the road bake now reports the projected source albedo statistics.
+  I could not download the source pack from this sandbox (Google Drive TLS is blocked here), so
+  the road fix is deliberately **not** guessed.
+
+Still open: the road appearance fix, texture residency changes, and every device acceptance item
+(startup, FPS, visual). CI run 91 is the first build that carries these changes.
