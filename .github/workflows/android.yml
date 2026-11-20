@@ -131,13 +131,21 @@ jobs:
           BUILDER_OUTCOME: ${{ steps.unity.outcome }}
         run: |
           python - <<'PYAPK'
-          import pathlib, zipfile
+          import pathlib, zipfile, traceback
           p=pathlib.Path('build/Android/Fpp.apk')
           if not p.is_file():
               raise SystemExit('No APK produced. See Unity build diagnostics; build is not successful.')
           import json
           from Tools.verify_android_payload import verify_payload
-          payload=json.loads(pathlib.Path('QA/runtime/android-payload.json').read_text())
+          # A missing audit must say WHICH audit is missing; a bare traceback could not be read
+          # from the phone-artifact host, so the reason is printed as a notice as well.
+          audit=pathlib.Path('QA/runtime/android-payload.json')
+          if not audit.is_file():
+              present=sorted(str(x) for x in pathlib.Path('QA/runtime').glob('*'))[:40]
+              msg='APK exists (%d bytes) but the payload audit was never written, so the Unity editor method exited before completing. Files present: %s' % (p.stat().st_size, ', '.join(present))
+              print('::error::'+msg)
+              raise SystemExit(msg)
+          payload=json.loads(audit.read_text())
           verify_payload(payload,p.stat().st_size,pathlib.Path('QA/runtime/android-apk-budget.txt').is_file())
           with zipfile.ZipFile(p) as apk:
               required={'AndroidManifest.xml','classes.dex','lib/arm64-v8a/libunity.so','lib/arm64-v8a/libil2cpp.so'}

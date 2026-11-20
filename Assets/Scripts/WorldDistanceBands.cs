@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Fpp
 {
@@ -113,9 +114,9 @@ namespace Fpp
             hidden = 0;
         }
 
-        private void OnEnable() { UnityEngine.SceneManagement.SceneManager.sceneLoaded += Reloaded; }
-        private void OnDisable() { UnityEngine.SceneManagement.SceneManager.sceneLoaded -= Reloaded; }
-        private void Reloaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode) { Rebuild(); }
+        private void OnEnable() { SceneManager.sceneLoaded += Reloaded; }
+        private void OnDisable() { SceneManager.sceneLoaded -= Reloaded; }
+        private void Reloaded(Scene scene, LoadSceneMode mode) { Rebuild(); }
 
         private void OnDestroy()
         {

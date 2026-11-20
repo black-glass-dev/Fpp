@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -58,7 +57,7 @@ namespace Fpp.Editor
                 "present=" + string.Join("; ", found) + Environment.NewLine +
                 "missing=" + (missing.Count == 0 ? "none" : string.Join("; ", missing)) + Environment.NewLine);
             if (missing.Count > 0)
-                throw new BuildFailedException("Runtime shader(s) missing before build: " + string.Join(", ", missing) + ". Add them to a built scene material or to Project Settings > Graphics > Always Included Shaders; otherwise Shader.Find returns null on the phone and Material(null) throws ArgumentNullException.");
+                throw new Exception("Runtime shader(s) missing before build: " + string.Join(", ", missing) + ". Add them to a built scene material or to Project Settings > Graphics > Always Included Shaders; otherwise Shader.Find returns null on the phone and Material(null) throws ArgumentNullException.");
         }
 
         private static bool IsAlwaysIncluded(Shader shader)
@@ -67,7 +66,7 @@ namespace Fpp.Editor
             if (assets == null || assets.Length == 0) return false;
             var serialized = new SerializedObject(assets[0]);
             var list = serialized.FindProperty("m_AlwaysIncludedShaders");
-            if (list == null) throw new BuildFailedException("GraphicsSettings always-included list contract changed");
+            if (list == null) throw new Exception("GraphicsSettings always-included list contract changed");
             for (int i = 0; i < list.arraySize; i++) if (list.GetArrayElementAtIndex(i).objectReferenceValue == shader) return true;
             return false;
         }
@@ -76,10 +75,10 @@ namespace Fpp.Editor
         public static int AddToAlwaysIncluded()
         {
             var assets = AssetDatabase.LoadAllAssetsAtPath(SettingsPath);
-            if (assets == null || assets.Length == 0) throw new BuildFailedException("GraphicsSettings.asset is not readable");
+            if (assets == null || assets.Length == 0) throw new Exception("GraphicsSettings.asset is not readable");
             var serialized = new SerializedObject(assets[0]);
             var list = serialized.FindProperty("m_AlwaysIncludedShaders");
-            if (list == null) throw new BuildFailedException("GraphicsSettings always-included list contract changed");
+            if (list == null) throw new Exception("GraphicsSettings always-included list contract changed");
             int added = 0;
             foreach (var name in Required)
             {
